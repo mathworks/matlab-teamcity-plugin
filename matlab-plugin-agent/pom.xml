@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>matlab-plugin</artifactId>
+    <groupId>com.mathworks.ci</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>matlab-plugin-agent</artifactId>
+  <packaging>jar</packaging>
+  <dependencies>
+    
+    <dependency>
+      <groupId>com.mathworks.ci</groupId>
+      <artifactId>matlab-plugin-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains.teamcity</groupId>
+      <artifactId>agent-api</artifactId>
+      <version>${teamcity-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jetbrains.teamcity</groupId>
+      <artifactId>tests-support</artifactId>
+      <version>${teamcity-version}</version>
+      <scope>test</scope>
+    </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.12.0</version>
+      </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.googlecode.maven-download-plugin</groupId>
+        <artifactId>download-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+          <execution>
+            <id>get-matlab-runner-scripts</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v0/run-matlab-command.zip</url>
+              <unpack>true</unpack>
+              <outputDirectory>${basedir}/src/main/resources</outputDirectory>
+              <skipCache>true</skipCache>
+              <overwrite>true</overwrite>
+            </configuration>
+          </execution>
+          <execution>
+            <id>get-matlab-gen-script</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://ssd.mathworks.com/supportfiles/ci/matlab-script-generator/v0/matlab-script-generator.zip</url>
+              <unpack>false</unpack>
+              <outputDirectory>${basedir}/src/main/resources</outputDirectory>
+              <skipCache>true</skipCache>
+              <overwrite>true</overwrite>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
