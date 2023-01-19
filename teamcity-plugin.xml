@@ -3,13 +3,13 @@
   <info>
     <name>matlab-plugin</name>
     <display-name>matlab-plugin</display-name>
-    <version>@Version@</version>
-    <description>Plugin description</description>
+    <version>1.0.0</version>
+    <description>TeamCity plugin to run MATLAB tasks </description>
     <download-url>Plugin download URL</download-url>
-    <email>Plugin author e-mail</email>
+    <email>continuous-integration@mathworks.com</email>
     <vendor>
-      <name>@VendorName@</name>
-      <url>@VendorURL@</url>
+      <name>MathWorks</name>
+      <url>https://www.mathworks.com/</url>
       <logo>Plugin vendor logo URL</logo>
     </vendor>
   </info>

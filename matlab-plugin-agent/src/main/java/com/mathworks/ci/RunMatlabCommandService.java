@@ -24,7 +24,7 @@ public class RunMatlabCommandService extends BuildServiceAdapter {
     String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
 
     //Add MATLAB into PATH Variable
-    MatlabTaskUtils.addMatlabInPath(getRunnerContext(), matlabPath);
+    MatlabTaskUtils.addToPath(getRunnerContext(), matlabPath);
     uniqueTmpFldrName = MatlabTaskUtils.getUniqueNameForRunnerFile().replaceAll("-", "_");
     final String uniqueCommandFileName = "cmd_" + uniqueTmpFldrName;
 

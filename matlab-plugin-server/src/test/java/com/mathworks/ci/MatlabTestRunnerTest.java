@@ -13,14 +13,14 @@ public class MatlabTestRunnerTest {
   }
 
   @Test
-  public void testBRunnerName() {
+  public void testRunnerName() {
     String buildName = "Run MATLAB Tests";
     Assert.assertTrue(buildName.equalsIgnoreCase(MatlabConstants.TEST_RUNNER_NAME));
   }
 
   @Test
   public void testRunnerDescription() {
-    String buildDescription = "Runs All MATLAB tests withing current workspace";
+    String buildDescription = "Runs all MATLAB tests within current workspace";
     Assert.assertTrue(buildDescription.equalsIgnoreCase(MatlabConstants.TEST_RUNNER_DESCRIPTION));
   }
 }

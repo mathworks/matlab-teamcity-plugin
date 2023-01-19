@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class MatlabTaskUtils {
 
-  public static void addMatlabInPath(BuildRunnerContext runner, String matlabPath) {
+  public static void addToPath(BuildRunnerContext runner, String matlabPath) {
     Map<String, String> envVar = runner.getBuildParameters().getEnvironmentVariables();
     for (String name : envVar.keySet()) {
       if (name.equalsIgnoreCase("Path")) {

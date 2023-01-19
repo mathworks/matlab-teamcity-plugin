@@ -29,7 +29,7 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
     String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_ROOT);
 
     //Add MATLAB into PATH Variable
-    MatlabTaskUtils.addMatlabInPath(getRunnerContext(), matlabPath);
+    MatlabTaskUtils.addToPath(getRunnerContext(), matlabPath);
     uniqueTmpFldrName = MatlabTaskUtils.getUniqueNameForRunnerFile();
 
     try {

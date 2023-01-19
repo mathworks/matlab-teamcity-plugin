@@ -4,7 +4,7 @@ public interface MatlabConstants {
 
   String TEST_RUNNER_TYPE = "matlabTestRunner";
   String TEST_RUNNER_NAME = "Run MATLAB Tests";
-  String TEST_RUNNER_DESCRIPTION = "Runs All MATLAB tests withing current workspace";
+  String TEST_RUNNER_DESCRIPTION = "Runs all MATLAB tests within current workspace";
   String MATLAB_COMMAND = "matlabCommand";
   String MATLAB_TASKS = "matlabTasks";
   String BUILD_RUNNER_TYPE = "matlabBuildRunner";
