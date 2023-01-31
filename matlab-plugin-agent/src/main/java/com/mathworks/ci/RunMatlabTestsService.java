@@ -145,6 +145,16 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
       args.add("'TAPTestResults','" + tapReport + "'");
     }
 
+    final String junitReport = runner.getRunnerParameters().get(MatlabConstants.JUNIT_REPORT);
+    if(junitReport != null) {
+      args.add("'JUnitTestResults','" + junitReport + "'");
+    }
+
+    final String coberturaCodeCoverage = runner.getRunnerParameters().get(MatlabConstants.COBERTURA_CODE_COV_REPORT);
+    if(coberturaCodeCoverage != null) {
+      args.add("'CoberturaCodeCoverage','" + coberturaCodeCoverage + "'");
+    }
+
     return String.join(",", args);
   }
 

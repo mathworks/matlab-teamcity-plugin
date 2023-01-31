@@ -25,17 +25,15 @@ public interface MatlabConstants {
   String PDF_REPORT = "pdfTestArtifact";
   String HTML_REPORT = "htmlTestArtifact";
   String TAP_REPORT = "tapTestArtifact";
+  String JUNIT_REPORT = "junitArtifact";
+  String COBERTURA_CODE_COV_REPORT = "coberturaCoverage";
   String TEMP_MATLAB_FOLDER_NAME = ".matlab";
-  // Matlab Runner files
   // Matlab Runner files
   static final String BAT_RUNNER_SCRIPT = "run_matlab_command.bat";
   static final String SHELL_RUNNER_SCRIPT = "run_matlab_command.sh";
   static final String MATLAB_SCRIPT_GENERATOR = "matlab-script-generator.zip";
   //Test runner file prefix
   static final String MATLAB_TEST_RUNNER_FILE_PREFIX = "runner_";
-
-  //Temporary MATLAB folder name in workspace
-
 
   static final String NEW_LINE = System.getProperty("line.separator");
 

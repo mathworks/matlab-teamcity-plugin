@@ -16,10 +16,13 @@
 <c:set var="pdfReport" value="<%=MatlabConstants.PDF_REPORT%>"/>
 <c:set var="htmlReport" value="<%=MatlabConstants.HTML_REPORT%>"/>
 <c:set var="tapReport" value="<%=MatlabConstants.TAP_REPORT%>"/>
+<c:set var="junitReport" value="<%=MatlabConstants.JUNIT_REPORT%>"/>
+<c:set var="coberturaCodeCov" value="<%=MatlabConstants.COBERTURA_CODE_COV_REPORT%>"/>
+
 
 <l:settingsGroup title="Specify MATLAB">
     <tr>
-        <th ><label for="${matlabPathId}">Path to MATLAB Executable: <l:star/></label></th>
+        <th ><label for="${matlabPathId}">Path to MATLAB executable: <l:star/></label></th>
         <td>
             <div class="posRel">
                 <props:textProperty name="${matlabPathId}" size="56" maxlength="100" />
@@ -33,7 +36,7 @@
 <l:settingsGroup title="Run MATLAB Tests">
     <tr>
         <th >
-            <label for="${sourceFolder}">Source Folder </label>
+            <label for="${sourceFolder}">Source folder: </label>
         </th>
         <td>
             <div class="posRel">
@@ -50,7 +53,7 @@
     </tr>
     <tr>
         <th >
-            <label for="${testByFolder}">By Folder </label>
+            <label for="${testByFolder}">By folder: </label>
         </th>
         <td>
             <div class="posRel">
@@ -63,7 +66,7 @@
 
     <tr>
         <th >
-            <label for="${testByTag}">By Tag </label>
+            <label for="${testByTag}">By tag: </label>
         </th>
         <td>
             <div class="posRel">
@@ -82,7 +85,7 @@
     <tr>
       <td>
          <props:checkboxProperty name="${runParallel}"/>
-         <b><label for="${runParallel}" className="longField">Use Parallel</label></b>
+         <b><label for="${runParallel}" className="longField">Use parallel</label></b>
       </td>
     </tr>
 
@@ -95,7 +98,7 @@
 
      <tr>
          <td>
-            <b><label for="${loggingLevel}">Logging Level</label></b>
+            <b><label for="${loggingLevel}">Logging level:</label></b>
          </td>
          <td>
             <props:selectProperty name="${loggingLevel}" className="longField">
@@ -109,7 +112,7 @@
 
       <tr>
          <td>
-            <b><label for="${outputDetail}">Output Detail</label></b>
+            <b><label for="${outputDetail}">Output detail:</label></b>
          </td>
          <td>
              <props:selectProperty name="${outputDetail}" className="longField">
@@ -129,7 +132,7 @@
 
     <tr>
         <th >
-            <label for="${pdfReport}">PDF Report </label>
+            <label for="${pdfReport}">PDF report: </label>
         </th>
         <td>
             <div class="posRel">
@@ -142,20 +145,46 @@
 
     <tr>
         <th >
-            <label for="${htmlReport}">HTML Test Report </label>
+            <label for="${htmlReport}">HTML test report: </label>
         </th>
         <td>
             <div class="posRel">
                 <props:textProperty name="${htmlReport}" size="56" maxlength="100" />
                 <span class="error" id="error_${htmlReport}"></span>
-                <span class="smallNote">Enter file path to generate HTML Test Report.</span>
+                <span class="smallNote">Enter file path to generate HTML test report.</span>
             </div>
         </td>
     </tr>
 
     <tr>
+         <th >
+             <label for="${junitReport}">JUnit-style test results: </label>
+         </th>
+         <td>
+                <div class="posRel">
+                    <props:textProperty name="${junitReport}" size="56" maxlength="100" />
+                    <span class="error" id="error_${htmlReport}"></span>
+                    <span class="smallNote">Enter file path to generate JUnit test report.</span>
+                </div>
+         </td>
+    </tr>
+
+    <tr>
+          <th >
+                 <label for="${coberturaCodeCov}">Cobertura code coverage: </label>
+          </th>
+         <td>
+                    <div class="posRel">
+                        <props:textProperty name="${coberturaCodeCov}" size="56" maxlength="100" />
+                        <span class="error" id="error_${coberturaCodeCov}"></span>
+                        <span class="smallNote">Enter file path to generate Cobertura code coverage report.</span>
+                    </div>
+         </td>
+    </tr>
+
+    <tr>
         <th >
-            <label for="${tapReport}">TAP Test Results </label>
+            <label for="${tapReport}">TAP test results: </label>
         </th>
         <td>
             <div class="posRel">
