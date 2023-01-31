@@ -48,7 +48,7 @@ public class MatlabTaskUtils {
       args.add(runnerShScript.getPath());
       args.add(matlabCommand);
 
-      copyFileInWorkspace(MatlabConstants.SHELL_RUNNER_SCRIPT, new File(runnerShScript.getPath()));
+      copyFileToWorkspace(MatlabConstants.SHELL_RUNNER_SCRIPT, new File(runnerShScript.getPath()));
       return new SimpleProgramCommandLine(runner, "/bin/bash", args);
 
     } else {
@@ -57,13 +57,13 @@ public class MatlabTaskUtils {
       args.add("/C");
       args.add(runnerScriptName.getPath());
       args.add(matlabCommand);
-      copyFileInWorkspace(MatlabConstants.BAT_RUNNER_SCRIPT, new File(runnerScriptName.getPath()));
+      copyFileToWorkspace(MatlabConstants.BAT_RUNNER_SCRIPT, new File(runnerScriptName.getPath()));
       return new SimpleProgramCommandLine(runner, "cmd.exe", args);
     }
 
   }
 
-  public static void copyFileInWorkspace(String sourceFile, File targetWorkspace) throws IOException {
+  public static void copyFileToWorkspace(String sourceFile, File targetWorkspace) throws IOException {
     InputStream is = MatlabTaskUtils.class.getClassLoader().getResourceAsStream(sourceFile);
     java.nio.file.Files.copy(is, targetWorkspace.toPath(), REPLACE_EXISTING);
     targetWorkspace.setExecutable(true);

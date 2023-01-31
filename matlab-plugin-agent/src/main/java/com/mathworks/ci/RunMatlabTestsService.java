@@ -35,7 +35,7 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
     try {
       //Copy Genscript in workspace
       File genscriptLocation = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
-      MatlabTaskUtils.copyFileInWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR,
+      MatlabTaskUtils.copyFileToWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR,
           new File(genscriptLocation, MatlabConstants.MATLAB_SCRIPT_GENERATOR));
 
       //Prepare workspace with temp script

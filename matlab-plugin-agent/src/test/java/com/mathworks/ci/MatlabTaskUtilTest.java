@@ -16,7 +16,7 @@ public class MatlabTaskUtilTest extends RunMatlabTestsService {
     File targetFile = new File("TestFile.txt");
     FileUtils.writeStringToFile(targetFile, "test");
     String actualFile = FileUtils.readFileToString(targetFile);
-    MatlabTaskUtils.copyFileInWorkspace("TestFile.txt", targetFile);
+    MatlabTaskUtils.copyFileToWorkspace("TestFile.txt", targetFile);
     Assert.assertFalse(actualFile.equalsIgnoreCase(FileUtils.readFileToString(targetFile)));
   }
 
