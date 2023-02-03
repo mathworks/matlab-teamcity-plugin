@@ -42,7 +42,6 @@ public interface MatlabConstants {
       "tmpDir=tempname;",
       "mkdir(tmpDir);",
       "addpath(tmpDir);",
-      "workspace = getenv('teamcity.build.workingDir');",
       "zipURL='${ZIP_FILE}';",
       "unzip(zipURL,tmpDir);",
       "testScript = genscript(${PARAMS});",
