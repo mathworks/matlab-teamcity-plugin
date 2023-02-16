@@ -2,18 +2,27 @@ package com.mathworks.ci;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.BuildServiceAdapter;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class RunMatlabTestsService extends BuildServiceAdapter {
@@ -137,7 +146,12 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
 
     final String htmlReport = runner.getRunnerParameters().get(MatlabConstants.HTML_REPORT);
     if (htmlReport != null) {
-      args.add("'HTMLTestReport','" + htmlReport + "'");
+      File reportFile = new File(htmlReport);
+      if (reportFile.getParentFile() != null) {
+        args.add("'HTMLTestReport','" + reportFile.getParentFile().getPath() + "'");
+      } else {
+        args.add("'HTMLTestReport','" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
+      }
     }
 
     final String tapReport = runner.getRunnerParameters().get(MatlabConstants.TAP_REPORT);
@@ -146,13 +160,18 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
     }
 
     final String junitReport = runner.getRunnerParameters().get(MatlabConstants.JUNIT_REPORT);
-    if(junitReport != null) {
+    if (junitReport != null) {
       args.add("'JUnitTestResults','" + junitReport + "'");
     }
 
     final String coberturaCodeCoverage = runner.getRunnerParameters().get(MatlabConstants.COBERTURA_CODE_COV_REPORT);
-    if(coberturaCodeCoverage != null) {
-      args.add("'CoberturaCodeCoverage','" + coberturaCodeCoverage + "'");
+    if (coberturaCodeCoverage != null) {
+      File reportFile = new File(coberturaCodeCoverage);
+      if (reportFile.getParentFile() != null) {
+        args.add("'HTMLCodeCoverage','" + reportFile.getParentFile().getPath() + "'");
+      } else {
+        args.add("'HTMLCodeCoverage','" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
+      }
     }
 
     return String.join(",", args);
@@ -175,6 +194,23 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
   }
 
   /**
+   * Zip util
+   */
+
+  private void zipFolder(File sourceFolderPath, File zipPath) throws Exception {
+    ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipPath.toPath().toFile()));
+    Files.walkFileTree(sourceFolderPath.toPath(), new SimpleFileVisitor<Path>() {
+      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        zip.putNextEntry(new ZipEntry(sourceFolderPath.toPath().relativize(file).toString()));
+        Files.copy(file, zip);
+        zip.closeEntry();
+        return FileVisitResult.CONTINUE;
+      }
+    });
+    zip.close();
+  }
+
+  /**
    * Cleanup the temporary folders
    *
    * @throws RunBuildException
@@ -183,10 +219,35 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
   public void afterProcessFinished() throws RunBuildException {
     File tempFolder = new File(getRunnerContext().getWorkingDirectory(), ".matlab/" + uniqueTmpFldrName);
     try {
+      // Delete all resource files used
       FileUtils.deleteDirectory(tempFolder);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+
+      final String htmlReport = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_REPORT);
+      if (htmlReport != null) {
+        File reportFolder = new File(htmlReport);
+        if (reportFolder.getParentFile() != null) {
+          zipFolder(new File(getRunnerContext().getWorkingDirectory(), reportFolder.getParentFile().getPath()),
+              new File(getRunnerContext().getWorkingDirectory(), htmlReport));
+        } else {
+          zipFolder(new File(getRunnerContext().getWorkingDirectory(), FilenameUtils.removeExtension(reportFolder.getName())),
+              new File(getRunnerContext().getWorkingDirectory(), htmlReport));
+        }
+      }
+
+      final String htmlCoverage = getRunnerContext().getRunnerParameters().get(MatlabConstants.COBERTURA_CODE_COV_REPORT);
+      if (htmlCoverage != null) {
+        File reportFolder = new File(htmlCoverage);
+        if (reportFolder.getParentFile() != null) {
+          zipFolder(new File(getRunnerContext().getWorkingDirectory(), reportFolder.getParentFile().getPath()),
+              new File(getRunnerContext().getWorkingDirectory(), htmlCoverage));
+        } else {
+          zipFolder(new File(getRunnerContext().getWorkingDirectory(), FilenameUtils.removeExtension(reportFolder.getName())),
+              new File(getRunnerContext().getWorkingDirectory(), htmlCoverage));
+        }
+      }
+      super.afterProcessFinished();
+    } catch (Exception e) {
+      throw new RunBuildException(e);
     }
-    super.afterProcessFinished();
   }
 }
