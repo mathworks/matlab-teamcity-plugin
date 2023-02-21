@@ -17,7 +17,7 @@
 <c:set var="htmlReport" value="<%=MatlabConstants.HTML_REPORT%>"/>
 <c:set var="tapReport" value="<%=MatlabConstants.TAP_REPORT%>"/>
 <c:set var="junitReport" value="<%=MatlabConstants.JUNIT_REPORT%>"/>
-<c:set var="coberturaCodeCov" value="<%=MatlabConstants.COBERTURA_CODE_COV_REPORT%>"/>
+<c:set var="htmlCodeCov" value="<%=MatlabConstants.HTML_CODE_COV_REPORT%>"/>
 
 
 <l:settingsGroup title="Specify MATLAB">
@@ -171,12 +171,12 @@
 
     <tr>
           <th >
-                 <label for="${coberturaCodeCov}">Cobertura code coverage: </label>
+                 <label for="${htmlCodeCov}">HTML code coverage: </label>
           </th>
          <td>
                     <div class="posRel">
-                        <props:textProperty name="${coberturaCodeCov}" size="56" maxlength="100" />
-                        <span class="error" id="error_${coberturaCodeCov}"></span>
+                        <props:textProperty name="${htmlCodeCov}" size="56" maxlength="100" />
+                        <span class="error" id="error_${htmlCodeCov}"></span>
                         <span class="smallNote">Enter file path to generate Cobertura code coverage report.</span>
                     </div>
          </td>

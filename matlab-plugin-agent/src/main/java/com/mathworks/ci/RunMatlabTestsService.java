@@ -147,11 +147,7 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
     final String htmlReport = runner.getRunnerParameters().get(MatlabConstants.HTML_REPORT);
     if (htmlReport != null) {
       File reportFile = new File(htmlReport);
-      if (reportFile.getParentFile() != null) {
-        args.add("'HTMLTestReport','" + reportFile.getParentFile().getPath() + "'");
-      } else {
-        args.add("'HTMLTestReport','" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
-      }
+      args.add("'HTMLTestReport','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
     }
 
     final String tapReport = runner.getRunnerParameters().get(MatlabConstants.TAP_REPORT);
@@ -164,14 +160,10 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
       args.add("'JUnitTestResults','" + junitReport + "'");
     }
 
-    final String coberturaCodeCoverage = runner.getRunnerParameters().get(MatlabConstants.COBERTURA_CODE_COV_REPORT);
-    if (coberturaCodeCoverage != null) {
-      File reportFile = new File(coberturaCodeCoverage);
-      if (reportFile.getParentFile() != null) {
-        args.add("'HTMLCodeCoverage','" + reportFile.getParentFile().getPath() + "'");
-      } else {
-        args.add("'HTMLCodeCoverage','" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
-      }
+    final String htmlCodeCoverage = runner.getRunnerParameters().get(MatlabConstants.HTML_CODE_COV_REPORT);
+    if (htmlCodeCoverage != null) {
+      File reportFile = new File(htmlCodeCoverage);
+      args.add("'HTMLCodeCoverage','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
     }
 
     return String.join(",", args);
@@ -219,32 +211,34 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
   public void afterProcessFinished() throws RunBuildException {
     File tempFolder = new File(getRunnerContext().getWorkingDirectory(), ".matlab/" + uniqueTmpFldrName);
     try {
-      // Delete all resource files used
-      FileUtils.deleteDirectory(tempFolder);
 
       final String htmlReport = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_REPORT);
       if (htmlReport != null) {
-        File reportFolder = new File(htmlReport);
+        File reportFolder = new File(getRunnerContext().getWorkingDirectory(), htmlReport);
         if (reportFolder.getParentFile() != null) {
-          zipFolder(new File(getRunnerContext().getWorkingDirectory(), reportFolder.getParentFile().getPath()),
-              new File(getRunnerContext().getWorkingDirectory(), htmlReport));
+
+          // Create folders to keep .zip files
+          reportFolder.getParentFile().mkdirs();
+          zipFolder(new File(tempFolder, FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
         } else {
-          zipFolder(new File(getRunnerContext().getWorkingDirectory(), FilenameUtils.removeExtension(reportFolder.getName())),
-              new File(getRunnerContext().getWorkingDirectory(), htmlReport));
+          zipFolder(new File(tempFolder, FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
         }
       }
 
-      final String htmlCoverage = getRunnerContext().getRunnerParameters().get(MatlabConstants.COBERTURA_CODE_COV_REPORT);
+      final String htmlCoverage = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_CODE_COV_REPORT);
       if (htmlCoverage != null) {
-        File reportFolder = new File(htmlCoverage);
+        File reportFolder = new File(getRunnerContext().getWorkingDirectory(), htmlCoverage);
         if (reportFolder.getParentFile() != null) {
-          zipFolder(new File(getRunnerContext().getWorkingDirectory(), reportFolder.getParentFile().getPath()),
-              new File(getRunnerContext().getWorkingDirectory(), htmlCoverage));
+
+          // Create folders to keep .zip files
+          reportFolder.getParentFile().mkdirs();
+          zipFolder(new File(tempFolder, FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
         } else {
-          zipFolder(new File(getRunnerContext().getWorkingDirectory(), FilenameUtils.removeExtension(reportFolder.getName())),
-              new File(getRunnerContext().getWorkingDirectory(), htmlCoverage));
+          zipFolder(new File(tempFolder, FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
         }
       }
+      // Delete all resource files used
+      FileUtils.deleteDirectory(tempFolder);
       super.afterProcessFinished();
     } catch (Exception e) {
       throw new RunBuildException(e);

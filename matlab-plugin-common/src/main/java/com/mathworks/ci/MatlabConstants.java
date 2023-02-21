@@ -26,7 +26,7 @@ public interface MatlabConstants {
   String HTML_REPORT = "htmlTestArtifact";
   String TAP_REPORT = "tapTestArtifact";
   String JUNIT_REPORT = "junitArtifact";
-  String COBERTURA_CODE_COV_REPORT = "coberturaCoverage";
+  String HTML_CODE_COV_REPORT = "htmlCoverage";
   String TEMP_MATLAB_FOLDER_NAME = ".matlab";
   String HTML_TEST_REPORT = "htmlTestReport";
   String HTML_CODE_COVERAGE_REPORT = "htmlCoverage";
