@@ -8,19 +8,32 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildRunnerContext;
+import jetbrains.buildServer.agent.runner.BuildServiceAdapter;
+import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * This is Utility class containing common methods which are shared across the MATLAB tasks
- */
-public class MatlabTaskUtils {
+public abstract class MatlabService extends BuildServiceAdapter {
 
-  public static void addToPath(BuildRunnerContext runner, String matlabPath) {
-    Map<String, String> envVar = runner.getBuildParameters().getEnvironmentVariables();
+  private BuildRunnerContext runner;
+
+  @NotNull
+  public abstract ProgramCommandLine makeProgramCommandLine() throws RunBuildException;
+
+  public BuildRunnerContext getRunner() {
+    return this.runner;
+  }
+
+  public void setRunner(BuildRunnerContext runner){
+    this.runner = runner;
+  }
+
+  public void addToPath(String matlabPath) {
+    Map<String, String> envVar = getRunner().getBuildParameters().getEnvironmentVariables();
     for (String name : envVar.keySet()) {
       if (name.equalsIgnoreCase("Path")) {
         String path = envVar.get(name);
@@ -34,14 +47,14 @@ public class MatlabTaskUtils {
     }
   }
 
-  public static String getUniqueNameForRunnerFile() {
+  public String getUniqueNameForRunnerFile() {
     return RandomStringUtils.randomAlphanumeric(8);
   }
 
-  public static SimpleProgramCommandLine getProcessToRunMatlabCommand(@NotNull BuildRunnerContext runner, String matlabCommand, String uniqueName)
+  public SimpleProgramCommandLine getProcessToRunMatlabCommand(String matlabCommand, String uniqueName)
       throws IOException, InterruptedException {
-    File tempWorkspceFldr = new File(runner.getWorkingDirectory() + "/" + MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
-    if (runner.getBuild().getAgentConfiguration().getSystemInfo().isUnix() || runner.getBuild().getAgentConfiguration().getSystemInfo().isMac()) {
+    File tempWorkspceFldr = new File(getRunner().getWorkingDirectory() + "/" + MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+    if (getRunner().getBuild().getAgentConfiguration().getSystemInfo().isUnix() || getRunner().getBuild().getAgentConfiguration().getSystemInfo().isMac()) {
       final File runnerShScript = new File(tempWorkspceFldr, uniqueName + "/run_matlab_command.sh");
       final List<String> args = new ArrayList<String>();
 
@@ -49,7 +62,7 @@ public class MatlabTaskUtils {
       args.add(matlabCommand);
 
       copyFileToWorkspace(MatlabConstants.SHELL_RUNNER_SCRIPT, new File(runnerShScript.getPath()));
-      return new SimpleProgramCommandLine(runner, "/bin/bash", args);
+      return new SimpleProgramCommandLine(getRunner(), "/bin/bash", args);
 
     } else {
       final File runnerScriptName = new File(tempWorkspceFldr, uniqueName + "\\run_matlab_command.bat");
@@ -58,16 +71,15 @@ public class MatlabTaskUtils {
       args.add(runnerScriptName.getPath());
       args.add(matlabCommand);
       copyFileToWorkspace(MatlabConstants.BAT_RUNNER_SCRIPT, new File(runnerScriptName.getPath()));
-      return new SimpleProgramCommandLine(runner, "cmd.exe", args);
+      return new SimpleProgramCommandLine(getRunner(), "cmd.exe", args);
     }
 
   }
 
   public static void copyFileToWorkspace(String sourceFile, File targetWorkspace) throws IOException {
-    InputStream is = MatlabTaskUtils.class.getClassLoader().getResourceAsStream(sourceFile);
+    InputStream is = MatlabService.class.getClassLoader().getResourceAsStream(sourceFile);
     java.nio.file.Files.copy(is, targetWorkspace.toPath(), REPLACE_EXISTING);
     targetWorkspace.setExecutable(true);
     IOUtils.closeQuietly(is);
   }
-
 }

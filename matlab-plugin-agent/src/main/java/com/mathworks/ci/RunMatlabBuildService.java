@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildRunnerContext;
-import jetbrains.buildServer.agent.runner.BuildServiceAdapter;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
-public class RunMatlabBuildService extends BuildServiceAdapter {
+public class RunMatlabBuildService extends MatlabService {
 
   private String uniqueTmpFldrName;
 
@@ -18,34 +17,34 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
     SimpleProgramCommandLine cmdExecutor = null;
+    setRunner(getRunnerContext());
 
     String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
 
     //Add MATLAB to PATH Variable
-    MatlabTaskUtils.addToPath(getRunnerContext(), matlabPath);
-    uniqueTmpFldrName = MatlabTaskUtils.getUniqueNameForRunnerFile().replaceAll("-", "_");
+    addToPath(matlabPath);
+    uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
     final String uniqueCommandFileName = "build_" + uniqueTmpFldrName;
 
     try {
       final File uniqueScriptPath = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
       final BuildRunnerContext runner = getRunnerContext();
-      cmdExecutor = MatlabTaskUtils.getProcessToRunMatlabCommand(runner, getCommand(), uniqueTmpFldrName);
+      cmdExecutor = getProcessToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
-      getLogger().progressMessage("Error creating files: " + e.getMessage());
+      throw new RunBuildException(e);
     } catch (InterruptedException e) {
-      getLogger().progressMessage("Error copying files: " + e.getMessage());
+      throw new RunBuildException(e);
     }
     return cmdExecutor;
   }
 
   private void createMatlabScriptByName(File uniqueTmpFolderPath, String uniqueScriptName) throws IOException, InterruptedException {
-    final BuildRunnerContext runner = getRunnerContext();
 
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqueTmpFolderPath, uniqueScriptName + ".m");
     final String cmd =
-        "cd '" + runner.getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + runner.getRunnerParameters()
+        "cd '" + getRunner().getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getRunner().getRunnerParameters()
             .get(MatlabConstants.MATLAB_TASKS);
 
     // Display the commands on console output for users reference
@@ -54,7 +53,7 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
   }
 
   public File getFilePathForUniqueFolder(BuildRunnerContext runner, String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(runner.getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+    File tmpDir = new File(getRunner().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     tmpDir.mkdir();
     File genscriptLocation = new File(tmpDir, uniqueTmpFldrName);
     genscriptLocation.mkdir();

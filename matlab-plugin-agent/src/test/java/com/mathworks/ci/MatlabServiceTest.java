@@ -2,28 +2,35 @@ package com.mathworks.ci;
 
 import java.io.File;
 import java.io.IOException;
+import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
-import org.testng.annotations.Test;
 
-public class MatlabTaskUtilTest extends RunMatlabTestsService {
+public class MatlabServiceTest extends MatlabService {
 
-  public MatlabTaskUtilTest() {
-  }
 
-  @Test
+
+
   public void testCopyCommand() throws IOException {
     File targetFile = new File("TestFile.txt");
     FileUtils.writeStringToFile(targetFile, "test");
     String actualFile = FileUtils.readFileToString(targetFile);
-    MatlabTaskUtils.copyFileToWorkspace("TestFile.txt", targetFile);
+    copyFileToWorkspace("TestFile.txt", targetFile);
     Assert.assertFalse(actualFile.equalsIgnoreCase(FileUtils.readFileToString(targetFile)));
   }
 
-  @Test
+
   public void testUniqueNameForFolder() {
-    String name1 = MatlabTaskUtils.getUniqueNameForRunnerFile();
-    String name2 = MatlabTaskUtils.getUniqueNameForRunnerFile();
+    String name1 = getUniqueNameForRunnerFile();
+    String name2 = getUniqueNameForRunnerFile();
     Assert.assertFalse(name1.equalsIgnoreCase(name2));
+  }
+
+  @NotNull
+  @Override
+  public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
+    return null;
   }
 }
