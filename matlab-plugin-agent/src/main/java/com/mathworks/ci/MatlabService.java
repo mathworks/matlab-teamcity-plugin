@@ -71,7 +71,7 @@ public abstract class MatlabService extends BuildServiceAdapter {
     return RandomStringUtils.randomAlphanumeric(8);
   }
 
-  public List<String> getCommandsToRunMatlabCommand(String matlabCommand, String uniqueName)
+  public List<String> getBashCommandsToRunMatlabCommand(String matlabCommand, String uniqueName)
       throws IOException, InterruptedException {
     final List<String> args = new ArrayList<String>();
     File tempWorkspceFldr = new File(getProjectDir() + "/" + MatlabConstants.TEMP_MATLAB_FOLDER_NAME);

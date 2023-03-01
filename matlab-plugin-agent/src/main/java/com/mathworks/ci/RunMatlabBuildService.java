@@ -20,21 +20,21 @@ public class RunMatlabBuildService extends MatlabService {
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
     setRunner(getRunnerContext());
 
-    return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
-  }
-
-  public List<String> getBashCommands() throws RunBuildException {
     String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
 
     //Add MATLAB to PATH Variable
     addToPath(matlabPath);
+    return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
+  }
+
+  public List<String> getBashCommands() throws RunBuildException {
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
     final String uniqueCommandFileName = "build_" + uniqueTmpFldrName;
 
     try {
       final File uniqueScriptPath = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
-      return getCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
+      return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
       throw new RunBuildException(e);
     } catch (InterruptedException e) {

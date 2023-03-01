@@ -31,16 +31,16 @@ public class RunMatlabTestsService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
+    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_ROOT);
+
+    //Add MATLAB into PATH Variable
+    addToPath(matlabPath);
     setRunner(getRunnerContext());
 
     return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
   }
 
   private List<String> getBashCommands(){
-    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_ROOT);
-
-    //Add MATLAB into PATH Variable
-    addToPath(matlabPath);
     uniqueTmpFldrName = getUniqueNameForRunnerFile();
 
     try {
@@ -50,7 +50,7 @@ public class RunMatlabTestsService extends MatlabService {
 
       //Prepare workspace with temp script
       prepareTmpFldr(genscriptLocation, getRunnerScript(MatlabConstants.TEST_RUNNER_SCRIPT, getGenScriptParametersForTests()));
-      return getCommandsToRunMatlabCommand(constructCommandForTest(genscriptLocation), uniqueTmpFldrName);
+      return getBashCommandsToRunMatlabCommand(constructCommandForTest(genscriptLocation), uniqueTmpFldrName);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

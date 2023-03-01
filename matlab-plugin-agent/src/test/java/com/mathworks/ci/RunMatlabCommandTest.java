@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
 public class RunMatlabCommandTest {
@@ -39,7 +41,7 @@ public class RunMatlabCommandTest {
     List<String> bashCommandsForLinux = new ArrayList<String>();
 
     @BeforeTest
-    public void testSetUp(){
+    public void testSetUp() throws RunBuildException {
         service = spy(RunMatlabCommandService.class);
 
         envMaps.put("MatlabPathKey", "/path/to/matlab");
@@ -51,7 +53,7 @@ public class RunMatlabCommandTest {
         //Path to run_matlab_command.bat script
         bashCommandsForWindows.add(currDir.getAbsolutePath()+File.separator +".matlab"+ File.separator + "tempFile" +File.separator + "run_matlab_command.bat");
         //Arguments to bat script file
-        bashCommandsForWindows.add("cd .matlab\\tempFile,cmd_tempFile");
+        bashCommandsForWindows.add("cd .matlab"+File.separator+uniqueName+",cmd_"+uniqueName);
 
         //Path to run_matlab_command.sh script
         bashCommandsForLinux.add(currDir.getAbsolutePath()+File.separator +".matlab"+ File.separator + "tempFile" +File.separator +"run_matlab_command.sh");
@@ -62,6 +64,16 @@ public class RunMatlabCommandTest {
         Mockito.doReturn(currDir).when(service).getProjectDir();
 
         Mockito.doReturn("tempFile").when(service).getUniqueNameForRunnerFile();
+        doAnswer((msg) -> {
+            verifyMsgToUser(msg.getArgument(0));
+            return null;
+        }).when(service).showMessageToUser(anyString());
+    }
+
+    private void verifyMsgToUser(String message) {
+        Assert.assertTrue(message.contains("Generating MATLAB script with content:\n"));
+        Assert.assertTrue(message.contains("matlabCommandByUser"));
+        Assert.assertTrue(message.contains(currDir.getAbsolutePath()));
     }
 
     @Test(description="Validate generated bash commands")
@@ -74,5 +86,33 @@ public class RunMatlabCommandTest {
         else{
             Assert.assertEquals(service.getBashCommands(), bashCommandsForLinux);
         }
+    }
+
+    @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
+    public void verifyContentOfMATLABScriptFile() throws IOException {
+        File matlabFolderInWorkspace = new File(currDir,".matlab");
+        Assert.assertTrue(matlabFolderInWorkspace.exists());
+
+        File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
+        Assert.assertTrue(tmpFolderInWorkspace.exists());
+
+        File matlabScriptFile = new File(tmpFolderInWorkspace, "cmd_"+uniqueName+".m");
+        Assert.assertTrue(matlabScriptFile.exists());
+
+        String matlabScriptFileContent = Files.readString(matlabScriptFile.toPath());
+        Assert.assertTrue(matlabScriptFileContent.contains("matlabCommandByUser"));
+        Assert.assertTrue(matlabScriptFileContent.contains("cd '"+currDir.getAbsolutePath() +"'"));
+    }
+
+    @Test(dependsOnMethods = { "verifyContentOfMATLABScriptFile" })
+    public void verifyCleanUp() {
+        File matlabFolderInWorkspace = new File(currDir,".matlab");
+        Assert.assertTrue(matlabFolderInWorkspace.exists());
+
+        File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
+        Assert.assertTrue(tmpFolderInWorkspace.exists());
+        service.cleanUp();
+
+        Assert.assertFalse(tmpFolderInWorkspace.exists());
     }
 }

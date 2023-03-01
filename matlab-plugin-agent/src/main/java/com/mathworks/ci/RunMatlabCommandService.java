@@ -38,7 +38,7 @@ public class RunMatlabCommandService extends MatlabService {
     try {
       final File uniqueScriptPath = getFilePathForUniqueFolder(uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
-      return getCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
+      return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
       throw new RunBuildException(e);
     } catch (InterruptedException e) {
@@ -55,7 +55,7 @@ public class RunMatlabCommandService extends MatlabService {
         .get(MatlabConstants.MATLAB_COMMAND);
 
     // Display the commands on console output for users reference
-//    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
+    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
   }
 
@@ -74,7 +74,7 @@ public class RunMatlabCommandService extends MatlabService {
     return "cd .matlab" +File.separator+ uniqueTmpFldrName + ",cmd_" + uniqueTmpFldrName;
   }
 
-  private void cleanUp(){
+  public void cleanUp(){
     File tempFolder = new File(getProjectDir(), ".matlab/" + uniqueTmpFldrName);
     try {
       FileUtils.deleteDirectory(tempFolder);
