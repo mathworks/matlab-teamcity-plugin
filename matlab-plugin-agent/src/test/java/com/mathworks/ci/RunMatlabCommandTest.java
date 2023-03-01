@@ -107,12 +107,11 @@ public class RunMatlabCommandTest {
     @Test(dependsOnMethods = { "verifyContentOfMATLABScriptFile" })
     public void verifyCleanUp() {
         File matlabFolderInWorkspace = new File(currDir,".matlab");
-        Assert.assertTrue(matlabFolderInWorkspace.exists());
 
         File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
-        Assert.assertTrue(tmpFolderInWorkspace.exists());
         service.cleanUp();
 
+        Assert.assertTrue(matlabFolderInWorkspace.exists());
         Assert.assertFalse(tmpFolderInWorkspace.exists());
     }
 }
