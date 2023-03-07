@@ -2,6 +2,9 @@ package com.mathworks.ci;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
@@ -16,43 +19,50 @@ public class RunMatlabCommandService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    final SimpleProgramCommandLine cmdExecutor;
     setRunner(getRunnerContext());
 
-    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
+    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
 
     //Add MATLAB into PATH Variable
     addToPath(matlabPath);
+
+    return new SimpleProgramCommandLine(getRunner(), getExecutable(),getBashCommands());
+  }
+
+  public List<String> getBashCommands() throws RunBuildException {
+
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
+
     final String uniqueCommandFileName = "cmd_" + uniqueTmpFldrName;
 
     try {
-      final File uniqueScriptPath = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
+      final File uniqueScriptPath = getFilePathForUniqueFolder(uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
-      cmdExecutor = getProcessToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
+      return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
       throw new RunBuildException(e);
     } catch (InterruptedException e) {
       throw new RunBuildException(e);
     }
-    return cmdExecutor;
   }
 
+
   private void createMatlabScriptByName(File uniqeTmpFolderPath, String uniqueScriptName) throws IOException, InterruptedException {
-    final BuildRunnerContext runner = getRunnerContext();
 
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqeTmpFolderPath, uniqueScriptName + ".m");
-    final String cmd = "cd '" + getRunner().getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + getRunner().getRunnerParameters()
+    final String cmd = "cd '" + getProjectDir().getAbsolutePath().replaceAll("'", "''") + "';\n" + getEnVars()
         .get(MatlabConstants.MATLAB_COMMAND);
 
     // Display the commands on console output for users reference
-    getLogger().progressMessage("Generating MATLAB script with content:\n" + cmd + "\n");
+    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
   }
 
-  public File getFilePathForUniqueFolder(BuildRunnerContext runner, String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getRunner().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+
+
+  public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
+    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     tmpDir.mkdir();
     File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
     genscriptlocation.mkdir();
@@ -61,7 +71,16 @@ public class RunMatlabCommandService extends MatlabService {
   }
 
   private String getCommand() {
-    return "cd .matlab/" + uniqueTmpFldrName + ",cmd_" + uniqueTmpFldrName;
+    return "cd .matlab" +File.separator+ uniqueTmpFldrName + ",cmd_" + uniqueTmpFldrName;
+  }
+
+  public void cleanUp(){
+    File tempFolder = new File(getProjectDir(), ".matlab/" + uniqueTmpFldrName);
+    try {
+      FileUtils.deleteDirectory(tempFolder);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -71,12 +90,7 @@ public class RunMatlabCommandService extends MatlabService {
    */
   @Override
   public void afterProcessFinished() throws RunBuildException {
-    File tempFolder = new File(getRunnerContext().getWorkingDirectory(), ".matlab/" + uniqueTmpFldrName);
-    try {
-      FileUtils.deleteDirectory(tempFolder);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    cleanUp();
     super.afterProcessFinished();
   }
 }

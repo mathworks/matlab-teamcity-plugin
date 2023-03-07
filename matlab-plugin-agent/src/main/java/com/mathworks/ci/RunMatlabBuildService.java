@@ -2,6 +2,8 @@ package com.mathworks.ci;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
@@ -16,27 +18,28 @@ public class RunMatlabBuildService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    SimpleProgramCommandLine cmdExecutor = null;
     setRunner(getRunnerContext());
 
     String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
 
     //Add MATLAB to PATH Variable
     addToPath(matlabPath);
+    return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
+  }
+
+  public List<String> getBashCommands() throws RunBuildException {
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
     final String uniqueCommandFileName = "build_" + uniqueTmpFldrName;
 
     try {
       final File uniqueScriptPath = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
-      final BuildRunnerContext runner = getRunnerContext();
-      cmdExecutor = getProcessToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
+      return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
       throw new RunBuildException(e);
     } catch (InterruptedException e) {
       throw new RunBuildException(e);
     }
-    return cmdExecutor;
   }
 
   private void createMatlabScriptByName(File uniqueTmpFolderPath, String uniqueScriptName) throws IOException, InterruptedException {
@@ -48,7 +51,7 @@ public class RunMatlabBuildService extends MatlabService {
             .get(MatlabConstants.MATLAB_TASKS);
 
     // Display the commands on console output for users reference
-    getLogger().progressMessage("Generating MATLAB script with content:\n" + cmd + "\n");
+    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
   }
 
