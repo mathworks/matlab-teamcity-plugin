@@ -2,9 +2,13 @@ package com.mathworks.ci;
 
 import jetbrains.buildServer.RunBuildException;
 import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
 import org.mockito.Mockito;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,49 +24,44 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
-public class RunMatlabCommandTest {
+public class RunMatlabBuildTest {
+    RunMatlabBuildService service;
+    static File currDir;
 
-    RunMatlabCommandService service;
-    File currDir;
-
-    String uniqueName = "tempFile";
+    static String uniqueName = "tempFile";
 
     Map<String, String> envMaps = new HashMap<>();
     List<String> bashCommands =  new ArrayList<String>();
+//    List<String> bashCommandsForLinux = new ArrayList<String>();
     boolean isWindows;
     String bashScriptFileName = "run_matlab_command.sh";
 
     @BeforeTest
-    public void testSetUp() throws RunBuildException {
-        service = spy(RunMatlabCommandService.class);
+    public void mockSetUp() throws RunBuildException {
+        service = spy(RunMatlabBuildService.class);
 
+        String systemTempFolder = System.getProperty("java.io.tmpdir");
+
+        currDir = new File(systemTempFolder, "tmpBuildProjectWorkspace");
+        Assert.assertTrue(currDir.mkdir());
         envMaps.put("MatlabPathKey", "/path/to/matlab");
         envMaps.put("PATH", "path1;path2");
-        envMaps.put("matlabCommand", "matlabCommandByUser");
+        envMaps.put("matlabTasks", "buildToolTask");
 
         isWindows = System.getProperty("os.name").startsWith("Windows");
         Mockito.doReturn(isWindows).when(service).isWindows();
-
-        String systemTempFolder = System.getProperty("java.io.tmpdir");
-        currDir = new File(systemTempFolder, "tmpCommandProjectWorkspace");
-        Assert.assertTrue(currDir.mkdir());
 
         if(isWindows) {
             bashCommands.add("/C");
             bashScriptFileName = "run_matlab_command.bat";
         }
-
         //Path to run_matlab_command.bat script
         bashCommands.add(currDir.getAbsolutePath()+File.separator +".matlab"+ File.separator + "tempFile" +File.separator + bashScriptFileName);
         //Arguments to bat script file
-        bashCommands.add("cd .matlab"+File.separator+uniqueName+",cmd_"+uniqueName);
+        bashCommands.add("cd .matlab"+File.separator+uniqueName+",build_"+uniqueName);
 
         Mockito.doReturn(envMaps).when(service).getEnVars();
         Mockito.doReturn(currDir).when(service).getProjectDir();
-        Mockito.doReturn(envMaps).when(service).getRunParameters();
-
-        isWindows = System.getProperty("os.name").startsWith("Windows");
-        Mockito.doReturn(isWindows).when(service).isWindows();
 
         Mockito.doReturn("tempFile").when(service).getUniqueNameForRunnerFile();
         doAnswer((msg) -> {
@@ -82,16 +81,24 @@ public class RunMatlabCommandTest {
 
     private void verifyMsgToUser(String message) {
         Assert.assertTrue(message.contains("Generating MATLAB script with content:\n"));
-        Assert.assertTrue(message.contains("matlabCommandByUser"));
+        Assert.assertTrue(message.contains("buildToolTask"));
         Assert.assertTrue(message.contains(currDir.getAbsolutePath()));
+    }
+
+    //Used to make the private methods accessible to test the methods
+    public Method getAccessibleMethod(String methodName) throws NoSuchMethodException {
+        Method method = RunMatlabBuildService.class.getDeclaredMethod(methodName, null);
+        method.setAccessible(true);
+        return method;
     }
 
     @Test(description="Validate generated bash commands")
     public void verifyGeneratedBashCommands() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        Method getBashCommands = RunMatlabCommandService.class.getDeclaredMethod("getBashCommands", null);
+        Method getBashCommands = RunMatlabBuildService.class.getDeclaredMethod("getBashCommands", null);
         getBashCommands.setAccessible(true);
+
         Assert.assertEquals(getBashCommands.invoke(service, null), bashCommands);
+
     }
 
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
@@ -102,18 +109,17 @@ public class RunMatlabCommandTest {
         File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
         Assert.assertTrue(tmpFolderInWorkspace.exists());
 
-        File matlabScriptFile = new File(tmpFolderInWorkspace, "cmd_"+uniqueName+".m");
+        File matlabScriptFile = new File(tmpFolderInWorkspace, "build_"+uniqueName+".m");
         Assert.assertTrue(matlabScriptFile.exists());
 
         String matlabScriptFileContent = Files.readString(matlabScriptFile.toPath());
-        Assert.assertTrue(matlabScriptFileContent.contains("matlabCommandByUser"));
+        Assert.assertTrue(matlabScriptFileContent.contains("buildToolTask"));
         Assert.assertTrue(matlabScriptFileContent.contains("cd '"+currDir.getAbsolutePath() +"'"));
     }
 
     @Test(dependsOnMethods = { "verifyContentOfMATLABScriptFile" })
     public void verifyCleanUp() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method cleanUp = RunMatlabCommandService.class.getDeclaredMethod("cleanUp", null);
-        cleanUp.setAccessible(true);
+        Method cleanUp = getAccessibleMethod("cleanUp");
         File matlabFolderInWorkspace = new File(currDir,".matlab");
 
         File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
@@ -121,16 +127,5 @@ public class RunMatlabCommandTest {
 
         Assert.assertTrue(matlabFolderInWorkspace.exists());
         Assert.assertFalse(tmpFolderInWorkspace.exists());
-    }
-
-    @Test
-    public void verifyExecutable(){
-        String executable = service.getExecutable();
-        if(isWindows){
-            Assert.assertEquals(executable, "cmd.exe");
-        }
-        else{
-            Assert.assertEquals(executable, "/bin/bash");
-        }
     }
 }

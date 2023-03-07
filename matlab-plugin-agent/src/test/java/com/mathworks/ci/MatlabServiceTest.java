@@ -7,10 +7,9 @@ import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class MatlabServiceTest extends MatlabService {
-
-
 
 
   public void testCopyCommand() throws IOException {

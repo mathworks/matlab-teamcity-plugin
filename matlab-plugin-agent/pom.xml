@@ -49,6 +49,7 @@
       <version>4.11.0</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -57,9 +58,16 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
+      </plugin>
+
+      <!-- Adding Jacoco dependency to generate code coverage reports-->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.6</version>
       </plugin>
       <plugin>
         <groupId>com.googlecode.maven-download-plugin</groupId>
@@ -93,6 +101,28 @@
               <skipCache>true</skipCache>
               <overwrite>true</overwrite>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Adding plugin to generate Jacoco code coverage report-->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.6</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
