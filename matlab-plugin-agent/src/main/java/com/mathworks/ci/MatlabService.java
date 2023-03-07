@@ -44,8 +44,6 @@ public abstract class MatlabService extends BuildServiceAdapter {
         } else {
           path = matlabPath + File.separator + "bin:" + path;
         }
-        getLogger().progressMessage(path);
-        getLogger().progressMessage(name);
         pathMap.put(name, path);
       }
     }

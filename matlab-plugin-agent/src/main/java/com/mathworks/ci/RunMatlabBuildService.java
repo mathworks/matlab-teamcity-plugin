@@ -20,19 +20,19 @@ public class RunMatlabBuildService extends MatlabService {
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
     setRunner(getRunnerContext());
 
-    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
+    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
 
     //Add MATLAB to PATH Variable
     addToPath(matlabPath);
     return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
   }
 
-  public List<String> getBashCommands() throws RunBuildException {
+  private List<String> getBashCommands() throws RunBuildException {
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
     final String uniqueCommandFileName = "build_" + uniqueTmpFldrName;
 
     try {
-      final File uniqueScriptPath = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
+      final File uniqueScriptPath = getFilePathForUniqueFolder(uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
       return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
@@ -47,7 +47,7 @@ public class RunMatlabBuildService extends MatlabService {
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqueTmpFolderPath, uniqueScriptName + ".m");
     final String cmd =
-        "cd '" + getRunner().getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getRunner().getRunnerParameters()
+        "cd '" + getProjectDir().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getEnVars()
             .get(MatlabConstants.MATLAB_TASKS);
 
     // Display the commands on console output for users reference
@@ -55,8 +55,8 @@ public class RunMatlabBuildService extends MatlabService {
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
   }
 
-  public File getFilePathForUniqueFolder(BuildRunnerContext runner, String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getRunner().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+  public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
+    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     tmpDir.mkdir();
     File genscriptLocation = new File(tmpDir, uniqueTmpFldrName);
     genscriptLocation.mkdir();
@@ -65,7 +65,16 @@ public class RunMatlabBuildService extends MatlabService {
   }
 
   private String getCommand() {
-    return "cd "+MatlabConstants.TEMP_MATLAB_FOLDER_NAME+"/" + uniqueTmpFldrName + ",build_" + uniqueTmpFldrName;
+    return "cd "+MatlabConstants.TEMP_MATLAB_FOLDER_NAME+ File.separator + uniqueTmpFldrName + ",build_" + uniqueTmpFldrName;
+  }
+
+  private void cleanUp() throws RunBuildException {
+    File tempFolder = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
+    try {
+      FileUtils.deleteDirectory(tempFolder);
+    } catch (IOException e) {
+      throw new RunBuildException(e);
+    }
   }
 
   /**
@@ -75,12 +84,7 @@ public class RunMatlabBuildService extends MatlabService {
    */
   @Override
   public void afterProcessFinished() throws RunBuildException {
-    File tempFolder = new File(getRunnerContext().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
-    try {
-      FileUtils.deleteDirectory(tempFolder);
-    } catch (IOException e) {
-      throw new RunBuildException(e);
-    }
+    cleanUp();
     super.afterProcessFinished();
   }
 }

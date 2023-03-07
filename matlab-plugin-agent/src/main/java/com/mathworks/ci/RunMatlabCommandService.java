@@ -16,20 +16,25 @@ public class RunMatlabCommandService extends MatlabService {
 
   private String uniqueTmpFldrName;
 
+  public RunMatlabCommandService() {
+
+  }
+
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
     setRunner(getRunnerContext());
 
-    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
 
-    //Add MATLAB into PATH Variable
-    addToPath(matlabPath);
 
     return new SimpleProgramCommandLine(getRunner(), getExecutable(),getBashCommands());
   }
 
-  public List<String> getBashCommands() throws RunBuildException {
+  private List<String> getBashCommands() throws RunBuildException {
+    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
+
+    //Add MATLAB into PATH Variable
+    addToPath(matlabPath);
 
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
 
@@ -74,7 +79,7 @@ public class RunMatlabCommandService extends MatlabService {
     return "cd .matlab" +File.separator+ uniqueTmpFldrName + ",cmd_" + uniqueTmpFldrName;
   }
 
-  public void cleanUp(){
+  private void cleanUp(){
     File tempFolder = new File(getProjectDir(), ".matlab/" + uniqueTmpFldrName);
     try {
       FileUtils.deleteDirectory(tempFolder);

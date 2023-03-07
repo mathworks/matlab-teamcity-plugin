@@ -31,21 +31,22 @@ public class RunMatlabTestsService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_ROOT);
-
-    //Add MATLAB into PATH Variable
-    addToPath(matlabPath);
     setRunner(getRunnerContext());
+
 
     return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
   }
 
   private List<String> getBashCommands(){
+    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
+
+    //Add MATLAB into PATH Variable
+    addToPath(matlabPath);
     uniqueTmpFldrName = getUniqueNameForRunnerFile();
 
     try {
       //Copy Genscript in workspace
-      File genscriptLocation = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
+      File genscriptLocation = getFilePathForUniqueFolder(uniqueTmpFldrName);
       copyFileToWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR, new File(genscriptLocation, MatlabConstants.MATLAB_SCRIPT_GENERATOR));
 
       //Prepare workspace with temp script
@@ -59,13 +60,13 @@ public class RunMatlabTestsService extends MatlabService {
   private String constructCommandForTest(File genscriptLocation) {
     final String matlabScriptName = "runner_" + genscriptLocation.getName();
     final String runCommand =
-        "addpath('" + genscriptLocation.getAbsolutePath().replaceAll("'", "''") + "'); " + matlabScriptName + ",delete('.matlab/"
-            + genscriptLocation.getName() + "/" + matlabScriptName + ".m'),runnerScript,rmdir(tmpDir,'s')";
+        "addpath('" + genscriptLocation.getAbsolutePath().replaceAll("'", "''") + "'); " + matlabScriptName + ",delete('.matlab" +
+            File.separator + genscriptLocation.getName() + File.separator + matlabScriptName + ".m'),runnerScript,rmdir(tmpDir,'s')";
     return runCommand;
   }
 
-  private File getFilePathForUniqueFolder(BuildRunnerContext runner, String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getRunner().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+  private File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
+    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     tmpDir.mkdir();
     File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
     genscriptlocation.mkdir();
@@ -98,69 +99,68 @@ public class RunMatlabTestsService extends MatlabService {
 
   private String getGenScriptParametersForTests() {
     final List<String> args = new ArrayList<String>();
-    final BuildRunnerContext runner = getRunnerContext();
     String outputDetail = "default";
     String loggingLevel = "default";
 
     args.add("'Test'");
-    final String filterByTests = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TEST);
+    final String filterByTests = getEnVars().get(MatlabConstants.FILTER_TEST);
     if (filterByTests != null) {
       args.add("'SelectByFolder'," + getCellarray(filterByTests));
     }
 
-    final String sourceFolders = getRunner().getRunnerParameters().get(MatlabConstants.SOURCE_FOLDER);
+    final String sourceFolders = getEnVars().get(MatlabConstants.SOURCE_FOLDER);
     if (sourceFolders != null) {
       args.add("'SourceFolder'," + getCellarray(sourceFolders));
     }
 
-    final String filterByTag = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TAG);
+    final String filterByTag = getEnVars().get(MatlabConstants.FILTER_TAG);
     if (filterByTag != null) {
       args.add("'SelectByTag','" + filterByTag + "'");
     }
 
-    final String runParallelTests = getRunner().getRunnerParameters().get(MatlabConstants.RUN_PARALLEL) == null ? "false"
-        : getRunner().getRunnerParameters().get(MatlabConstants.RUN_PARALLEL);
+    final String runParallelTests = getEnVars().get(MatlabConstants.RUN_PARALLEL) == null ? "false"
+        : getEnVars().get(MatlabConstants.RUN_PARALLEL);
     if (runParallelTests.equalsIgnoreCase("true") && runParallelTests != null) {
       args.add("'UseParallel'," + Boolean.valueOf(runParallelTests) + "");
     }
 
-    final String useStrict = getRunner().getRunnerParameters().get(MatlabConstants.STRICT) == null ? "false" : "true";
+    final String useStrict = getEnVars().get(MatlabConstants.STRICT) == null ? "false" : "true";
     if (useStrict.equalsIgnoreCase(useStrict)) {
       args.add("'Strict'," + Boolean.valueOf(useStrict));
     }
 
-    outputDetail = getRunner().getRunnerParameters().get(MatlabConstants.OUTPUT_DETAIL);
+    outputDetail = getEnVars().get(MatlabConstants.OUTPUT_DETAIL);
     if (!outputDetail.equalsIgnoreCase("default")) {
       args.add("'OutputDetail','" + outputDetail + "'");
     }
 
-    loggingLevel = getRunner().getRunnerParameters().get(MatlabConstants.LOGGING_LEVEL);
+    loggingLevel = getEnVars().get(MatlabConstants.LOGGING_LEVEL);
     if (!loggingLevel.equalsIgnoreCase("default")) {
       args.add("'LoggingLevel','" + loggingLevel + "'");
     }
 
-    final String pdfReport = getRunner().getRunnerParameters().get(MatlabConstants.PDF_REPORT);
+    final String pdfReport = getEnVars().get(MatlabConstants.PDF_REPORT);
     if (pdfReport != null) {
       args.add("'PDFTestReport','" + pdfReport + "'");
     }
 
-    final String htmlReport = getRunner().getRunnerParameters().get(MatlabConstants.HTML_REPORT);
+    final String htmlReport = getEnVars().get(MatlabConstants.HTML_REPORT);
     if (htmlReport != null) {
       File reportFile = new File(htmlReport);
       args.add("'HTMLTestReport','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
     }
 
-    final String tapReport = getRunner().getRunnerParameters().get(MatlabConstants.TAP_REPORT);
+    final String tapReport = getEnVars().get(MatlabConstants.TAP_REPORT);
     if (tapReport != null) {
       args.add("'TAPTestResults','" + tapReport + "'");
     }
 
-    final String junitReport = getRunner().getRunnerParameters().get(MatlabConstants.JUNIT_REPORT);
+    final String junitReport = getEnVars().get(MatlabConstants.JUNIT_REPORT);
     if (junitReport != null) {
       args.add("'JUnitTestResults','" + junitReport + "'");
     }
 
-    final String htmlCodeCoverage = getRunner().getRunnerParameters().get(MatlabConstants.HTML_CODE_COV_REPORT);
+    final String htmlCodeCoverage = getEnVars().get(MatlabConstants.HTML_CODE_COV_REPORT);
     if (htmlCodeCoverage != null) {
       File reportFile = new File(htmlCodeCoverage);
       args.add("'HTMLCodeCoverage','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
@@ -202,19 +202,13 @@ public class RunMatlabTestsService extends MatlabService {
     zip.close();
   }
 
-  /**
-   * Cleanup the temporary folders
-   *
-   * @throws RunBuildException
-   */
-  @Override
-  public void afterProcessFinished() throws RunBuildException {
-    File tempFolder = new File(getRunnerContext().getWorkingDirectory(), ".matlab/" + uniqueTmpFldrName);
+  private void cleanUp() throws RunBuildException {
+    File tempFolder = new File(getProjectDir(), ".matlab/" + uniqueTmpFldrName);
     try {
 
-      final String htmlReport = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_REPORT);
+      final String htmlReport = getEnVars().get(MatlabConstants.HTML_REPORT);
       if (htmlReport != null) {
-        File reportFolder = new File(getRunnerContext().getWorkingDirectory(), htmlReport);
+        File reportFolder = new File(getProjectDir(), htmlReport);
         if (reportFolder.getParentFile() != null) {
 
           // Create folders to keep .zip files
@@ -225,9 +219,9 @@ public class RunMatlabTestsService extends MatlabService {
         }
       }
 
-      final String htmlCoverage = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_CODE_COV_REPORT);
+      final String htmlCoverage = getEnVars().get(MatlabConstants.HTML_CODE_COV_REPORT);
       if (htmlCoverage != null) {
-        File reportFolder = new File(getRunnerContext().getWorkingDirectory(), htmlCoverage);
+        File reportFolder = new File(getProjectDir(), htmlCoverage);
         if (reportFolder.getParentFile() != null) {
 
           // Create folders to keep .zip files
@@ -239,9 +233,20 @@ public class RunMatlabTestsService extends MatlabService {
       }
       // Delete all resource files used
       FileUtils.deleteDirectory(tempFolder);
-      super.afterProcessFinished();
     } catch (Exception e) {
       throw new RunBuildException(e);
     }
   }
+
+  /**
+   * Cleanup the temporary folders
+   *
+   * @throws RunBuildException
+   */
+  @Override
+  public void afterProcessFinished() throws RunBuildException {
+    cleanUp();
+    super.afterProcessFinished();
+  }
+
 }
