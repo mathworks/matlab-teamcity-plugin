@@ -107,7 +107,7 @@ public class RunMatlabTestsTest {
         Assert.assertEquals(getBashCommands.invoke(service, null), bashCommands);
     }
 
-    public String getExpectedMATLABScriptCOntent(){
+    public String getExpectedMATLABScriptContent(){
         String expectedFileContent = "";
         return expectedFileContent;
     }
