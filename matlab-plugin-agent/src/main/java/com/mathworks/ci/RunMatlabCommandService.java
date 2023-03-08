@@ -3,10 +3,7 @@ package com.mathworks.ci;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-
 import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.FileUtils;
@@ -19,18 +16,15 @@ public class RunMatlabCommandService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    setRunner(getRunnerContext());
-
     String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
+    setRunner(getRunnerContext());
 
     //Add MATLAB into PATH Variable
     addToPath(matlabPath);
-
-    return new SimpleProgramCommandLine(getRunner(), getExecutable(),getBashCommands());
+    return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
   }
 
   public List<String> getBashCommands() throws RunBuildException {
-
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
 
     final String uniqueCommandFileName = "cmd_" + uniqueTmpFldrName;

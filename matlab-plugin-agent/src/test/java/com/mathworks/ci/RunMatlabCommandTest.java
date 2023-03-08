@@ -1,14 +1,9 @@
 package com.mathworks.ci;
 
-import jetbrains.buildServer.RunBuildException;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
-import javax.management.Descriptor;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,10 +11,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.spy;
+import jetbrains.buildServer.RunBuildException;
+import org.apache.commons.io.FileUtils;
+import org.mockito.Mockito;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 public class RunMatlabCommandTest {
 
@@ -99,7 +96,7 @@ public class RunMatlabCommandTest {
         File matlabScriptFile = new File(tmpFolderInWorkspace, "cmd_"+uniqueName+".m");
         Assert.assertTrue(matlabScriptFile.exists());
 
-        String matlabScriptFileContent = Files.readString(matlabScriptFile.toPath());
+        String matlabScriptFileContent = FileUtils.readFileToString(matlabScriptFile);
         Assert.assertTrue(matlabScriptFileContent.contains("matlabCommandByUser"));
         Assert.assertTrue(matlabScriptFileContent.contains("cd '"+currDir.getAbsolutePath() +"'"));
     }

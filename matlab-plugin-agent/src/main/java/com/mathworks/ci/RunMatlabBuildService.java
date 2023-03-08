@@ -18,9 +18,8 @@ public class RunMatlabBuildService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    setRunner(getRunnerContext());
-
     String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
+    setRunner(getRunnerContext());
 
     //Add MATLAB to PATH Variable
     addToPath(matlabPath);
