@@ -3,9 +3,7 @@ package com.mathworks.ci;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.FileUtils;
@@ -31,7 +29,7 @@ public class RunMatlabBuildService extends MatlabService {
     final String uniqueCommandFileName = "build_" + uniqueTmpFldrName;
 
     try {
-      final File uniqueScriptPath = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
+      final File uniqueScriptPath = getFilePathForUniqueFolder(uniqueTmpFldrName);
       createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
       return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
     } catch (IOException e) {
@@ -50,18 +48,10 @@ public class RunMatlabBuildService extends MatlabService {
             .get(MatlabConstants.MATLAB_TASKS);
 
     // Display the commands on console output for users reference
-    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
+    logMessage("Generating MATLAB script with content:\n" + cmd + "\n");
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
   }
 
-  public File getFilePathForUniqueFolder(BuildRunnerContext runner, String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getRunner().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
-    tmpDir.mkdir();
-    File genscriptLocation = new File(tmpDir, uniqueTmpFldrName);
-    genscriptLocation.mkdir();
-    genscriptLocation.setExecutable(true);
-    return genscriptLocation;
-  }
 
   private String getCommand() {
     return "cd "+MatlabConstants.TEMP_MATLAB_FOLDER_NAME+"/" + uniqueTmpFldrName + ",build_" + uniqueTmpFldrName;

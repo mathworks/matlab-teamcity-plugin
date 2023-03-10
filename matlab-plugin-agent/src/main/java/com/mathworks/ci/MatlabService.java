@@ -87,9 +87,17 @@ public abstract class MatlabService extends BuildServiceAdapter {
       args.add(runnerScriptName.getPath());
       args.add(matlabCommand);
       copyFileToWorkspace(MatlabConstants.BAT_RUNNER_SCRIPT, new File(runnerScriptName.getPath()));
-
     }
     return args;
+  }
+
+  public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
+    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+    tmpDir.mkdir();
+    File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
+    genscriptlocation.mkdir();
+    genscriptlocation.setExecutable(true);
+    return genscriptlocation;
   }
 
   public String getExecutable() {
@@ -111,7 +119,7 @@ public abstract class MatlabService extends BuildServiceAdapter {
     return getRunner().getWorkingDirectory();
   }
 
-  public void showMessageToUser(String msg) {
+  public void logMessage(String msg) {
     getLogger().progressMessage(msg);
   }
 

@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.FileUtils;
@@ -44,7 +43,7 @@ public class RunMatlabTestsService extends MatlabService {
 
     try {
       //Copy Genscript in workspace
-      File genscriptLocation = getFilePathForUniqueFolder(getRunnerContext(), uniqueTmpFldrName);
+      File genscriptLocation = getFilePathForUniqueFolder(uniqueTmpFldrName);
       copyFileToWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR, new File(genscriptLocation, MatlabConstants.MATLAB_SCRIPT_GENERATOR));
 
       //Prepare workspace with temp script
@@ -61,15 +60,6 @@ public class RunMatlabTestsService extends MatlabService {
         "addpath('" + genscriptLocation.getAbsolutePath().replaceAll("'", "''") + "'); " + matlabScriptName + ",delete('.matlab/"
             + genscriptLocation.getName() + "/" + matlabScriptName + ".m'),runnerScript,rmdir(tmpDir,'s')";
     return runCommand;
-  }
-
-  private File getFilePathForUniqueFolder(BuildRunnerContext runner, String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getRunner().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
-    tmpDir.mkdir();
-    File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
-    genscriptlocation.mkdir();
-    genscriptlocation.setExecutable(true);
-    return genscriptlocation;
   }
 
   // This method prepares the temp folder by coping all helper files in it.
@@ -97,7 +87,6 @@ public class RunMatlabTestsService extends MatlabService {
 
   private String getGenScriptParametersForTests() {
     final List<String> args = new ArrayList<String>();
-    final BuildRunnerContext runner = getRunnerContext();
     String outputDetail = "default";
     String loggingLevel = "default";
 
@@ -173,7 +162,7 @@ public class RunMatlabTestsService extends MatlabService {
     return getCellArrayFrmList(Arrays.asList(folderNames));
   }
 
-  public String getCellArrayFrmList(List<String> listOfStr) {
+  private String getCellArrayFrmList(List<String> listOfStr) {
     // Ignore empty string values in the list
     Predicate<String> isEmpty = String::isEmpty;
     Predicate<String> isNotEmpty = isEmpty.negate();

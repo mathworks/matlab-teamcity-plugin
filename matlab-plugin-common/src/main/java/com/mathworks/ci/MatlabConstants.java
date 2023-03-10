@@ -28,10 +28,6 @@ public interface MatlabConstants {
   String JUNIT_REPORT = "junitArtifact";
   String HTML_CODE_COV_REPORT = "htmlCoverage";
   String TEMP_MATLAB_FOLDER_NAME = ".matlab";
-  String HTML_TEST_REPORT = "htmlTestReport";
-  String HTML_CODE_COVERAGE_REPORT = "htmlCoverage";
-  String HTML_TEST_REPORT_ZIP_FILE = "htmlTestReport.zip";
-  String HTML_CODE_COVERAGE_ZIP_FILE =  "coverage.zip";
   // Matlab Runner files
   static final String BAT_RUNNER_SCRIPT = "run_matlab_command.bat";
   static final String SHELL_RUNNER_SCRIPT = "run_matlab_command.sh";

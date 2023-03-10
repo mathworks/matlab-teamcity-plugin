@@ -49,19 +49,8 @@ public class RunMatlabCommandService extends MatlabService {
         .get(MatlabConstants.MATLAB_COMMAND);
 
     // Display the commands on console output for users reference
-    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
+    logMessage("Generating MATLAB script with content:\n" + cmd + "\n");
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
-  }
-
-
-
-  public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
-    tmpDir.mkdir();
-    File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
-    genscriptlocation.mkdir();
-    genscriptlocation.setExecutable(true);
-    return genscriptlocation;
   }
 
   private String getCommand() {
