@@ -26,11 +26,13 @@ public class RunMatlabTestsTest {
     File currDir;
     String uniqueName = "tempFile";
 
-    Map<String, String> envMaps = new HashMap<>();
+    static Map<String, String> envMaps = new HashMap<>();
     List<String> bashCommands =  new ArrayList<String>();
 
     boolean isWindows;
     String bashScriptFileName = "run_matlab_command.sh";
+
+    static String genscriptArgs = "'Test','Strict',false";
 
     @BeforeTest
     public void testSetUp() throws RunBuildException {
@@ -47,11 +49,9 @@ public class RunMatlabTestsTest {
         envMaps.put("PATH", "path1;path2");
         envMaps.put("logOutputDetail", "Default");
         envMaps.put("logLoggingLevel", "Default");
-        envMaps.put("htmlCoverage", "coverage.zip");
-        envMaps.put("htmlTestArtifact", "coverage1.zip");
-        envMaps.put("junitArtifact", "tapreport.tap");
-
-
+//        envMaps.put("htmlCoverage", "coverage.zip");
+//        envMaps.put("htmlTestArtifact", "coverage1.zip");
+//        envMaps.put("junitArtifact", "tapreport.tap");
 
         isWindows = System.getProperty("os.name").startsWith("Windows");
         Mockito.doReturn(isWindows).when(service).isWindows();
@@ -135,4 +135,43 @@ public class RunMatlabTestsTest {
     public void cleanUp(){
 
     }
+
+    @DataProvider(name = "Various logging levels")
+    public static Object[][] loggingLevelData() {
+        Map<String, String> envMapsWithLoggingLevel = new HashMap<>(envMaps);
+        envMapsWithLoggingLevel.put("logLoggingLevel", "Terse");
+        String genScriptArgsWithLogginglevel = genscriptArgs + ",'LoggingLevel','Terse'";
+        return new Object[][] {{envMaps, genscriptArgs}, {envMapsWithLoggingLevel, genScriptArgsWithLogginglevel}};
+    }
+
+    @Test(dataProvider  = "Various logging levels")
+    public void genscriptArguments(Map<String, String> envMap, String expectedGenscriptArgs)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Mockito.doReturn(envMap).when(service).getEnVars();
+
+        Method getGenScriptParametersForTests = RunMatlabTestsService.class.getDeclaredMethod("getGenScriptParametersForTests", null);
+        getGenScriptParametersForTests.setAccessible(true);
+        String actualGenscriptArgs = (String) getGenScriptParametersForTests.invoke(service,null);
+        Assert.assertEquals(actualGenscriptArgs, expectedGenscriptArgs);
+    }
+
+//    filterTestByTag
+//    @DataProvider(name = "Filter by tag")
+//    public static Object[][] tagData() {
+//        Map<String, String> envMapsWithTag = new HashMap<>(envMaps);
+//        envMapsWithTag.put("filterTestByTag", "Tag");
+//        String genScriptArgsWithTag = genscriptArgs + ",'SelectByTag','Tag'";
+//        return new Object[][] {{envMaps, genscriptArgs}, {envMapsWithTag, genScriptArgsWithTag}};
+//    }
+//
+//    @Test(dataProvider  = "Filter by tag")
+//    public void genscriptArgumentsWithTag(Map<String, String> envMap, String expectedGenscriptArgs)
+//            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+//        Mockito.doReturn(envMap).when(service).getEnVars();
+//
+//        Method getGenScriptParametersForTests = RunMatlabTestsService.class.getDeclaredMethod("getGenScriptParametersForTests", null);
+//        getGenScriptParametersForTests.setAccessible(true);
+//        String actualGenscriptArgs = (String) getGenScriptParametersForTests.invoke(service,null);
+//        Assert.assertEquals(actualGenscriptArgs, expectedGenscriptArgs);
+//    }
 }

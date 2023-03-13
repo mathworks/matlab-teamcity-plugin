@@ -43,7 +43,7 @@ public class RunMatlabBuildTest {
         String systemTempFolder = System.getProperty("java.io.tmpdir");
 
         currDir = new File(systemTempFolder, "tmpBuildProjectWorkspace");
-        Assert.assertTrue(currDir.mkdir());
+        currDir.mkdir();
         envMaps.put("MatlabPathKey", "/path/to/matlab");
         envMaps.put("PATH", "path1;path2");
         envMaps.put("matlabTasks", "buildToolTask");

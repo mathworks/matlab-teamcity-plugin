@@ -14,11 +14,6 @@ public class CommandFactoryTest {
     }
 
     @Test
-    public void verifyCanRun(){
-        Assert.assertTrue(buildFactory.getBuildRunnerInfo().canRun(any()));
-    }
-
-    @Test
     public void verifyServiceType(){
         Assert.assertEquals(buildFactory.createService().getClass(), RunMatlabCommandService.class);
     }

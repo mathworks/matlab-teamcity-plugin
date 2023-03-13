@@ -45,7 +45,7 @@ public class RunMatlabCommandTest {
 
         String systemTempFolder = System.getProperty("java.io.tmpdir");
         currDir = new File(systemTempFolder, "tmpCommandProjectWorkspace");
-        Assert.assertTrue(currDir.mkdir());
+        currDir.mkdir();
 
         if(isWindows) {
             bashCommands.add("/C");

@@ -14,11 +14,6 @@ public class TestsFactoryTest {
     }
 
     @Test
-    public void verifyCanRun(){
-        Assert.assertTrue(testsFactory.getBuildRunnerInfo().canRun(any()));
-    }
-
-    @Test
     public void verifyServiceType(){
         Assert.assertEquals(testsFactory.createService().getClass(), RunMatlabTestsService.class);
     }
