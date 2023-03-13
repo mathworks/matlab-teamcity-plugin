@@ -28,12 +28,12 @@ public abstract class MatlabService extends BuildServiceAdapter {
     return this.runner;
   }
 
-  public void setRunner(BuildRunnerContext runner){
+  public void setRunner(BuildRunnerContext runner) {
     this.runner = runner;
   }
 
   public Map<String, String> getUpdatedPath(String matlabPath) {
-    Map<String, String> pathMap = new HashMap<>();;
+    Map<String, String> pathMap = new HashMap<>();
     Map<String, String> envVar = getRunParameters();
 
     for (String name : envVar.keySet()) {
@@ -50,15 +50,15 @@ public abstract class MatlabService extends BuildServiceAdapter {
     return pathMap;
   }
 
-  public Map<String, String> getRunParameters(){
+  public Map<String, String> getRunParameters() {
     return getRunner().getBuildParameters().getEnvironmentVariables();
   }
 
-  public Map<String, String> getEnVars(){
+  public Map<String, String> getEnVars() {
     return getRunnerParameters();
   }
 
-  public void addToPath(String matlabPath){
+  public void addToPath(String matlabPath) {
     Map<String, String> path = getUpdatedPath(matlabPath);
     String name = path.entrySet().iterator().next().getKey();
     String value = path.entrySet().iterator().next().getValue();
@@ -69,8 +69,7 @@ public abstract class MatlabService extends BuildServiceAdapter {
     return RandomStringUtils.randomAlphanumeric(8);
   }
 
-  public List<String> getBashCommandsToRunMatlabCommand(String matlabCommand, String uniqueName)
-      throws IOException, InterruptedException {
+  public List<String> getBashCommandsToRunMatlabCommand(String matlabCommand, String uniqueName) throws IOException, InterruptedException {
     final List<String> args = new ArrayList<String>();
     File tempWorkspceFldr = new File(getProjectDir() + "/" + MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     if (!isWindows()) {
@@ -88,31 +87,39 @@ public abstract class MatlabService extends BuildServiceAdapter {
       args.add(runnerScriptName.getPath());
       args.add(matlabCommand);
       copyFileToWorkspace(MatlabConstants.BAT_RUNNER_SCRIPT, new File(runnerScriptName.getPath()));
-
     }
     return args;
   }
 
-  public String getExecutable(){
-    if(isWindows()){
+  public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
+    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+    tmpDir.mkdir();
+    File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
+    genscriptlocation.mkdir();
+    genscriptlocation.setExecutable(true);
+    return genscriptlocation;
+  }
+
+  public String getExecutable() {
+    if (isWindows()) {
       return "cmd.exe";
     }
     return "/bin/bash";
   }
 
-  public Boolean isWindows(){
-    if(getRunner().getBuild().getAgentConfiguration().getSystemInfo().isWindows()){
+  public Boolean isWindows() {
+    if (getRunner().getBuild().getAgentConfiguration().getSystemInfo().isWindows()) {
       return true;
     }
     return false;
   }
 
 
-  public File getProjectDir(){
+  public File getProjectDir() {
     return getRunner().getWorkingDirectory();
   }
 
-  public void showMessageToUser(String msg){
+  public void logMessage(String msg) {
     getLogger().progressMessage(msg);
   }
 

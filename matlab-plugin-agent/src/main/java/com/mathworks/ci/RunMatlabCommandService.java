@@ -3,10 +3,7 @@ package com.mathworks.ci;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-
 import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
 import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
 import org.apache.commons.io.FileUtils;
@@ -23,19 +20,15 @@ public class RunMatlabCommandService extends MatlabService {
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    setRunner(getRunnerContext());
-
-
-
-    return new SimpleProgramCommandLine(getRunner(), getExecutable(),getBashCommands());
-  }
-
-  private List<String> getBashCommands() throws RunBuildException {
     String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
+    setRunner(getRunnerContext());
 
     //Add MATLAB into PATH Variable
     addToPath(matlabPath);
+    return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
+  }
 
+  public List<String> getBashCommands() throws RunBuildException {
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
 
     final String uniqueCommandFileName = "cmd_" + uniqueTmpFldrName;
@@ -60,19 +53,8 @@ public class RunMatlabCommandService extends MatlabService {
         .get(MatlabConstants.MATLAB_COMMAND);
 
     // Display the commands on console output for users reference
-    showMessageToUser("Generating MATLAB script with content:\n" + cmd + "\n");
+    logMessage("Generating MATLAB script with content:\n" + cmd + "\n");
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
-  }
-
-
-
-  public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
-    tmpDir.mkdir();
-    File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
-    genscriptlocation.mkdir();
-    genscriptlocation.setExecutable(true);
-    return genscriptlocation;
   }
 
   private String getCommand() {

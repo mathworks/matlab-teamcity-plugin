@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jetbrains.buildServer.RunBuildException;
+import org.apache.commons.io.FileUtils;
+import org.mockito.Mockito;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -28,7 +34,7 @@ public class RunMatlabCommandTest {
     String uniqueName = "tempFile";
 
     Map<String, String> envMaps = new HashMap<>();
-    List<String> bashCommands =  new ArrayList<String>();
+    List<String> bashCommands = new ArrayList<String>();
     boolean isWindows;
     String bashScriptFileName = "run_matlab_command.sh";
 
@@ -47,15 +53,15 @@ public class RunMatlabCommandTest {
         currDir = new File(systemTempFolder, "tmpCommandProjectWorkspace");
         currDir.mkdir();
 
-        if(isWindows) {
+        if (isWindows) {
             bashCommands.add("/C");
             bashScriptFileName = "run_matlab_command.bat";
         }
 
         //Path to run_matlab_command.bat script
-        bashCommands.add(currDir.getAbsolutePath()+File.separator +".matlab"+ File.separator + "tempFile" +File.separator + bashScriptFileName);
+        bashCommands.add(currDir.getAbsolutePath() + File.separator + ".matlab" + File.separator + "tempFile" + File.separator + bashScriptFileName);
         //Arguments to bat script file
-        bashCommands.add("cd .matlab"+File.separator+uniqueName+",cmd_"+uniqueName);
+        bashCommands.add("cd .matlab" + File.separator + uniqueName + ",cmd_" + uniqueName);
 
         Mockito.doReturn(envMaps).when(service).getEnVars();
         Mockito.doReturn(currDir).when(service).getProjectDir();
@@ -68,7 +74,7 @@ public class RunMatlabCommandTest {
         doAnswer((msg) -> {
             verifyMsgToUser(msg.getArgument(0));
             return null;
-        }).when(service).showMessageToUser(anyString());
+        }).when(service).logMessage(anyString());
         doAnswer((path) -> {
             service.getUpdatedPath(path.getArgument(0));
             return null;
@@ -80,41 +86,43 @@ public class RunMatlabCommandTest {
         FileUtils.deleteDirectory(currDir);
     }
 
+
     private void verifyMsgToUser(String message) {
         Assert.assertTrue(message.contains("Generating MATLAB script with content:\n"));
         Assert.assertTrue(message.contains("matlabCommandByUser"));
         Assert.assertTrue(message.contains(currDir.getAbsolutePath()));
     }
 
-    @Test(description="Validate generated bash commands")
-    public void verifyGeneratedBashCommands() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    @Test(description = "Validate generated bash commands")
+    public void verifyGeneratedBashCommands() throws
+            RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         Method getBashCommands = RunMatlabCommandService.class.getDeclaredMethod("getBashCommands", null);
         getBashCommands.setAccessible(true);
         Assert.assertEquals(getBashCommands.invoke(service, null), bashCommands);
     }
 
-    @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
+    @Test(dependsOnMethods = {"verifyGeneratedBashCommands"})
     public void verifyContentOfMATLABScriptFile() throws IOException {
-        File matlabFolderInWorkspace = new File(currDir,".matlab");
+        File matlabFolderInWorkspace = new File(currDir, ".matlab");
         Assert.assertTrue(matlabFolderInWorkspace.exists());
 
         File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
         Assert.assertTrue(tmpFolderInWorkspace.exists());
 
-        File matlabScriptFile = new File(tmpFolderInWorkspace, "cmd_"+uniqueName+".m");
+        File matlabScriptFile = new File(tmpFolderInWorkspace, "cmd_" + uniqueName + ".m");
         Assert.assertTrue(matlabScriptFile.exists());
 
-        String matlabScriptFileContent = Files.readString(matlabScriptFile.toPath());
+        String matlabScriptFileContent = FileUtils.readFileToString(matlabScriptFile);
         Assert.assertTrue(matlabScriptFileContent.contains("matlabCommandByUser"));
-        Assert.assertTrue(matlabScriptFileContent.contains("cd '"+currDir.getAbsolutePath() +"'"));
+        Assert.assertTrue(matlabScriptFileContent.contains("cd '" + currDir.getAbsolutePath() + "'"));
     }
 
-    @Test(dependsOnMethods = { "verifyContentOfMATLABScriptFile" })
+    @Test(dependsOnMethods = {"verifyContentOfMATLABScriptFile"})
     public void verifyCleanUp() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method cleanUp = RunMatlabCommandService.class.getDeclaredMethod("cleanUp", null);
         cleanUp.setAccessible(true);
-        File matlabFolderInWorkspace = new File(currDir,".matlab");
+        File matlabFolderInWorkspace = new File(currDir, ".matlab");
 
         File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
         cleanUp.invoke(service, null);
@@ -124,12 +132,11 @@ public class RunMatlabCommandTest {
     }
 
     @Test
-    public void verifyExecutable(){
+    public void verifyExecutable() {
         String executable = service.getExecutable();
-        if(isWindows){
+        if (isWindows) {
             Assert.assertEquals(executable, "cmd.exe");
-        }
-        else{
+        }else {
             Assert.assertEquals(executable, "/bin/bash");
         }
     }
