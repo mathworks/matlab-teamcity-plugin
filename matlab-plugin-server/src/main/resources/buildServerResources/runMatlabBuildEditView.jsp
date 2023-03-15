@@ -16,7 +16,7 @@
         <td>
             <div class="posRel">
                 <props:textProperty name="${matlabRoot}" size="56" maxlength="100" />
-                <span class="smallNote">Enter path to matlab executable specific to the node.</span>
+                <span class="smallNote">Specify the path to your MATLAB executable.</span>
                 <span class="error" id="error_${matlabRoot}"></span>
             </div>
         </td>
@@ -33,7 +33,7 @@
             <div class="posRel">
                 <props:textProperty name="${matlabTasks}" size="56" maxlength="100" />
                 <span class="error" id="error_${matlabTasks}"></span>
-                <span class="smallNote">Insert a space-separated list of tasks to run in the Tasks box. If not specified, the action runs the default tasks in buildfile.m as well as all the tasks on which they depend.</span>
+                <span class="smallNote">Specify space-separated list of MATLAB build tasks to execute.</span>
             </div>
         </td>
     </tr>

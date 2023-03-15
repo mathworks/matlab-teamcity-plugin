@@ -68,10 +68,6 @@ public class RunMatlabBuildTest {
             verifyMsgToUser(msg.getArgument(0));
             return null;
         }).when(service).logMessage(anyString());
-        doAnswer((path) -> {
-            service.getUpdatedPath(path.getArgument(0));
-            return null;
-        }).when(service).addToPath(anyString());
     }
 
     @AfterTest

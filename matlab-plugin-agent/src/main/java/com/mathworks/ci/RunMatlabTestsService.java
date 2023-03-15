@@ -25,6 +25,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class RunMatlabTestsService extends MatlabService {
 
+  public void setUniqueTmpFldrName(String uniqueTmpFldrName) {
+    this.uniqueTmpFldrName = uniqueTmpFldrName;
+  }
+
   private String uniqueTmpFldrName;
 
   @NotNull
@@ -39,11 +43,7 @@ public class RunMatlabTestsService extends MatlabService {
   }
 
   private List<String> getBashCommands(){
-    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
-
-    //Add MATLAB into PATH Variable
-    addToPath(matlabPath);
-    uniqueTmpFldrName = getUniqueNameForRunnerFile();
+    setUniqueTmpFldrName(getUniqueNameForRunnerFile());
 
     try {
       //Copy Genscript in workspace
@@ -91,8 +91,6 @@ public class RunMatlabTestsService extends MatlabService {
 
   private String getGenScriptParametersForTests() {
     final List<String> args = new ArrayList<String>();
-    String outputDetail = "default";
-    String loggingLevel = "default";
 
     args.add("'Test'");
     final String filterByTests = getEnVars().get(MatlabConstants.FILTER_TEST);
@@ -121,12 +119,13 @@ public class RunMatlabTestsService extends MatlabService {
       args.add("'Strict'," + Boolean.valueOf(useStrict));
     }
 
-    outputDetail = getEnVars().get(MatlabConstants.OUTPUT_DETAIL);
+    String outputDetail = getEnVars().get(MatlabConstants.OUTPUT_DETAIL);
     if (!outputDetail.equalsIgnoreCase("default")) {
       args.add("'OutputDetail','" + outputDetail + "'");
     }
 
-    loggingLevel = getEnVars().get(MatlabConstants.LOGGING_LEVEL);
+    String loggingLevel = getEnVars().get(MatlabConstants.LOGGING_LEVEL);
+
     if (!loggingLevel.equalsIgnoreCase("default")) {
       args.add("'LoggingLevel','" + loggingLevel + "'");
     }

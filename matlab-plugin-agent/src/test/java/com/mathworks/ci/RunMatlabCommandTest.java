@@ -39,8 +39,9 @@ public class RunMatlabCommandTest {
     String bashScriptFileName = "run_matlab_command.sh";
 
     @BeforeTest
-    public void testSetUp() throws RunBuildException {
+    public void testSetUp() throws RunBuildException, IOException {
         service = spy(RunMatlabCommandService.class);
+        currDir = Files.createTempDirectory("projectDir").toFile();
 
         envMaps.put("MatlabPathKey", "/path/to/matlab");
         envMaps.put("PATH", "path1;path2");
@@ -75,10 +76,6 @@ public class RunMatlabCommandTest {
             verifyMsgToUser(msg.getArgument(0));
             return null;
         }).when(service).logMessage(anyString());
-        doAnswer((path) -> {
-            service.getUpdatedPath(path.getArgument(0));
-            return null;
-        }).when(service).addToPath(anyString());
     }
 
     @AfterTest

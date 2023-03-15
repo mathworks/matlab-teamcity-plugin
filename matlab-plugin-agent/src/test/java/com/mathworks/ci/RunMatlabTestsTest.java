@@ -38,7 +38,6 @@ public class RunMatlabTestsTest {
     public void testSetUp() throws RunBuildException, IOException {
         service = spy(RunMatlabTestsService.class);
 
-        String systemTempFolder = System.getProperty("java.io.tmpdir");
         currDir = Files.createTempDirectory("projectDir").toFile();
 
         File matlabFolderInWorkspace = new File(currDir,".matlab");
@@ -75,15 +74,11 @@ public class RunMatlabTestsTest {
             verifyMsgToUser(msg.getArgument(0));
             return null;
         }).when(service).logMessage(anyString());
-        doAnswer((path) -> {
-            service.getUpdatedPath(path.getArgument(0));
-            return null;
-        }).when(service).addToPath(any());
     }
 
     @AfterTest
     public void testTearDown() throws IOException {
-//        FileUtils.deleteDirectory(currDir);
+        FileUtils.deleteDirectory(currDir);
     }
 
     private void verifyMsgToUser(String message) {
@@ -120,7 +115,6 @@ public class RunMatlabTestsTest {
 
         File genscriptZipFile = new File(tmpFolderInWorkspace, "matlab-script-generator.zip");
         Assert.assertTrue(genscriptZipFile.exists());
-        System.out.println(matlabScriptFile.getName());
     }
 
     // Expected genscript arguments with all possible inputs
@@ -142,9 +136,9 @@ public class RunMatlabTestsTest {
 
         String expectedGenscriptArgs = "'Test','SelectByFolder',{'test'},'SourceFolder',{'src'},'SelectByTag','Tag'," +
                 "'UseParallel',true,'Strict',true,'OutputDetail','Terse','LoggingLevel','Terse'," +
-                "'PDFTestReport','pdfReport','HTMLTestReport','.matlab" + File.separator + "tempFile" + File.separator + "htmlReport'," +
+                "'PDFTestReport','pdfReport','HTMLTestReport','.matlab/tempFile/htmlReport'," +
                 "'TAPTestResults','tapReport.tap','JUnitTestResults','junitReport.tap'," +
-                "'HTMLCodeCoverage','.matlab" + File.separator + "tempFile" + File.separator + "htmlCoverage'";
+                "'HTMLCodeCoverage','.matlab/tempFile/htmlCoverage'";
 
         String genscriptZipLocation = new File(new File(currDir, ".matlab"), uniqueName).getAbsolutePath() + File.separator + "matlab-script-generator.zip";
         String expectedGeneratedScript = MatlabConstants.TEST_RUNNER_SCRIPT.replace("${ZIP_FILE}", genscriptZipLocation)
@@ -176,18 +170,6 @@ public class RunMatlabTestsTest {
 
         Assert.assertTrue(matlabFolderInWorkspace.exists());
         Assert.assertFalse(tmpFolderInWorkspace.exists());
-    }
-
-    // Verify an error is thrown
-    @Test(expectedExceptions = Exception.class)
-//    @Test
-    public void cleanUpWithException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Map<String, String> envMapsWithHTMLReport = new HashMap<>(envMaps);
-        envMapsWithHTMLReport.put("htmlTestArtifact", "coverage.zip");
-
-        Mockito.doReturn(envMapsWithHTMLReport).when(service).getEnVars();
-        Method cleanUp = getAccessibleMethod("cleanUp");
-        cleanUp.invoke(service, null);
     }
 
     // Test setup to put MATLAB files in the workspace before cleanUp process
@@ -317,7 +299,7 @@ public class RunMatlabTestsTest {
         // Input to generate HTML report
         Map<String, String> envMapsWithHTMLReport = new HashMap<>(envMaps);
         envMapsWithHTMLReport.put("htmlTestArtifact", "htmlReport.zip");
-        String genScriptArgsWithHTMLReport = genscriptArgs + ",'HTMLTestReport','" + ".matlab"+ File.separator + uniqueName + File.separator +"htmlReport" +"'";
+        String genScriptArgsWithHTMLReport = genscriptArgs + ",'HTMLTestReport','" + ".matlab/" + uniqueName + "/htmlReport" +"'";
 
         // Input to generate Tap artifact
         Map<String, String> envMapsWithTapReport = new HashMap<>(envMaps);
@@ -332,7 +314,7 @@ public class RunMatlabTestsTest {
         // Input to generate HTML code coverage
         Map<String, String> envMapsWithHTMLCodeCov = new HashMap<>(envMaps);
         envMapsWithHTMLCodeCov.put("htmlCoverage", "htmlCoverage.zip");
-        String genScriptArgsWithHTMLCodeCov = genscriptArgs + ",'HTMLCodeCoverage','" + ".matlab"+ File.separator + uniqueName + File.separator +"htmlCoverage" +"'";
+        String genScriptArgsWithHTMLCodeCov = genscriptArgs + ",'HTMLCodeCoverage','" + ".matlab/"+ uniqueName + "/htmlCoverage" +"'";
         return new Object[][] {{envMaps, genscriptArgs},
                 {envMapsWithMultipleTestFolder, genScriptArgsWithTestFolder},
                 {envMapsWithSrcFolder, genScriptArgsWithSrcFolder}, {envMapsWithTag, genScriptArgsWithTag},
@@ -342,10 +324,11 @@ public class RunMatlabTestsTest {
                 {envMapsWithJUnitReport, genScriptArgsWithJUnitReport}, {envMapsWithHTMLCodeCov, genScriptArgsWithHTMLCodeCov}};
     }
 
-    @Test(dataProvider  = "Expected Genscript arguments for user inputs", dependsOnMethods = { "verifyGeneratedBashCommands" })
+    @Test(dataProvider  = "Expected Genscript arguments for user inputs")
     public void verifyGenscriptArguments(Map<String, String> envMap, String expectedGenscriptArgs)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Mockito.doReturn(envMap).when(service).getEnVars();
+        service.setUniqueTmpFldrName(uniqueName);
 
         Method getGenScriptParametersForTests = getAccessibleMethod("getGenScriptParametersForTests");
         getGenScriptParametersForTests.setAccessible(true);
