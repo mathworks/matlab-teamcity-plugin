@@ -32,7 +32,6 @@ public class RunMatlabBuildTest {
 
     Map<String, String> envMaps = new HashMap<>();
     List<String> bashCommands =  new ArrayList<String>();
-//    List<String> bashCommandsForLinux = new ArrayList<String>();
     boolean isWindows;
     String bashScriptFileName = "run_matlab_command.sh";
 
@@ -88,6 +87,7 @@ public class RunMatlabBuildTest {
         return method;
     }
 
+    // Verify the bash commands are generated correctly
     @Test(description="Validate generated bash commands")
     public void verifyGeneratedBashCommands() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method getBashCommands = RunMatlabBuildService.class.getDeclaredMethod("getBashCommands", null);
@@ -97,6 +97,7 @@ public class RunMatlabBuildTest {
 
     }
 
+    // Verify the MATLAB script content
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
     public void verifyContentOfMATLABScriptFile() throws IOException {
         File matlabFolderInWorkspace = new File(currDir,".matlab");
@@ -108,11 +109,12 @@ public class RunMatlabBuildTest {
         File matlabScriptFile = new File(tmpFolderInWorkspace, "build_"+uniqueName+".m");
         Assert.assertTrue(matlabScriptFile.exists());
 
-        String matlabScriptFileContent = Files.readString(matlabScriptFile.toPath());
+        String matlabScriptFileContent = FileUtils.readFileToString(matlabScriptFile);
         Assert.assertTrue(matlabScriptFileContent.contains("buildToolTask"));
         Assert.assertTrue(matlabScriptFileContent.contains("cd '"+currDir.getAbsolutePath() +"'"));
     }
 
+    // Verify cleanup process removes the temp folder
     @Test(dependsOnMethods = { "verifyContentOfMATLABScriptFile" })
     public void verifyCleanUp() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method cleanUp = getAccessibleMethod("cleanUp");

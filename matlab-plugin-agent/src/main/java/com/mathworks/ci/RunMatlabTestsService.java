@@ -24,12 +24,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class RunMatlabTestsService extends MatlabService {
+  private String uniqueTmpFldrName;
 
   public void setUniqueTmpFldrName(String uniqueTmpFldrName) {
     this.uniqueTmpFldrName = uniqueTmpFldrName;
   }
-
-  private String uniqueTmpFldrName;
 
   @NotNull
   @Override

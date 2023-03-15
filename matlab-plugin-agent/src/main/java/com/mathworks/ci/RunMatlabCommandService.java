@@ -13,10 +13,6 @@ public class RunMatlabCommandService extends MatlabService {
 
   private String uniqueTmpFldrName;
 
-  public RunMatlabCommandService() {
-
-  }
-
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
