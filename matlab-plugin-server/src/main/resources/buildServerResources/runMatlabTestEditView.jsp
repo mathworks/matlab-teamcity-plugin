@@ -28,7 +28,7 @@
         <td>
             <div class="posRel">
                 <props:textProperty name="${matlabPathId}" size="56" maxlength="100" />
-                <span class="smallNote">Enter path to matlab executable specific to the node.</span>
+                <span class="smallNote">Specify the path to your MATLAB executable.</span>
                 <span class="error" id="error_${matlabPathId}"></span>
             </div>
         </td>
@@ -84,37 +84,18 @@
         <th> Test Customization <a id="" class="helpIcon actionIconWrapper" style="" href="https://github.com/mathworks/matlab-teamcity-plugin/blob/main/README.md" title="View help" showdiscardchangesmessage="false"><span class="actionIconWrapper"><span class="svg-icon actionIcon actionIconHelp"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M7.27 12h1.51v-1.45H7.27zm2.65-7.42A3.36 3.36 0 0 0 7.9 4a2.82 2.82 0 0 0-1.55.41 2.49 2.49 0 0 0-1.07 2.17h1.55a1.55 1.55 0 0 1 .26-.86.93.93 0 0 1 .91-.41 1 1 0 0 1 .87.33 1.26 1.26 0 0 1 .24.75 1.17 1.17 0 0 1-.24.61 1.34 1.34 0 0 1-.32.31l-.39.31a2.19 2.19 0 0 0-.71.8 4.39 4.39 0 0 0-.18 1.25h1.46a2.22 2.22 0 0 1 .07-.63 1.18 1.18 0 0 1 .41-.57l.38-.29a3.66 3.66 0 0 0 .78-.74 1.93 1.93 0 0 0 .35-1.18 2 2 0 0 0-.8-1.68zm3-1.53A7 7 0 1 0 13 13a7 7 0 0 0 0-9.95zM12 12a5.6 5.6 0 0 1-8 0 5.61 5.61 0 0 1 0-8 5.6 5.6 0 0 1 8 0 5.61 5.61 0 0 1 0 8z"></path></svg></span></span></a></th>
         <br/>
     </tr>
-    <tr>
-      <td>
-         <props:checkboxProperty name="${runParallel}"/>
-         <b><label for="${runParallel}" className="longField">Use parallel</label></b>
-         <span class="smallNote">Select if test needs to be run in parallel.</span>
-      </td>
-    </tr>
-
      <tr>
           <td>
              <props:checkboxProperty name="${strict}"/>
              <b><label for="${strict}" className="longField">Strict</label></b>
-             <span class="smallNote">Specify if test required to be failed on warnings.</span>
           </td>
      </tr>
-
      <tr>
-         <td>
-            <b><label for="${loggingLevel}">Logging level:</label></b>
-         </td>
-         <td>
-            <props:selectProperty name="${loggingLevel}" className="longField">
-              <props:option id="default" value="Default" selected="${true}">Default</props:option>
-              <props:option id="none" value="None">None</props:option>
-              <props:option id="terse" value="Terse">Terse</props:option>
-              <props:option id="verbose" value="Verbose">Verbose</props:option>
-            </props:selectProperty>
-            <span class="smallNote">Specify logging level.</span>
-         </td>
-     </tr>
-
+           <td>
+              <props:checkboxProperty name="${runParallel}"/>
+              <b><label for="${runParallel}" className="longField">Use parallel</label></b>
+           </td>
+         </tr>
       <tr>
          <td>
             <b><label for="${outputDetail}">Output detail:</label></b>
@@ -126,19 +107,31 @@
                <props:option id="terse" value="Terse">Terse</props:option>
                <props:option id="verbose" value="Verbose">Verbose</props:option>
              </props:selectProperty>
-             <span class="smallNote">Specify output detail.</span>
          </td>
+      </tr>
+      <tr>
+         <td>
+            <b><label for="${loggingLevel}">Logging level:</label></b>
+         </td>
+          <td>
+             <props:selectProperty name="${loggingLevel}" className="longField">
+               <props:option id="default" value="Default" selected="${true}">Default</props:option>
+               <props:option id="none" value="None">None</props:option>
+               <props:option id="terse" value="Terse">Terse</props:option>
+               <props:option id="verbose" value="Verbose">Verbose</props:option>
+             </props:selectProperty>
+          </td>
       </tr>
 
     <tr>
         <br/>
-        <th > Generate Test Artifacts <a id="" class="helpIcon actionIconWrapper" style="" href="https://github.com/mathworks/matlab-teamcity-plugin/blob/main/README.md" title="View help" showdiscardchangesmessage="false"><span class="actionIconWrapper"><span class="svg-icon actionIcon actionIconHelp"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M7.27 12h1.51v-1.45H7.27zm2.65-7.42A3.36 3.36 0 0 0 7.9 4a2.82 2.82 0 0 0-1.55.41 2.49 2.49 0 0 0-1.07 2.17h1.55a1.55 1.55 0 0 1 .26-.86.93.93 0 0 1 .91-.41 1 1 0 0 1 .87.33 1.26 1.26 0 0 1 .24.75 1.17 1.17 0 0 1-.24.61 1.34 1.34 0 0 1-.32.31l-.39.31a2.19 2.19 0 0 0-.71.8 4.39 4.39 0 0 0-.18 1.25h1.46a2.22 2.22 0 0 1 .07-.63 1.18 1.18 0 0 1 .41-.57l.38-.29a3.66 3.66 0 0 0 .78-.74 1.93 1.93 0 0 0 .35-1.18 2 2 0 0 0-.8-1.68zm3-1.53A7 7 0 1 0 13 13a7 7 0 0 0 0-9.95zM12 12a5.6 5.6 0 0 1-8 0 5.61 5.61 0 0 1 0-8 5.6 5.6 0 0 1 8 0 5.61 5.61 0 0 1 0 8z"></path></svg></span></span></a></th>
+        <th > Generate Test and Coverage Artifacts <a id="" class="helpIcon actionIconWrapper" style="" href="https://github.com/mathworks/matlab-teamcity-plugin/blob/main/README.md" title="View help" showdiscardchangesmessage="false"><span class="actionIconWrapper"><span class="svg-icon actionIcon actionIconHelp"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M7.27 12h1.51v-1.45H7.27zm2.65-7.42A3.36 3.36 0 0 0 7.9 4a2.82 2.82 0 0 0-1.55.41 2.49 2.49 0 0 0-1.07 2.17h1.55a1.55 1.55 0 0 1 .26-.86.93.93 0 0 1 .91-.41 1 1 0 0 1 .87.33 1.26 1.26 0 0 1 .24.75 1.17 1.17 0 0 1-.24.61 1.34 1.34 0 0 1-.32.31l-.39.31a2.19 2.19 0 0 0-.71.8 4.39 4.39 0 0 0-.18 1.25h1.46a2.22 2.22 0 0 1 .07-.63 1.18 1.18 0 0 1 .41-.57l.38-.29a3.66 3.66 0 0 0 .78-.74 1.93 1.93 0 0 0 .35-1.18 2 2 0 0 0-.8-1.68zm3-1.53A7 7 0 1 0 13 13a7 7 0 0 0 0-9.95zM12 12a5.6 5.6 0 0 1-8 0 5.61 5.61 0 0 1 0-8 5.6 5.6 0 0 1 8 0 5.61 5.61 0 0 1 0 8z"></path></svg></span></span></a></th>
         <br/>
     </tr>
 
     <tr>
         <th >
-            <label for="${pdfReport}">PDF report: </label>
+            <label for="${pdfReport}">PDF test report: </label>
         </th>
         <td>
             <div class="posRel">
