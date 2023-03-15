@@ -33,7 +33,7 @@
             <div class="posRel">
                 <props:textProperty name="${matlabTasks}" size="56" maxlength="100" />
                 <span class="error" id="error_${matlabTasks}"></span>
-                <span class="smallNote">Insert a space-separated list of tasks to run in the Tasks box. If not specified, the action runs the default tasks in buildfile.m as well as all the tasks on which they depend.</span>
+                <span class="smallNote">Insert a space-separated list of tasks to run in the Tasks box. If not specified, the build step runs the default tasks in buildfile.m as well as all the tasks on which they depend.</span>
             </div>
         </td>
     </tr>

@@ -23,14 +23,6 @@ public class RunMatlabCommandTest {
     RunMatlabCommandService service;
     static File currDir;
 
-    static {
-        try {
-            currDir = Files.createTempDirectory("projectDir").toFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     static String uniqueName = "tempFile";
 
     Map<String, String> envMaps = new HashMap<>();
@@ -38,8 +30,9 @@ public class RunMatlabCommandTest {
     List<String> bashCommandsForLinux = new ArrayList<String>();
 
     @BeforeTest
-    public void testSetUp() throws RunBuildException {
+    public void testSetUp() throws RunBuildException, IOException {
         service = spy(RunMatlabCommandService.class);
+        currDir = Files.createTempDirectory("projectDir").toFile();
 
         envMaps.put("MatlabPathKey", "/path/to/matlab");
         envMaps.put("PATH", "path1;path2");

@@ -87,8 +87,8 @@ public class RunMatlabTestsService extends MatlabService {
 
   private String getGenScriptParametersForTests() {
     final List<String> args = new ArrayList<String>();
-    String outputDetail = "default";
-    String loggingLevel = "default";
+    //String outputDetail = "default";
+    //String loggingLevel = "default";
 
     args.add("'Test'");
     final String filterByTests = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TEST);
@@ -117,12 +117,12 @@ public class RunMatlabTestsService extends MatlabService {
       args.add("'Strict'," + Boolean.valueOf(useStrict));
     }
 
-    outputDetail = getRunner().getRunnerParameters().get(MatlabConstants.OUTPUT_DETAIL);
+    String outputDetail = getRunner().getRunnerParameters().get(MatlabConstants.OUTPUT_DETAIL);
     if (!outputDetail.equalsIgnoreCase("default")) {
       args.add("'OutputDetail','" + outputDetail + "'");
     }
 
-    loggingLevel = getRunner().getRunnerParameters().get(MatlabConstants.LOGGING_LEVEL);
+    String loggingLevel = getRunner().getRunnerParameters().get(MatlabConstants.LOGGING_LEVEL);
     if (!loggingLevel.equalsIgnoreCase("default")) {
       args.add("'LoggingLevel','" + loggingLevel + "'");
     }
