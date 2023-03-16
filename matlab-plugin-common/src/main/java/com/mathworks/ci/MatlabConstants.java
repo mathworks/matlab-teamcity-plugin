@@ -4,7 +4,7 @@ public interface MatlabConstants {
 
   String TEST_RUNNER_TYPE = "matlabTestRunner";
   String TEST_RUNNER_NAME = "Run MATLAB Tests";
-  String TEST_RUNNER_DESCRIPTION = "Runs all MATLAB tests within current workspace";
+  String TEST_RUNNER_DESCRIPTION = "Run the tests in a MATLAB project.";
   String MATLAB_COMMAND = "matlabCommand";
   String MATLAB_TASKS = "matlabTasks";
   String BUILD_RUNNER_TYPE = "matlabBuildRunner";
@@ -13,8 +13,8 @@ public interface MatlabConstants {
   String COMMAND_RUNNER_TYPE = "matlabCommandRunner";
   String COMMAND_RUNNER_NAME = "Run MATLAB Command";
   String BUILD_RUNNER_NAME = "Run MATLAB Build";
-  String COMMAND_RUNNER_DESCRIPTION = "Runs specific MATLAB command or MATLAB script";
-  String BUILD_RUNNER_DESCRIPTION = "Runs MATLAB build task(s)";
+  String COMMAND_RUNNER_DESCRIPTION = "Run MATLAB scripts, functions, and statements.";
+  String BUILD_RUNNER_DESCRIPTION = "Runs MATLAB build tasks";
   String FILTER_TEST = "filterTestFolderByName";
   String SOURCE_FOLDER = "sourceFolders";
   String FILTER_TAG = "filterTestByTag";
