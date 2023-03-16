@@ -22,7 +22,7 @@ public class MatlabCommandRunnerTest {
 
   @Test
   public void testCommandRunnerDescription() {
-    String buildDescription = "Runs specific MATLAB command or MATLAB script";
+    String buildDescription = "Run MATLAB scripts, functions, and statements.";
     Assert.assertTrue(buildDescription.equalsIgnoreCase(MatlabConstants.COMMAND_RUNNER_DESCRIPTION));
   }
 

@@ -31,16 +31,12 @@ public abstract class MatlabService extends BuildServiceAdapter {
     this.runner = runner;
   }
 
-  public Map<String, String> getRunParameters() {
+  public Map<String, String> getEnVars() {
     return getRunner().getBuildParameters().getEnvironmentVariables();
   }
 
-  public Map<String, String> getEnVars() {
-    return getRunnerParameters();
-  }
-
   public void addToPath(String matlabPath) {
-    Map<String, String> envVar = getRunParameters();
+    Map<String, String> envVar = getEnVars();
 
     for (String name : envVar.keySet()) {
       if (name.equalsIgnoreCase("Path")) {
@@ -81,10 +77,10 @@ public abstract class MatlabService extends BuildServiceAdapter {
   public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
     File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     tmpDir.mkdir();
-    File genscriptlocation = new File(tmpDir, uniqueTmpFldrName);
-    genscriptlocation.mkdir();
-    genscriptlocation.setExecutable(true);
-    return genscriptlocation;
+    File genscriptLocation = new File(tmpDir, uniqueTmpFldrName);
+    genscriptLocation.mkdir();
+    genscriptLocation.setExecutable(true);
+    return genscriptLocation;
   }
 
   public String getExecutable() {

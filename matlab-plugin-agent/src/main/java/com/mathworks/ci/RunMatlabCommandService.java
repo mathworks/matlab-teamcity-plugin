@@ -13,10 +13,14 @@ public class RunMatlabCommandService extends MatlabService {
 
   private String uniqueTmpFldrName;
 
+  public String getMatlabCommand(){
+    return getRunnerParameters().get(MatlabConstants.MATLAB_COMMAND);
+  }
+
   @NotNull
   @Override
   public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    String matlabPath = getEnVars().get(MatlabConstants.MATLAB_PATH);
+    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
     setRunner(getRunnerContext());
 
     //Add MATLAB into PATH Variable
@@ -45,8 +49,8 @@ public class RunMatlabCommandService extends MatlabService {
 
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqeTmpFolderPath, uniqueScriptName + ".m");
-    final String cmd = "cd '" + getProjectDir().getAbsolutePath().replaceAll("'", "''") + "';\n" + getEnVars()
-        .get(MatlabConstants.MATLAB_COMMAND);
+    final String cmd =
+        "cd '" + getProjectDir().getAbsolutePath().replaceAll("'", "''") + "';\n" + getMatlabCommand();
 
     // Display the commands on console output for users reference
     logMessage("Generating MATLAB script with content:\n" + cmd + "\n");

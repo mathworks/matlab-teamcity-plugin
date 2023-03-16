@@ -20,7 +20,7 @@ public class MatlabTestRunnerTest {
 
   @Test
   public void testRunnerDescription() {
-    String buildDescription = "Runs all MATLAB tests within current workspace";
+    String buildDescription = "Run the tests in a MATLAB project.";
     Assert.assertTrue(buildDescription.equalsIgnoreCase(MatlabConstants.TEST_RUNNER_DESCRIPTION));
   }
 }

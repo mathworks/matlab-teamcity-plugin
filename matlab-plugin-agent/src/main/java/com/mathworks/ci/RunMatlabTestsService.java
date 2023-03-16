@@ -87,18 +87,16 @@ public class RunMatlabTestsService extends MatlabService {
 
   private String getGenScriptParametersForTests() {
     final List<String> args = new ArrayList<String>();
-    //String outputDetail = "default";
-    //String loggingLevel = "default";
 
     args.add("'Test'");
     final String filterByTests = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TEST);
     if (filterByTests != null) {
-      args.add("'SelectByFolder'," + getCellarray(filterByTests));
+      args.add("'SelectByFolder'," + getCellArray(filterByTests));
     }
 
     final String sourceFolders = getRunner().getRunnerParameters().get(MatlabConstants.SOURCE_FOLDER);
     if (sourceFolders != null) {
-      args.add("'SourceFolder'," + getCellarray(sourceFolders));
+      args.add("'SourceFolder'," + getCellArray(sourceFolders));
     }
 
     final String filterByTag = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TAG);
@@ -157,7 +155,7 @@ public class RunMatlabTestsService extends MatlabService {
     return String.join(",", args);
   }
 
-  private String getCellarray(String folders) {
+  private String getCellArray(String folders) {
     final String[] folderNames = folders.split(";");
     return getCellArrayFrmList(Arrays.asList(folderNames));
   }
