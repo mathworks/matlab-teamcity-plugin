@@ -4,7 +4,7 @@
     <name>matlab-plugin</name>
     <display-name>matlab-plugin</display-name>
     <version>1.0.0</version>
-    <description>TeamCity plugin to run MATLAB build steps </description>
+    <description>TeamCity plugin for running MATLAB build steps </description>
     <download-url>Plugin download URL</download-url>
     <email>continuous-integration@mathworks.com</email>
     <vendor>
