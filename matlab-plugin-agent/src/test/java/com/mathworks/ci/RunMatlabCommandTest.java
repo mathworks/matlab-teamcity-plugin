@@ -65,6 +65,7 @@ public class RunMatlabCommandTest {
         bashCommands.add("cd .matlab" + File.separator + uniqueName + ",cmd_" + uniqueName);
 
         Mockito.doReturn(envMaps).when(service).getEnVars();
+        Mockito.doReturn("ver").when(service).getMatlabCommand();
         Mockito.doReturn(currDir).when(service).getProjectDir();
         Mockito.doReturn(envMaps).when(service).getRunParameters();
 
@@ -86,7 +87,7 @@ public class RunMatlabCommandTest {
 
     private void verifyMsgToUser(String message) {
         Assert.assertTrue(message.contains("Generating MATLAB script with content:\n"));
-        Assert.assertTrue(message.contains("matlabCommandByUser"));
+        Assert.assertTrue(message.contains("ver"));
         Assert.assertTrue(message.contains(currDir.getAbsolutePath()));
     }
 
@@ -111,8 +112,9 @@ public class RunMatlabCommandTest {
         Assert.assertTrue(matlabScriptFile.exists());
 
         String matlabScriptFileContent = FileUtils.readFileToString(matlabScriptFile);
-        Assert.assertTrue(matlabScriptFileContent.contains("matlabCommandByUser"));
-        Assert.assertTrue(matlabScriptFileContent.contains("cd '" + currDir.getAbsolutePath() + "'"));
+
+        Assert.assertTrue(matlabScriptFileContent.contains("ver"));
+        Assert.assertTrue(matlabScriptFileContent.contains("cd '"+currDir.getAbsolutePath() +"'"));
     }
 
     @Test(dependsOnMethods = {"verifyContentOfMATLABScriptFile"})

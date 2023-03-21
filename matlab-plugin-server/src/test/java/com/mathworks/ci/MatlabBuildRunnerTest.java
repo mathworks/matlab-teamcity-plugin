@@ -23,7 +23,7 @@ public class MatlabBuildRunnerTest {
 
   @Test
   public void testBuildRunnerDescription() {
-    String buildDescription = "Runs MATLAB build task(s)";
+    String buildDescription = "Runs MATLAB build tasks.";
     Assert.assertTrue(buildDescription.equalsIgnoreCase(MatlabConstants.BUILD_RUNNER_DESCRIPTION));
   }
 
