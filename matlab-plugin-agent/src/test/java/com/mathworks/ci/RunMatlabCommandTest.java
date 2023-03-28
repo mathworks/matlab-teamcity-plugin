@@ -67,7 +67,6 @@ public class RunMatlabCommandTest {
         Mockito.doReturn(envMaps).when(service).getEnVars();
         Mockito.doReturn("ver").when(service).getMatlabCommand();
         Mockito.doReturn(currDir).when(service).getProjectDir();
-        Mockito.doReturn(envMaps).when(service).getRunParameters();
 
         isWindows = System.getProperty("os.name").startsWith("Windows");
         Mockito.doReturn(isWindows).when(service).isWindows();

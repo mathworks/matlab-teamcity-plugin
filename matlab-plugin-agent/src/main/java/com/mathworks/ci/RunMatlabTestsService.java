@@ -124,7 +124,6 @@ public class RunMatlabTestsService extends MatlabService {
     }
 
     String loggingLevel = getEnVars().get(MatlabConstants.LOGGING_LEVEL);
-
     if (!loggingLevel.equalsIgnoreCase("default")) {
       args.add("'LoggingLevel','" + loggingLevel + "'");
     }
@@ -238,5 +237,4 @@ public class RunMatlabTestsService extends MatlabService {
     cleanUp();
     super.afterProcessFinished();
   }
-
 }

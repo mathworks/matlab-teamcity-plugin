@@ -67,7 +67,6 @@ public class RunMatlabTestsTest {
 
         Mockito.doReturn(envMaps).when(service).getEnVars();
         Mockito.doReturn(currDir).when(service).getProjectDir();
-        Mockito.doReturn(envMaps).when(service).getRunParameters();
 
         Mockito.doReturn("tempFile").when(service).getUniqueNameForRunnerFile();
         doAnswer((msg) -> {
