@@ -32,11 +32,11 @@ public abstract class MatlabService extends BuildServiceAdapter {
   }
 
   public Map<String, String> getEnVars() {
-    return getRunner().getBuildParameters().getEnvironmentVariables();
+    return getRunner().getRunnerParameters();
   }
 
   public void addToPath(String matlabPath) {
-    Map<String, String> envVar = getEnVars();
+    Map<String, String> envVar = getRunner().getBuildParameters().getEnvironmentVariables();
 
     for (String name : envVar.keySet()) {
       if (name.equalsIgnoreCase("Path")) {
