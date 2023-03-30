@@ -44,7 +44,7 @@ public class RunMatlabBuildService extends MatlabService {
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqueTmpFolderPath, uniqueScriptName + ".m");
     final String cmd =
-        "cd '" + getProjectDir().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getEnVars()
+        "cd '" + getWorkspace().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getUserInputs()
             .get(MatlabConstants.MATLAB_TASKS);
 
     // Display the commands on console output for users reference
@@ -57,7 +57,7 @@ public class RunMatlabBuildService extends MatlabService {
   }
 
   private void cleanUp() throws RunBuildException {
-    File tempFolder = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
+    File tempFolder = new File(getWorkspace(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
     try {
       FileUtils.deleteDirectory(tempFolder);
     } catch (IOException e) {

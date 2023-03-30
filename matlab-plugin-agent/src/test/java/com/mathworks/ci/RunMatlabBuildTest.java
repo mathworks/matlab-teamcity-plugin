@@ -59,8 +59,8 @@ public class RunMatlabBuildTest {
         //Arguments to bat script file
         bashCommands.add("cd .matlab"+File.separator+uniqueName+",build_"+uniqueName);
 
-        Mockito.doReturn(envMaps).when(service).getEnVars();
-        Mockito.doReturn(currDir).when(service).getProjectDir();
+        Mockito.doReturn(envMaps).when(service).getUserInputs();
+        Mockito.doReturn(currDir).when(service).getWorkspace();
 
         Mockito.doReturn("tempFile").when(service).getUniqueNameForRunnerFile();
         doAnswer((msg) -> {

@@ -65,8 +65,8 @@ public class RunMatlabTestsTest {
                                    "runnerScript," +
                                    "rmdir(tmpDir,'s')");
 
-        Mockito.doReturn(envMaps).when(service).getEnVars();
-        Mockito.doReturn(currDir).when(service).getProjectDir();
+        Mockito.doReturn(envMaps).when(service).getUserInputs();
+        Mockito.doReturn(currDir).when(service).getWorkspace();
 
         Mockito.doReturn("tempFile").when(service).getUniqueNameForRunnerFile();
         doAnswer((msg) -> {
@@ -147,7 +147,7 @@ public class RunMatlabTestsTest {
 
     @Test(dataProvider  = "Data with all user inputs")
     public void verifyContentOfMATLABScript(Map<String, String> envMapsWithAllUserInputs, String expectedScript) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
-        Mockito.doReturn(envMapsWithAllUserInputs).when(service).getEnVars();
+        Mockito.doReturn(envMapsWithAllUserInputs).when(service).getUserInputs();
         getAccessibleMethod("getBashCommands").invoke(service, null);
 
         File matlabFolderInWorkspace = new File(currDir,".matlab");
@@ -160,7 +160,7 @@ public class RunMatlabTestsTest {
     // Cleanup process to verify the temp folder is deleted
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
     public void cleanUp() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Mockito.doReturn(envMaps).when(service).getEnVars();
+        Mockito.doReturn(envMaps).when(service).getUserInputs();
         Method cleanUp = getAccessibleMethod("cleanUp");
         File matlabFolderInWorkspace = new File(currDir,".matlab");
 
@@ -192,7 +192,7 @@ public class RunMatlabTestsTest {
         Map<String, String> envMapsWithHTMLReport = new HashMap<>(envMaps);
         envMapsWithHTMLReport.put("htmlTestArtifact", "coverage.zip");
 
-        Mockito.doReturn(envMapsWithHTMLReport).when(service).getEnVars();
+        Mockito.doReturn(envMapsWithHTMLReport).when(service).getUserInputs();
         Method cleanUp = getAccessibleMethod("cleanUp");
         cleanUp.invoke(service,null);
 
@@ -209,7 +209,7 @@ public class RunMatlabTestsTest {
         Map<String, String> envMapsWithHTMLReportWithFolder = new HashMap<>(envMaps);
         envMapsWithHTMLReportWithFolder.put("htmlTestArtifact", "reportFolder/coverage.zip");
 
-        Mockito.doReturn(envMapsWithHTMLReportWithFolder).when(service).getEnVars();
+        Mockito.doReturn(envMapsWithHTMLReportWithFolder).when(service).getUserInputs();
         Method cleanUp = getAccessibleMethod("cleanUp");
         cleanUp.invoke(service,null);
 
@@ -226,7 +226,7 @@ public class RunMatlabTestsTest {
         Map<String, String> envMapsWithHTMLCodeCov = new HashMap<>(envMaps);
         envMapsWithHTMLCodeCov.put("htmlCoverage", "codecoverage.zip");
 
-        Mockito.doReturn(envMapsWithHTMLCodeCov).when(service).getEnVars();
+        Mockito.doReturn(envMapsWithHTMLCodeCov).when(service).getUserInputs();
         Method cleanUp = getAccessibleMethod("cleanUp");
         cleanUp.invoke(service,null);
 
@@ -244,7 +244,7 @@ public class RunMatlabTestsTest {
         Map<String, String> envMapsWithHTMLCodecovWithFolder = new HashMap<>(envMaps);
         envMapsWithHTMLCodecovWithFolder.put("htmlCoverage", "codecovFolder/codecoverage.zip");
 
-        Mockito.doReturn(envMapsWithHTMLCodecovWithFolder).when(service).getEnVars();
+        Mockito.doReturn(envMapsWithHTMLCodecovWithFolder).when(service).getUserInputs();
         Method cleanUp = getAccessibleMethod("cleanUp");
         cleanUp.invoke(service,null);
 
@@ -326,7 +326,7 @@ public class RunMatlabTestsTest {
     @Test(dataProvider  = "Expected Genscript arguments for user inputs")
     public void verifyGenscriptArguments(Map<String, String> envMap, String expectedGenscriptArgs)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Mockito.doReturn(envMap).when(service).getEnVars();
+        Mockito.doReturn(envMap).when(service).getUserInputs();
         service.setUniqueTmpFldrName(uniqueName);
 
         Method getGenScriptParametersForTests = getAccessibleMethod("getGenScriptParametersForTests");

@@ -64,9 +64,9 @@ public class RunMatlabCommandTest {
         //Arguments to bat script file
         bashCommands.add("cd .matlab" + File.separator + uniqueName + ",cmd_" + uniqueName);
 
-        Mockito.doReturn(envMaps).when(service).getEnVars();
+        Mockito.doReturn(envMaps).when(service).getUserInputs();
         Mockito.doReturn("ver").when(service).getMatlabCommand();
-        Mockito.doReturn(currDir).when(service).getProjectDir();
+        Mockito.doReturn(currDir).when(service).getWorkspace();
 
         isWindows = System.getProperty("os.name").startsWith("Windows");
         Mockito.doReturn(isWindows).when(service).isWindows();

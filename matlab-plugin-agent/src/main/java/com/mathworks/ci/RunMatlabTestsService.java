@@ -92,64 +92,64 @@ public class RunMatlabTestsService extends MatlabService {
     final List<String> args = new ArrayList<String>();
 
     args.add("'Test'");
-    final String filterByTests = getEnVars().get(MatlabConstants.FILTER_TEST);
+    final String filterByTests = getUserInputs().get(MatlabConstants.FILTER_TEST);
     if (filterByTests != null) {
       args.add("'SelectByFolder'," + getCellArray(filterByTests));
     }
 
-    final String sourceFolders = getEnVars().get(MatlabConstants.SOURCE_FOLDER);
+    final String sourceFolders = getUserInputs().get(MatlabConstants.SOURCE_FOLDER);
     if (sourceFolders != null) {
       args.add("'SourceFolder'," + getCellArray(sourceFolders));
     }
 
-    final String filterByTag = getEnVars().get(MatlabConstants.FILTER_TAG);
+    final String filterByTag = getUserInputs().get(MatlabConstants.FILTER_TAG);
     if (filterByTag != null) {
       args.add("'SelectByTag','" + filterByTag + "'");
     }
 
-    final String runParallelTests = getEnVars().get(MatlabConstants.RUN_PARALLEL) == null ? "false"
-        : getEnVars().get(MatlabConstants.RUN_PARALLEL);
+    final String runParallelTests = getUserInputs().get(MatlabConstants.RUN_PARALLEL) == null ? "false"
+        : getUserInputs().get(MatlabConstants.RUN_PARALLEL);
     if (runParallelTests.equalsIgnoreCase("true") && runParallelTests != null) {
       args.add("'UseParallel'," + Boolean.valueOf(runParallelTests) + "");
     }
 
-    final String useStrict = getEnVars().get(MatlabConstants.STRICT) == null ? "false" : "true";
+    final String useStrict = getUserInputs().get(MatlabConstants.STRICT) == null ? "false" : "true";
     if (useStrict.equalsIgnoreCase(useStrict)) {
       args.add("'Strict'," + Boolean.valueOf(useStrict));
     }
 
-    String outputDetail = getEnVars().get(MatlabConstants.OUTPUT_DETAIL);
+    String outputDetail = getUserInputs().get(MatlabConstants.OUTPUT_DETAIL);
     if (!outputDetail.equalsIgnoreCase("default")) {
       args.add("'OutputDetail','" + outputDetail + "'");
     }
 
-    String loggingLevel = getEnVars().get(MatlabConstants.LOGGING_LEVEL);
+    String loggingLevel = getUserInputs().get(MatlabConstants.LOGGING_LEVEL);
     if (!loggingLevel.equalsIgnoreCase("default")) {
       args.add("'LoggingLevel','" + loggingLevel + "'");
     }
 
-    final String pdfReport = getEnVars().get(MatlabConstants.PDF_REPORT);
+    final String pdfReport = getUserInputs().get(MatlabConstants.PDF_REPORT);
     if (pdfReport != null) {
       args.add("'PDFTestReport','" + pdfReport + "'");
     }
 
-    final String htmlReport = getEnVars().get(MatlabConstants.HTML_REPORT);
+    final String htmlReport = getUserInputs().get(MatlabConstants.HTML_REPORT);
     if (htmlReport != null) {
       File reportFile = new File(htmlReport);
       args.add("'HTMLTestReport','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
     }
 
-    final String tapReport = getEnVars().get(MatlabConstants.TAP_REPORT);
+    final String tapReport = getUserInputs().get(MatlabConstants.TAP_REPORT);
     if (tapReport != null) {
       args.add("'TAPTestResults','" + tapReport + "'");
     }
 
-    final String junitReport = getEnVars().get(MatlabConstants.JUNIT_REPORT);
+    final String junitReport = getUserInputs().get(MatlabConstants.JUNIT_REPORT);
     if (junitReport != null) {
       args.add("'JUnitTestResults','" + junitReport + "'");
     }
 
-    final String htmlCodeCoverage = getEnVars().get(MatlabConstants.HTML_CODE_COV_REPORT);
+    final String htmlCodeCoverage = getUserInputs().get(MatlabConstants.HTML_CODE_COV_REPORT);
     if (htmlCodeCoverage != null) {
       File reportFile = new File(htmlCodeCoverage);
       args.add("'HTMLCodeCoverage','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
@@ -192,12 +192,12 @@ public class RunMatlabTestsService extends MatlabService {
   }
 
   private void cleanUp() throws RunBuildException {
-    File tempFolder = new File(getProjectDir(), ".matlab/" + uniqueTmpFldrName);
+    File tempFolder = new File(getWorkspace(), ".matlab/" + uniqueTmpFldrName);
     try {
 
-      final String htmlReport = getEnVars().get(MatlabConstants.HTML_REPORT);
+      final String htmlReport = getUserInputs().get(MatlabConstants.HTML_REPORT);
       if (htmlReport != null) {
-        File reportFolder = new File(getProjectDir(), htmlReport);
+        File reportFolder = new File(getWorkspace(), htmlReport);
         if (reportFolder.getParentFile() != null) {
 
           // Create folders to keep .zip files
@@ -208,9 +208,9 @@ public class RunMatlabTestsService extends MatlabService {
         }
       }
 
-      final String htmlCoverage = getEnVars().get(MatlabConstants.HTML_CODE_COV_REPORT);
+      final String htmlCoverage = getUserInputs().get(MatlabConstants.HTML_CODE_COV_REPORT);
       if (htmlCoverage != null) {
-        File reportFolder = new File(getProjectDir(), htmlCoverage);
+        File reportFolder = new File(getWorkspace(), htmlCoverage);
         if (reportFolder.getParentFile() != null) {
 
           // Create folders to keep .zip files

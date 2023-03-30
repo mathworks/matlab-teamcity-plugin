@@ -31,7 +31,8 @@ public abstract class MatlabService extends BuildServiceAdapter {
     this.runner = runner;
   }
 
-  public Map<String, String> getEnVars() {
+  //get build step inputs
+  public Map<String, String> getUserInputs() {
     return getRunner().getRunnerParameters();
   }
 
@@ -54,7 +55,7 @@ public abstract class MatlabService extends BuildServiceAdapter {
 
   public List<String> getBashCommandsToRunMatlabCommand(String matlabCommand, String uniqueName) throws IOException, InterruptedException {
     final List<String> args = new ArrayList<String>();
-    File tempWorkspceFldr = new File(getProjectDir() + File.separator + MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+    File tempWorkspceFldr = new File(getWorkspace() + File.separator + MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     if (!isWindows()) {
       final File runnerShScript = new File(tempWorkspceFldr, uniqueName + "/run_matlab_command.sh");
 
@@ -75,7 +76,7 @@ public abstract class MatlabService extends BuildServiceAdapter {
   }
 
   public File getFilePathForUniqueFolder(String uniqueTmpFldrName) throws IOException, InterruptedException {
-    File tmpDir = new File(getProjectDir(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
+    File tmpDir = new File(getWorkspace(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
     tmpDir.mkdir();
     File genscriptLocation = new File(tmpDir, uniqueTmpFldrName);
     genscriptLocation.mkdir();
@@ -95,7 +96,7 @@ public abstract class MatlabService extends BuildServiceAdapter {
   }
 
 
-  public File getProjectDir() {
+  public File getWorkspace() {
     return getRunner().getWorkingDirectory();
   }
 
