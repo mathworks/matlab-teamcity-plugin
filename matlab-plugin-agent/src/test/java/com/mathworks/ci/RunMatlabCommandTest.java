@@ -44,7 +44,6 @@ public class RunMatlabCommandTest {
         currDir = Files.createTempDirectory("projectDir").toFile();
 
         envMaps.put("MatlabPathKey", "/path/to/matlab");
-        envMaps.put("PATH", "path1;path2");
         envMaps.put("matlabCommand", "matlabCommandByUser");
 
         isWindows = System.getProperty("os.name").startsWith("Windows");

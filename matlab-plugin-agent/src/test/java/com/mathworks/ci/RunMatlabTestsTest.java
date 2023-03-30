@@ -44,7 +44,6 @@ public class RunMatlabTestsTest {
         File tmpFolderInWorkspace = new File(matlabFolderInWorkspace, uniqueName);
 
         envMaps.put("MatlabPathKey", "/path/to/matlab");
-        envMaps.put("PATH", "path1;path2");
         envMaps.put("logOutputDetail", "Default");
         envMaps.put("logLoggingLevel", "Default");
 

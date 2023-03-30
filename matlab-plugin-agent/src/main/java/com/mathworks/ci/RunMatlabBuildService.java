@@ -56,6 +56,9 @@ public class RunMatlabBuildService extends MatlabService {
     return "cd "+MatlabConstants.TEMP_MATLAB_FOLDER_NAME+ File.separator + uniqueTmpFldrName + ",build_" + uniqueTmpFldrName;
   }
 
+  /**
+   * Cleanup the temporary folders
+   */
   private void cleanUp() throws RunBuildException {
     File tempFolder = new File(getWorkspace(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
     try {
@@ -66,9 +69,7 @@ public class RunMatlabBuildService extends MatlabService {
   }
 
   /**
-   * Cleanup the temporary folders
-   *
-   * @throws RunBuildException
+   * Executes cleanup activities after the build 
    */
   @Override
   public void afterProcessFinished() throws RunBuildException {

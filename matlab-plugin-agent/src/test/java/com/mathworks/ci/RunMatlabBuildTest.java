@@ -44,7 +44,6 @@ public class RunMatlabBuildTest {
         currDir = new File(systemTempFolder, "tmpBuildProjectWorkspace");
         currDir.mkdir();
         envMaps.put("MatlabPathKey", "/path/to/matlab");
-        envMaps.put("PATH", "path1;path2");
         envMaps.put("matlabTasks", "buildToolTask");
 
         isWindows = System.getProperty("os.name").startsWith("Windows");

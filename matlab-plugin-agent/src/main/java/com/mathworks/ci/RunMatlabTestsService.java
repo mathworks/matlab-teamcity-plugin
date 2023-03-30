@@ -191,6 +191,9 @@ public class RunMatlabTestsService extends MatlabService {
     zip.close();
   }
 
+  /**
+   * Cleanup the temporary folders
+   */
   private void cleanUp() throws RunBuildException {
     File tempFolder = new File(getWorkspace(), ".matlab/" + uniqueTmpFldrName);
     try {
@@ -228,9 +231,7 @@ public class RunMatlabTestsService extends MatlabService {
   }
 
   /**
-   * Cleanup the temporary folders
-   *
-   * @throws RunBuildException
+   * Executes cleanup activities after the build 
    */
   @Override
   public void afterProcessFinished() throws RunBuildException {
