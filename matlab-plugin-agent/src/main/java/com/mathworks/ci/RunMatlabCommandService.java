@@ -50,7 +50,7 @@ public class RunMatlabCommandService extends MatlabService {
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqeTmpFolderPath, uniqueScriptName + ".m");
     final String cmd =
-        "cd '" + getProjectDir().getAbsolutePath().replaceAll("'", "''") + "';\n" + getMatlabCommand();
+        "cd '" + getWorkspace().getAbsolutePath().replaceAll("'", "''") + "';\n" + getMatlabCommand();
 
     // Display the commands on console output for users reference
     logMessage("Generating MATLAB script with content:\n" + cmd + "\n");
@@ -61,8 +61,11 @@ public class RunMatlabCommandService extends MatlabService {
     return "cd .matlab" +File.separator+ uniqueTmpFldrName + ",cmd_" + uniqueTmpFldrName;
   }
 
-  public void cleanUp(){
-    File tempFolder = new File(getProjectDir(), ".matlab/" + uniqueTmpFldrName);
+  /**
+   * Cleanup the temporary folders
+   */
+  private void cleanUp(){
+    File tempFolder = new File(getWorkspace(), ".matlab/" + uniqueTmpFldrName);
     try {
       FileUtils.deleteDirectory(tempFolder);
     } catch (IOException e) {
@@ -71,9 +74,7 @@ public class RunMatlabCommandService extends MatlabService {
   }
 
   /**
-   * Cleanup the temporary folders
-   *
-   * @throws RunBuildException
+   * Executes cleanup activities after the build 
    */
   @Override
   public void afterProcessFinished() throws RunBuildException {

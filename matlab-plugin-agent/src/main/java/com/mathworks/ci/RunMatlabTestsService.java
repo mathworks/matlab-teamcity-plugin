@@ -24,8 +24,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class RunMatlabTestsService extends MatlabService {
-
   private String uniqueTmpFldrName;
+
+  public void setUniqueTmpFldrName(String uniqueTmpFldrName) {
+    this.uniqueTmpFldrName = uniqueTmpFldrName;
+  }
 
   @NotNull
   @Override
@@ -39,7 +42,7 @@ public class RunMatlabTestsService extends MatlabService {
   }
 
   private List<String> getBashCommands(){
-    uniqueTmpFldrName = getUniqueNameForRunnerFile();
+    setUniqueTmpFldrName(getUniqueNameForRunnerFile());
 
     try {
       //Copy Genscript in workspace
@@ -57,8 +60,8 @@ public class RunMatlabTestsService extends MatlabService {
   private String constructCommandForTest(File genscriptLocation) {
     final String matlabScriptName = "runner_" + genscriptLocation.getName();
     final String runCommand =
-        "addpath('" + genscriptLocation.getAbsolutePath().replaceAll("'", "''") + "'); " + matlabScriptName + ",delete('.matlab/"
-            + genscriptLocation.getName() + "/" + matlabScriptName + ".m'),runnerScript,rmdir(tmpDir,'s')";
+        "addpath('" + genscriptLocation.getAbsolutePath().replaceAll("'", "''") + "'); " + matlabScriptName + ",delete('.matlab" +
+            File.separator + genscriptLocation.getName() + File.separator + matlabScriptName + ".m'),runnerScript,rmdir(tmpDir,'s')";
     return runCommand;
   }
 
@@ -89,64 +92,64 @@ public class RunMatlabTestsService extends MatlabService {
     final List<String> args = new ArrayList<String>();
 
     args.add("'Test'");
-    final String filterByTests = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TEST);
+    final String filterByTests = getUserInputs().get(MatlabConstants.FILTER_TEST);
     if (filterByTests != null) {
       args.add("'SelectByFolder'," + getCellArray(filterByTests));
     }
 
-    final String sourceFolders = getRunner().getRunnerParameters().get(MatlabConstants.SOURCE_FOLDER);
+    final String sourceFolders = getUserInputs().get(MatlabConstants.SOURCE_FOLDER);
     if (sourceFolders != null) {
       args.add("'SourceFolder'," + getCellArray(sourceFolders));
     }
 
-    final String filterByTag = getRunner().getRunnerParameters().get(MatlabConstants.FILTER_TAG);
+    final String filterByTag = getUserInputs().get(MatlabConstants.FILTER_TAG);
     if (filterByTag != null) {
       args.add("'SelectByTag','" + filterByTag + "'");
     }
 
-    final String runParallelTests = getRunner().getRunnerParameters().get(MatlabConstants.RUN_PARALLEL) == null ? "false"
-        : getRunner().getRunnerParameters().get(MatlabConstants.RUN_PARALLEL);
+    final String runParallelTests = getUserInputs().get(MatlabConstants.RUN_PARALLEL) == null ? "false"
+        : getUserInputs().get(MatlabConstants.RUN_PARALLEL);
     if (runParallelTests.equalsIgnoreCase("true") && runParallelTests != null) {
       args.add("'UseParallel'," + Boolean.valueOf(runParallelTests) + "");
     }
 
-    final String useStrict = getRunner().getRunnerParameters().get(MatlabConstants.STRICT) == null ? "false" : "true";
+    final String useStrict = getUserInputs().get(MatlabConstants.STRICT) == null ? "false" : "true";
     if (useStrict.equalsIgnoreCase(useStrict)) {
       args.add("'Strict'," + Boolean.valueOf(useStrict));
     }
 
-    String outputDetail = getRunner().getRunnerParameters().get(MatlabConstants.OUTPUT_DETAIL);
+    String outputDetail = getUserInputs().get(MatlabConstants.OUTPUT_DETAIL);
     if (!outputDetail.equalsIgnoreCase("default")) {
       args.add("'OutputDetail','" + outputDetail + "'");
     }
 
-    String loggingLevel = getRunner().getRunnerParameters().get(MatlabConstants.LOGGING_LEVEL);
+    String loggingLevel = getUserInputs().get(MatlabConstants.LOGGING_LEVEL);
     if (!loggingLevel.equalsIgnoreCase("default")) {
       args.add("'LoggingLevel','" + loggingLevel + "'");
     }
 
-    final String pdfReport = getRunner().getRunnerParameters().get(MatlabConstants.PDF_REPORT);
+    final String pdfReport = getUserInputs().get(MatlabConstants.PDF_REPORT);
     if (pdfReport != null) {
       args.add("'PDFTestReport','" + pdfReport + "'");
     }
 
-    final String htmlReport = getRunner().getRunnerParameters().get(MatlabConstants.HTML_REPORT);
+    final String htmlReport = getUserInputs().get(MatlabConstants.HTML_REPORT);
     if (htmlReport != null) {
       File reportFile = new File(htmlReport);
       args.add("'HTMLTestReport','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
     }
 
-    final String tapReport = getRunner().getRunnerParameters().get(MatlabConstants.TAP_REPORT);
+    final String tapReport = getUserInputs().get(MatlabConstants.TAP_REPORT);
     if (tapReport != null) {
       args.add("'TAPTestResults','" + tapReport + "'");
     }
 
-    final String junitReport = getRunner().getRunnerParameters().get(MatlabConstants.JUNIT_REPORT);
+    final String junitReport = getUserInputs().get(MatlabConstants.JUNIT_REPORT);
     if (junitReport != null) {
       args.add("'JUnitTestResults','" + junitReport + "'");
     }
 
-    final String htmlCodeCoverage = getRunner().getRunnerParameters().get(MatlabConstants.HTML_CODE_COV_REPORT);
+    final String htmlCodeCoverage = getUserInputs().get(MatlabConstants.HTML_CODE_COV_REPORT);
     if (htmlCodeCoverage != null) {
       File reportFile = new File(htmlCodeCoverage);
       args.add("'HTMLCodeCoverage','" + ".matlab/" + uniqueTmpFldrName + "/" + FilenameUtils.removeExtension(reportFile.getName()) + "'");
@@ -190,17 +193,14 @@ public class RunMatlabTestsService extends MatlabService {
 
   /**
    * Cleanup the temporary folders
-   *
-   * @throws RunBuildException
    */
-  @Override
-  public void afterProcessFinished() throws RunBuildException {
-    File tempFolder = new File(getRunnerContext().getWorkingDirectory(), ".matlab/" + uniqueTmpFldrName);
+  private void cleanUp() throws RunBuildException {
+    File tempFolder = new File(getWorkspace(), ".matlab/" + uniqueTmpFldrName);
     try {
 
-      final String htmlReport = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_REPORT);
+      final String htmlReport = getUserInputs().get(MatlabConstants.HTML_REPORT);
       if (htmlReport != null) {
-        File reportFolder = new File(getRunnerContext().getWorkingDirectory(), htmlReport);
+        File reportFolder = new File(getWorkspace(), htmlReport);
         if (reportFolder.getParentFile() != null) {
 
           // Create folders to keep .zip files
@@ -211,9 +211,9 @@ public class RunMatlabTestsService extends MatlabService {
         }
       }
 
-      final String htmlCoverage = getRunnerContext().getRunnerParameters().get(MatlabConstants.HTML_CODE_COV_REPORT);
+      final String htmlCoverage = getUserInputs().get(MatlabConstants.HTML_CODE_COV_REPORT);
       if (htmlCoverage != null) {
-        File reportFolder = new File(getRunnerContext().getWorkingDirectory(), htmlCoverage);
+        File reportFolder = new File(getWorkspace(), htmlCoverage);
         if (reportFolder.getParentFile() != null) {
 
           // Create folders to keep .zip files
@@ -225,9 +225,17 @@ public class RunMatlabTestsService extends MatlabService {
       }
       // Delete all resource files used
       FileUtils.deleteDirectory(tempFolder);
-      super.afterProcessFinished();
     } catch (Exception e) {
       throw new RunBuildException(e);
     }
+  }
+
+  /**
+   * Executes cleanup activities after the build 
+   */
+  @Override
+  public void afterProcessFinished() throws RunBuildException {
+    cleanUp();
+    super.afterProcessFinished();
   }
 }

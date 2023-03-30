@@ -24,7 +24,7 @@ public class RunMatlabBuildService extends MatlabService {
     return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
   }
 
-  public List<String> getBashCommands() throws RunBuildException {
+  private List<String> getBashCommands() throws RunBuildException {
     uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
     final String uniqueCommandFileName = "build_" + uniqueTmpFldrName;
 
@@ -44,7 +44,7 @@ public class RunMatlabBuildService extends MatlabService {
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqueTmpFolderPath, uniqueScriptName + ".m");
     final String cmd =
-        "cd '" + getRunner().getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getRunner().getRunnerParameters()
+        "cd '" + getWorkspace().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getUserInputs()
             .get(MatlabConstants.MATLAB_TASKS);
 
     // Display the commands on console output for users reference
@@ -52,24 +52,28 @@ public class RunMatlabBuildService extends MatlabService {
     FileUtils.writeStringToFile(matlabCommandFile, cmd);
   }
 
-
   private String getCommand() {
-    return "cd "+MatlabConstants.TEMP_MATLAB_FOLDER_NAME+"/" + uniqueTmpFldrName + ",build_" + uniqueTmpFldrName;
+    return "cd "+MatlabConstants.TEMP_MATLAB_FOLDER_NAME+ File.separator + uniqueTmpFldrName + ",build_" + uniqueTmpFldrName;
   }
 
   /**
    * Cleanup the temporary folders
-   *
-   * @throws RunBuildException
    */
-  @Override
-  public void afterProcessFinished() throws RunBuildException {
-    File tempFolder = new File(getRunnerContext().getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
+  private void cleanUp() throws RunBuildException {
+    File tempFolder = new File(getWorkspace(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME + "/" + uniqueTmpFldrName);
     try {
       FileUtils.deleteDirectory(tempFolder);
     } catch (IOException e) {
       throw new RunBuildException(e);
     }
+  }
+
+  /**
+   * Executes cleanup activities after the build 
+   */
+  @Override
+  public void afterProcessFinished() throws RunBuildException {
+    cleanUp();
     super.afterProcessFinished();
   }
 }

@@ -11,8 +11,6 @@ import org.junit.Assert;
 public class MatlabServiceTest extends MatlabService {
 
 
-
-
   public void testCopyCommand() throws IOException {
     File targetFile = new File("TestFile.txt");
     FileUtils.writeStringToFile(targetFile, "test");
