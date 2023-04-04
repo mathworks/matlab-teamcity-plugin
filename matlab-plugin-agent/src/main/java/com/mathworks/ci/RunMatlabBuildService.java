@@ -12,6 +12,9 @@ import org.jetbrains.annotations.NotNull;
 public class RunMatlabBuildService extends MatlabService {
 
   private String uniqueTmpFldrName;
+  private String getTaskName(){
+    return getUserInputs().get(MatlabConstants.MATLAB_TASKS) == null ? "" : getUserInputs().get(MatlabConstants.MATLAB_TASKS);
+  }
 
   @NotNull
   @Override
@@ -44,8 +47,7 @@ public class RunMatlabBuildService extends MatlabService {
     // Create a new command runner script in the temp folder.
     final File matlabCommandFile = new File(uniqueTmpFolderPath, uniqueScriptName + ".m");
     final String cmd =
-        "cd '" + getWorkspace().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getUserInputs()
-            .get(MatlabConstants.MATLAB_TASKS);
+        "cd '" + getWorkspace().getAbsolutePath().replaceAll("'", "''") + "';\n" + "buildtool " + getTaskName();
 
     // Display the commands on console output for users reference
     logMessage("Generating MATLAB script with content:\n" + cmd + "\n");
