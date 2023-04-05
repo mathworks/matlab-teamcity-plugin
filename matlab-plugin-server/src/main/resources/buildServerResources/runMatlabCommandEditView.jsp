@@ -14,7 +14,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${matlabRoot}" size="56" maxlength="100" />
+                <props:textProperty name="${matlabRoot}" size="56" maxlength="260" />
                 <span class="smallNote">Specify the path to the MATLAB executable.</span>
                 <span class="error" id="error_${matlabRoot}"></span>
             </div>
