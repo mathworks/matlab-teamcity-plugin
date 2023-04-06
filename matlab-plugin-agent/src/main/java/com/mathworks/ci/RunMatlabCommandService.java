@@ -14,7 +14,7 @@ public class RunMatlabCommandService extends MatlabService {
   private String uniqueTmpFldrName;
 
   public String getMatlabCommand(){
-    return getRunnerParameters().get(MatlabConstants.MATLAB_COMMAND);
+    return getRunnerParameters().get(MatlabConstants.MATLAB_COMMAND) == null ? "" : getRunnerParameters().get(MatlabConstants.MATLAB_COMMAND);
   }
 
   @NotNull
