@@ -61,7 +61,7 @@ public class RunMatlabTestsService extends MatlabService {
     final String matlabScriptName = "runner_" + genscriptLocation.getName();
     final String runCommand =
         "addpath('" + genscriptLocation.getAbsolutePath().replaceAll("'", "''") + "'); " + matlabScriptName + ",delete('.matlab" +
-            File.separator + genscriptLocation.getName() + File.separator + matlabScriptName + ".m'),runnerScript,rmdir(tmpDir,'s')";
+            File.separator + genscriptLocation.getName() + File.separator + matlabScriptName + ".m'),runnerScript,rmpath(tmpDir),rmdir(tmpDir,'s')";
     return runCommand;
   }
 

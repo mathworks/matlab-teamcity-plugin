@@ -1,25 +1,29 @@
 package com.mathworks.ci;
 
-import jetbrains.buildServer.RunBuildException;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import org.apache.commons.io.FileUtils;
-import org.mockito.Mockito;
-import org.testng.Assert;
-import org.testng.annotations.*;
+import static org.apache.commons.io.FileUtils.copyDirectory;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.*;
-
-import static org.apache.commons.io.FileUtils.copyDirectory;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.spy;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import jetbrains.buildServer.RunBuildException;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import org.apache.commons.io.FileUtils;
+import org.mockito.Mockito;
+import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 public class RunMatlabTestsTest {
     RunMatlabTestsService service;
@@ -62,6 +66,7 @@ public class RunMatlabTestsTest {
                                    "runner_tempFile,"+
                                    "delete('" + ".matlab" + File.separator + "tempFile" + File.separator + "runner_tempFile.m" +"')," +
                                    "runnerScript," +
+                                   "rmpath(tmpDir)," +
                                    "rmdir(tmpDir,'s')");
 
         Mockito.doReturn(envMaps).when(service).getUserInputs();
