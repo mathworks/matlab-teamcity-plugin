@@ -27,7 +27,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${matlabPathId}" size="56" maxlength="260" />
+                <props:textProperty name="${matlabPathId}" size="56" />
                 <span class="smallNote">Specify the path to the MATLAB executable.</span>
                 <span class="error" id="error_${matlabPathId}"></span>
             </div>
@@ -42,7 +42,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${sourceFolder}" size="56" maxlength="100" />
+                <props:textProperty name="${sourceFolder}" size="56" />
                 <span class="error" id="error_${sourceFolder}"></span>
                 <span class="smallNote">Specify one or more source folders.</span>
             </div>
@@ -59,7 +59,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${testByFolder}" size="56" maxlength="100" />
+                <props:textProperty name="${testByFolder}" size="56" />
                 <span class="error" id="error_${testByFolder}"></span>
                 <span class="smallNote">Specify one or more test folders.</span>
             </div>
@@ -72,7 +72,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${testByTag}" size="56" maxlength="100" />
+                <props:textProperty name="${testByTag}" size="56" />
                 <span class="error" id="error_${testByTag}"></span>
                 <span class="smallNote">Specify a test tag.</span>
             </div>
@@ -140,7 +140,7 @@
             </th>
             <td>
                 <div class="posRel">
-                    <props:textProperty name="${tapReport}" size="56" maxlength="100" />
+                    <props:textProperty name="${tapReport}" size="56" />
                     <span class="error" id="error_${tapReport}"></span>
                     <span class="smallNote">Specify a path relative to the working directory.</span>
                 </div>
@@ -153,7 +153,7 @@
         </th>
                  <td>
                         <div class="posRel">
-                            <props:textProperty name="${junitReport}" size="56" maxlength="100" />
+                            <props:textProperty name="${junitReport}" size="56" />
                             <span class="error" id="error_${htmlReport}"></span>
                             <span class="smallNote">Specify a path relative to the working directory.</span>
                         </div>
@@ -166,7 +166,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${pdfReport}" size="56" maxlength="100" />
+                <props:textProperty name="${pdfReport}" size="56" />
                 <span class="error" id="error_${pdfReport}"></span>
                 <span class="smallNote">Specify a path relative to the working directory.</span>
             </div>
@@ -179,7 +179,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${htmlReport}" size="56" maxlength="100" />
+                <props:textProperty name="${htmlReport}" size="56" />
                 <span class="error" id="error_${htmlReport}"></span>
                 <span class="smallNote">Specify a path relative to the working directory.</span>
             </div>
@@ -192,7 +192,7 @@
         </th>
              <td>
                 <div class="posRel">
-                   <props:textProperty name="${htmlCodeCov}" size="56" maxlength="100" />
+                   <props:textProperty name="${htmlCodeCov}" size="56" />
                    <span class="error" id="error_${htmlCodeCov}"></span>
                    <span class="smallNote">Specify a path relative to the artifact root directory.</span>
                  </div>

@@ -13,7 +13,8 @@ public class RunMatlabBuildService extends MatlabService {
 
   private String uniqueTmpFldrName;
   private String getTaskName(){
-    return getUserInputs().get(MatlabConstants.MATLAB_TASKS) == null ? "" : getUserInputs().get(MatlabConstants.MATLAB_TASKS);
+    final String tasks = getUserInputs().get(MatlabConstants.MATLAB_TASKS);
+    return tasks == null ? "" : tasks;
   }
 
   @NotNull

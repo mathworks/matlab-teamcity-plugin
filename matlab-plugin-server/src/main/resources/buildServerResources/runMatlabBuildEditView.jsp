@@ -15,7 +15,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${matlabRoot}" size="56" maxlength="260" />
+                <props:textProperty name="${matlabRoot}" size="56" />
                 <span class="smallNote">Specify the path to the MATLAB executable.</span>
                 <span class="error" id="error_${matlabRoot}"></span>
             </div>
@@ -31,7 +31,7 @@
         </th>
         <td>
             <div class="posRel">
-                <props:textProperty name="${matlabTasks}" size="56" maxlength="100" />
+                <props:textProperty name="${matlabTasks}" size="56" />
                 <span class="error" id="error_${matlabTasks}"></span>
                 <span class="smallNote">Specify the MATLAB build tasks to execute.</span>
             </div>
