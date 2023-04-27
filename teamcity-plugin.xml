@@ -2,15 +2,15 @@
 <teamcity-plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:schemas-jetbrains-com:teamcity-plugin-v1-xml">
   <info>
     <name>matlab-plugin</name>
-    <display-name>matlab-plugin</display-name>
+    <display-name>MATLAB</display-name>
     <version>1.0.0</version>
-    <description>TeamCity plugin for running MATLAB build steps </description>
+    <description>Run MATLAB and Simulink as part of your build pipeline. </description>
     <download-url>Plugin download URL</download-url>
     <email>continuous-integration@mathworks.com</email>
     <vendor>
       <name>MathWorks</name>
       <url>https://www.mathworks.com/</url>
-      <logo>Plugin vendor logo URL</logo>
+      <logo>https://github.com/mathworks/matlab-teamcity-plugin/blob/main/images/mathworks-logo.svg</logo>
     </vendor>
   </info>
   <deployment use-separate-classloader="true"/>
