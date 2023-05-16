@@ -80,7 +80,7 @@ To customize your test run, select options in the **Customize Test Run** section
 #### Generate Test and Coverage Artifacts
 To generate test and coverage artifacts, specify the paths to store the artifacts in the **Generate Test and Coverage Artifacts** section. 
 
-For example, run your tests, and generate test results in JUnit XML format and a code coverage report in HTML format at the specified locations in your working directory.
+For example, run your tests, and generate test results in JUnit-style XML format and a code coverage report in HTML format at the specified locations in your working directory.
 
 ![generate_artifacts](https://user-images.githubusercontent.com/48831250/231219856-427be4ff-4ac9-4723-8428-38d1f501ee4c.png)
 
