@@ -1,5 +1,5 @@
 # Plugin Configuration Guide
-This plugin enables you to build and test your MATLAB&reg; project as part of your TeamCity&reg; build. For example, you can automatically identify any code issues in your project, run tests and generate test and coverage artifacts, and package your files into a toolbox.
+This guide shows how to configure the plugin so that you can build and test your MATLAB&reg; project as part of your TeamCity&reg; build. For example, you can automatically identify any code issues in your project, run tests and generate test and coverage artifacts, and package your files into a toolbox.
 
 -  [Use MATLAB as Executable](#use-matlab-as-executable)
 -  [Configure Build Steps](#configure-build-steps)
@@ -12,7 +12,7 @@ This plugin enables you to build and test your MATLAB&reg; project as part of yo
       -  [Run MATLAB Command](#run-matlab-command)
 
 ## Use MATLAB as Executable
-To run MATLAB code and Simulink&reg; models using this plugin, you must have MATLAB installed on your build agent. When you add any of the build steps supported by the plugin to your build configuration, specify a MATLAB executable for use by the step. To do this, specify the full path to the root folder of your preferred MATLAB version in the **MATLAB root** box of the build step configuration interface.
+To run MATLAB code and Simulink&reg; models using this plugin, you must have MATLAB installed on your build agent. When you add any of the build steps supported by the plugin to your build configuration, specify a MATLAB executable to use for the step. To do this, specify the full path to the root folder of your preferred MATLAB version in the **MATLAB root** box of the build step configuration interface.
 
 You can use the [`matlabroot`](https://www.mathworks.com/help/matlab/ref/matlabroot.html) function to return the full path to your MATLAB root folder. The path depends on the platform, MATLAB version, and installation location. This table shows examples of the root folder path on different platforms. 
 
@@ -84,8 +84,8 @@ For example, run your tests, and generate test results in JUnit XML format and a
 
 ![generate_artifacts](https://user-images.githubusercontent.com/48831250/231219856-427be4ff-4ac9-4723-8428-38d1f501ee4c.png)
 
-HTML reports to generate with the plugin are subject to these requirements: 
-* To generate an HTML test or coverage report, you must specify the path to the ZIP archive that constains `index.html` as the main file of the report. For example, to generate an HTML code coverage report, specify the path to a file named `coverage.zip` in the **HTML code coverage report** box.
+Paths for HTML reports are subject to these requirements: 
+* To generate an HTML test or coverage report, you must specify a path to a ZIP archive that contains `index.html` as the main file of the report. For example, to generate an HTML code coverage report, specify the path to a file named `coverage.zip` in the **HTML code coverage report** box.
 * The ZIP archive of the code coverage report must be in the artifacts root directory. For more information, see [Importing Arbitrary Coverage Results to TeamCity](https://www.jetbrains.com/help/teamcity/importing-arbitrary-coverage-results-to-teamcity.html).
 
 ### Run MATLAB Command
@@ -95,9 +95,9 @@ To configure the **Run MATLAB Command** step, first specify the MATLAB executabl
 
 ![run_matlab_command](https://user-images.githubusercontent.com/48831250/231220698-aa20ccb9-0cad-4778-a883-91349df9274c.png)
 
-MATLAB exits with exit code 0 if the specified script, function, or statement executes successfully without error. Otherwise, MATLAB terminates with a nonzero exit code, which causes the TeamCity build to fail. To fail the build in certain conditions, use the [`assert`](https://www.mathworks.com/help/matlab/ref/assert.html) or [`error`](https://www.mathworks.com/help/matlab/ref/error.html) functions.
+MATLAB exits with exit code 0 if the specified script, function, or statement executes successfully without error. Otherwise, MATLAB terminates with a nonzero exit code, which causes the TeamCity build to fail. To fail the build in certain conditions, use the [`assert`](https://www.mathworks.com/help/matlab/ref/assert.html) or [`error`](https://www.mathworks.com/help/matlab/ref/error.html) function.
 
-When you use this step, all of the required files must be on the MATLAB search path. If your script or function is not in the root of your repository, you can use the [`addpath`](https://www.mathworks.com/help/matlab/ref/addpath.html), [`cd`](https://www.mathworks.com/help/matlab/ref/cd.html), or [`run`](https://www.mathworks.com/help/matlab/ref/run.html) functions to ensure that it is on the path when invoked. For example, to run `myscript.m` in a folder named `myfolder` located in the root of the repository, you can specify the contents of the **Command** box like this:
+When you use this step, all of the required files must be on the MATLAB search path. If your script or function is not in the root of your repository, you can use the [`addpath`](https://www.mathworks.com/help/matlab/ref/addpath.html), [`cd`](https://www.mathworks.com/help/matlab/ref/cd.html), or [`run`](https://www.mathworks.com/help/matlab/ref/run.html) function to ensure that it is on the path when invoked. For example, to run `myscript.m` in a folder named `myfolder` located in the root of the repository, you can specify the contents of the **Command** box like this:
 
 `addpath("myfolder"), myscript`
 
