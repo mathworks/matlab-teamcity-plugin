@@ -2,9 +2,8 @@
 
 This example shows how to run a suite of MATLAB&reg; unit tests with TeamCity&reg;. The example demonstrates how to:
 
-* Create a build configuration to access MATLAB tests hosted in a remote repository.
-* Use a build step to run the tests and generate test and coverage artifacts.
-* Run the build and and examine the test results and the generated artifacts.
+* Create a build configuration to run MATLAB tests hosted in a remote repository and generate test and coverage artifacts.
+* Run the build and examine the test results and the generated artifacts.
 
 The build runs the tests in the Times Table App MATLAB project (which requires R2019a or later). You can create a working copy of the project files and open the project in MATLAB by running this statement in the Command Window.
 
@@ -12,7 +11,7 @@ The build runs the tests in the Times Table App MATLAB project (which requires R
 matlab.project.example.timesTable
 ```
 
-For more information about the Times Table App example project, see [Explore an Example Project](https://www.mathworks.com/help/matlab/matlab_prog/explore-an-example-project.html).
+For more information about the Times Table App project, see [Explore an Example Project](https://www.mathworks.com/help/matlab/matlab_prog/explore-an-example-project.html).
 
 ## Prerequisites
 To follow the steps in this example:
@@ -24,7 +23,7 @@ To follow the steps in this example:
 ## Create Build Configuration to Run MATLAB Tests
 Create a build configuration by following these steps:
 
-1. In your TeamCity UI, click **Create project** or **New project**. Then, in the build configuration creation wizard, click **From a repository URL** and specify the repository for your project. Once you have provided the required information, click **Proceed**. TeamCity creates a project, build configuration, and VCS (version control settings) root for you. For more information on how to create build configurations in TeamCity, see [Creating and Editing Build Configurations](https://www.jetbrains.com/help/teamcity/creating-and-editing-build-configurations.html).
+1. In your TeamCity UI, click **Create project** or **New project**. Then, in the build configuration creation wizard, select **From a repository URL** and specify the repository for your project. Provide the required information and click **Proceed**. TeamCity creates a project, build configuration, and VCS (version control settings) root for you. For more information on how to create build configurations in TeamCity, see [Creating and Editing Build Configurations](https://www.jetbrains.com/help/teamcity/creating-and-editing-build-configurations.html).
 
 ![create_project](https://user-images.githubusercontent.com/48831250/231195914-7d97a2c8-0db9-440a-80bd-63383e88f6a0.png)
 
@@ -40,7 +39,7 @@ Create a build configuration by following these steps:
 
 ![artifact_paths](https://user-images.githubusercontent.com/48831250/231198563-773c65eb-7561-47af-af8c-433813f111f3.png)
 
-## Run Tests and Inspect Results
+## Run Tests and Inspect Artifacts
 Now that your build configuration is complete, you can run a build. At the upper-right corner of the page, click **Run**. In this example, the build succeeds because all of the tests in the Times Table App project pass.
 
 To access the test and coverage artifacts, select the **Artifacts** and **Code Coverage** tabs on the build results page. You can also create custom tabs to view the build artifacts. For more information, see [Including Third-Party Reports in the Build Results](https://www.jetbrains.com/help/teamcity/including-third-party-reports-in-the-build-results.html). 
