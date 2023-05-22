@@ -28,7 +28,7 @@
         <td>
             <div class="posRel">
                 <props:textProperty name="${matlabPathId}" size="56" />
-                <span class="smallNote">Specify the path to the MATLAB root folder</span>
+                <span class="smallNote">Specify the path to the MATLAB root folder.</span>
                 <span class="error" id="error_${matlabPathId}"></span>
             </div>
         </td>
