@@ -41,7 +41,7 @@ MATLAB exits with exit code 0 if the build runs successfully. Otherwise, MATLAB 
 When you use this step, a file named `buildfile.m` must be in the root of your repository. For more information about the build tool, see [Create and Run Tasks Using Build Tool](https://www.mathworks.com/help/matlab/matlab_prog/create-and-run-tasks-using-build-tool.html).
 
 ### Run MATLAB Tests
-The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your plan does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
+The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your build does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
 
 To configure the **Run MATLAB Tests** step, specify the MATLAB executable to use for the step. For example, use MATLAB R2023a to run the tests in your MATLAB project.
 
