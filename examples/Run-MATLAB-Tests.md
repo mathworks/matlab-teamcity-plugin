@@ -5,11 +5,11 @@ This example shows how to run a suite of MATLAB&reg; unit tests with TeamCity&re
 * Create a build configuration to run MATLAB tests hosted in a remote repository and generate test and coverage artifacts.
 * Run the build and examine the test results and the generated artifacts.
 
-The build runs the tests in the Times Table App MATLAB project (which requires R2019a or later). You can create a working copy of the project files and open the project in MATLAB by running this statement in the Command Window.
+The build runs the tests in the Times Table App MATLAB project (which requires R2019a or later). You can create a working copy of the project files and open the project in MATLAB by running a statement in the Command Window. The statement to run depends on your MATLAB release:
 
-```
-matlab.project.example.timesTable
-```
+R2023a and Earlier                 | Starting in R2023b
+-----------------------------------| ------------------------------------------------
+`matlab.project.example.timesTable`| `openExample("matlab/TimesTableProjectExample")`
 
 For more information about the Times Table App project, see [Explore an Example Project](https://www.mathworks.com/help/matlab/matlab_prog/explore-an-example-project.html).
 
