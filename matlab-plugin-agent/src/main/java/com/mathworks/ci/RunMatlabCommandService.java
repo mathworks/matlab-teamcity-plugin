@@ -1,84 +1,74 @@
 package com.mathworks.ci;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import java.util.Map;
+
 import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.BuildRunnerContext;
+import jetbrains.buildServer.agent.BuildProgressLogger;
+import jetbrains.buildServer.agent.runner.BuildServiceAdapter;
 import jetbrains.buildServer.agent.runner.ProgramCommandLine;
-import jetbrains.buildServer.agent.runner.SimpleProgramCommandLine;
-import org.apache.commons.io.FileUtils;
+
 import org.jetbrains.annotations.NotNull;
 
-public class RunMatlabCommandService extends MatlabService {
+public class RunMatlabCommandService extends BuildServiceAdapter {
 
-  private String uniqueTmpFldrName;
+    private MatlabCommandRunner runner;
 
-  public String getMatlabCommand(){
-    return getRunnerParameters().get(MatlabConstants.MATLAB_COMMAND) == null ? "" : getRunnerParameters().get(MatlabConstants.MATLAB_COMMAND);
-  }
-
-  @NotNull
-  @Override
-  public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
-    String matlabPath = getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
-    setRunner(getRunnerContext());
-
-    //Add MATLAB into PATH Variable
-    addToPath(matlabPath);
-    return new SimpleProgramCommandLine(getRunner(), getExecutable(), getBashCommands());
-  }
-
-  public List<String> getBashCommands() throws RunBuildException {
-    uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
-
-    final String uniqueCommandFileName = "cmd_" + uniqueTmpFldrName;
-
-    try {
-      final File uniqueScriptPath = getFilePathForUniqueFolder(uniqueTmpFldrName);
-      createMatlabScriptByName(uniqueScriptPath, uniqueCommandFileName);
-      return getBashCommandsToRunMatlabCommand(getCommand(), uniqueTmpFldrName);
-    } catch (IOException e) {
-      throw new RunBuildException(e);
-    } catch (InterruptedException e) {
-      throw new RunBuildException(e);
+    public RunMatlabCommandService(MatlabCommandRunner runner) {
+        this.runner = runner;
     }
-  }
 
-
-  private void createMatlabScriptByName(File uniqeTmpFolderPath, String uniqueScriptName) throws IOException, InterruptedException {
-
-    // Create a new command runner script in the temp folder.
-    final File matlabCommandFile = new File(uniqeTmpFolderPath, uniqueScriptName + ".m");
-    final String cmd =
-        "cd '" + getWorkspace().getAbsolutePath().replaceAll("'", "''") + "';\n" + getMatlabCommand();
-
-    // Display the commands on console output for users reference
-    logMessage("Generating MATLAB script with content:\n" + cmd + "\n");
-    FileUtils.writeStringToFile(matlabCommandFile, cmd);
-  }
-
-  private String getCommand() {
-    return "cd .matlab" +File.separator+ uniqueTmpFldrName + ",cmd_" + uniqueTmpFldrName;
-  }
-
-  /**
-   * Cleanup the temporary folders
-   */
-  private void cleanUp(){
-    File tempFolder = new File(getWorkspace(), ".matlab/" + uniqueTmpFldrName);
-    try {
-      FileUtils.deleteDirectory(tempFolder);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    public RunMatlabCommandService() {
+        this(new MatlabCommandRunner());
     }
-  }
 
-  /**
-   * Executes cleanup activities after the build 
-   */
-  @Override
-  public void afterProcessFinished() throws RunBuildException {
-    cleanUp();
-    super.afterProcessFinished();
-  }
+    public String getMatlabCommand(){
+        return getUserInputs().get(MatlabConstants.MATLAB_COMMAND) == null ? "" : getUserInputs().get(MatlabConstants.MATLAB_COMMAND);
+    }
+
+    @NotNull
+    @Override
+    public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
+        // Set up runner - can't be done at construction time since we don't have access to the context
+        runner.setRunnerContext(getContext());
+        runner.createUniqueFolder();
+
+        ProgramCommandLine value;
+        try {
+            value = runner.createCommand(getMatlabCommand());
+        } catch (Exception e) {
+            throw new RunBuildException(e);
+        } 
+
+        return value;
+    }
+
+    // Testing stubs
+    public Map<String, String> getUserInputs() {
+        return getRunnerContext().getRunnerParameters();
+    }
+
+    public BuildRunnerContext getContext() {
+        return getRunnerContext();
+    }
+
+    public BuildProgressLogger logger() {
+        return getLogger();
+    }
+
+    /**
+     * Clean up temp folder
+     */
+    public void cleanUp() {
+        runner.cleanUp(logger());
+    }
+
+    /**
+     * Executes cleanup activities after the build 
+     */
+    @Override
+    public void afterProcessFinished() throws RunBuildException {
+        cleanUp();
+        super.afterProcessFinished();
+    }
 }

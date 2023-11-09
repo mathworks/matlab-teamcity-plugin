@@ -47,8 +47,8 @@ public class MatlabTestRunner extends RunType {
             @Override
             public Collection<InvalidProperty> process(final Map<String, String> properties) {
                 Collection<InvalidProperty> invalid = new LinkedList<InvalidProperty>();
-                if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabRoot"))) {
-                    invalid.add(new InvalidProperty("MatlabRoot", "MATLAB root cannot be empty"));
+                if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabPathKey"))) {
+                    invalid.add(new InvalidProperty("MatlabPathKey", "MATLAB root cannot be empty"));
                 }
                 return invalid;
             }
