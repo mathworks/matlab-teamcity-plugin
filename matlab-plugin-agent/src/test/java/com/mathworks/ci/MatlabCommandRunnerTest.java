@@ -147,7 +147,7 @@ public class MatlabCommandRunnerTest {
 
         runner.createCommand("blank");
 
-        Mockito.verify(context).addEnvironmentVariable("Path", "/path/to/matlab/bin" + File.pathSeparator);
+        Mockito.verify(context).addEnvironmentVariable("Path", "/path/to/matlab" + File.separator + "bin" + File.pathSeparator);
     }
         
     // copyFileToWorkspace test
