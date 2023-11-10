@@ -227,7 +227,7 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
                 }
             }
             // Delete all resource files used
-            runner.cleanUp(logger());
+            // runner.cleanUp(logger());
         } catch (Exception e) {
             throw new RunBuildException(e);
         }

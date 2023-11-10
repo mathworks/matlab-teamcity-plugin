@@ -49,6 +49,7 @@ public interface MatlabConstants {
       "disp('Running MATLAB script with content:');",
       "disp(testScript.Contents);",
       "testScript.writeToFile(fullfile(tmpDir,'runnerScript.m'));",
-      "fprintf('___________________________________\\n\\n');");
+      "fprintf('___________________________________\\n\\n');",
+      "runnerScript()");
 }
 
