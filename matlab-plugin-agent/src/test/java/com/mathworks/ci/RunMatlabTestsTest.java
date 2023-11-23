@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -176,9 +177,9 @@ public class RunMatlabTestsTest {
     }
 
     // Test setup to put MATLAB files in the workspace before cleanUp process
-    public void reportSetUp(String fileName) throws IOException {
+    public void reportSetUp(String fileName) throws IOException, URISyntaxException {
         File reportZipFIle = new File(currDir.getAbsolutePath() + File.separator + ".matlab" + File.separator + uniqueName +File.separator + fileName);
-        copyDirectory(new File(getClass().getClassLoader().getResource("TestData").getFile()), reportZipFIle);
+        copyDirectory(new File(getClass().getClassLoader().getResource("TestData").toURI()), reportZipFIle);
     }
     // Verifies the content of the generated zip file
     private void verifyZipFoldersContent(File reportFolder) throws ZipException {
@@ -190,7 +191,7 @@ public class RunMatlabTestsTest {
 
     // Test to verify zip report is generated from MATLAB HTML report
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
-    public void cleanUpWithHTMLReport() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void cleanUpWithHTMLReport() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, URISyntaxException {
         reportSetUp("coverage");
 
         Map<String, String> envMapsWithHTMLReport = new HashMap<>(envMaps);
@@ -207,7 +208,7 @@ public class RunMatlabTestsTest {
 
     // Test to verify zip report is generated from MATLAB HTML reports
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
-    public void cleanUpWithHTMLReportInFolder() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void cleanUpWithHTMLReportInFolder() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, URISyntaxException {
         reportSetUp("coverage");
 
         Map<String, String> envMapsWithHTMLReportWithFolder = new HashMap<>(envMaps);
@@ -224,7 +225,7 @@ public class RunMatlabTestsTest {
 
     // Test to verify zip report is generated from MATLAB HTML code cov reports
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
-    public void verifyHTMLCodeCovCleanup() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void verifyHTMLCodeCovCleanup() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, URISyntaxException {
         reportSetUp("codecoverage");
 
         Map<String, String> envMapsWithHTMLCodeCov = new HashMap<>(envMaps);
@@ -242,7 +243,7 @@ public class RunMatlabTestsTest {
 
     // Test to verify zip report is generated from MATLAB HTML code cov reports
     @Test(dependsOnMethods = { "verifyGeneratedBashCommands" })
-    public void verifyHTMLCodeCovCleanupInFolder() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void verifyHTMLCodeCovCleanupInFolder() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, URISyntaxException {
         reportSetUp("codecoverage");
 
         Map<String, String> envMapsWithHTMLCodecovWithFolder = new HashMap<>(envMaps);
