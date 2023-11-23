@@ -1,10 +1,15 @@
 package com.mathworks.ci;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+
+import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.serverSide.RunType;
 import jetbrains.buildServer.serverSide.RunTypeRegistry;
+import jetbrains.buildServer.util.PropertiesUtil;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +44,16 @@ public class MatlabBuildRunner  extends RunType {
   @Nullable
   @Override
   public PropertiesProcessor getRunnerPropertiesProcessor() {
-    return null;
+    return new PropertiesProcessor() {
+      @Override
+      public Collection<InvalidProperty> process(final Map<String, String> properties) {
+        Collection<InvalidProperty> invalid = new LinkedList<InvalidProperty>();
+        if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabPathKey"))) {
+          invalid.add(new InvalidProperty("MatlabPathKey", "MATLAB MATLAB root cannot be empty"));
+        }
+        return invalid;
+      }
+    };
   }
 
   @Nullable
