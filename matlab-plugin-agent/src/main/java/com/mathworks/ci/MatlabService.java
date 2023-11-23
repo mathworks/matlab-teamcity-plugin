@@ -66,8 +66,6 @@ public abstract class MatlabService extends BuildServiceAdapter {
 
     } else {
       final File runnerScriptName = new File(tempWorkspceFldr, uniqueName + "\\run_matlab_command.bat");
-
-      args.add("/C");
       args.add(runnerScriptName.getPath());
       args.add(matlabCommand);
       copyFileToWorkspace(MatlabConstants.BAT_RUNNER_SCRIPT, new File(runnerScriptName.getPath()));
