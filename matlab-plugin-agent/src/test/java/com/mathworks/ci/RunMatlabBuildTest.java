@@ -50,7 +50,6 @@ public class RunMatlabBuildTest {
         Mockito.doReturn(isWindows).when(service).isWindows();
 
         if(isWindows) {
-            bashCommands.add("/C");
             bashScriptFileName = "run_matlab_command.bat";
         }
         //Path to run_matlab_command.bat script

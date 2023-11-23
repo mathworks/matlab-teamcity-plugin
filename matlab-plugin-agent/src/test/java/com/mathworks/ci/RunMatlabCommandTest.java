@@ -54,7 +54,6 @@ public class RunMatlabCommandTest {
         currDir.mkdir();
 
         if (isWindows) {
-            bashCommands.add("/C");
             bashScriptFileName = "run_matlab_command.bat";
         }
 
