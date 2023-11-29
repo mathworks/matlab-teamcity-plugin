@@ -58,13 +58,6 @@ public class RunMatlabBuildTest {
         FileUtils.deleteDirectory(currDir);
     }
 
-    //Used to make the private methods accessible to test the methods
-    public Method getAccessibleMethod(String methodName) throws NoSuchMethodException {
-        Method method = RunMatlabBuildService.class.getDeclaredMethod(methodName, null);
-        method.setAccessible(true);
-        return method;
-    }
-
     @Test(description="Validate default command")
     public void verifyDefaultCommandWithNoTasks() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         Map<String, String> envMap = new HashMap<>();
