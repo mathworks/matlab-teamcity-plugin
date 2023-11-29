@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import org.mockito.Mockito;
@@ -63,7 +64,6 @@ public class MatlabCommandRunnerTest {
         buildParamsMap = mock(BuildParametersMap.class);
 
         when(context.getWorkingDirectory()).thenReturn(currDir);
-        when(context.getRunnerParameters()).thenReturn(params);
         when(context.getBuild()).thenReturn(agent);
         when(context.getBuildParameters()).thenReturn(buildParamsMap);
         when(agent.getAgentConfiguration()).thenReturn(agentConfig);
@@ -80,6 +80,11 @@ public class MatlabCommandRunnerTest {
 
         runner = new MatlabCommandRunner();
         runner.setRunnerContext(context);
+    }
+
+    @BeforeMethod
+    public void insertStubs() {
+        when(context.getRunnerParameters()).thenReturn(params);
     }
 
     @AfterTest
@@ -100,7 +105,7 @@ public class MatlabCommandRunnerTest {
 
     // executable creation
     @Test
-    public void verifyExecutionCreation() throws IOException {
+    public void verifyExecutableCreation() throws IOException {
         // Set temp dir
         runner.setTempDirectory(currDir);
 
@@ -116,6 +121,7 @@ public class MatlabCommandRunnerTest {
         }
 
         Assert.assertTrue(expected.exists());
+        Assert.assertEquals(actual, expected.getPath());
     }
 
     // matlab script creation + command generation
@@ -127,17 +133,33 @@ public class MatlabCommandRunnerTest {
 
         List<String> expectedCommand = new ArrayList<String>();
         expectedCommand.add("addpath('" + currDir.getPath().replaceAll("'", ";;") + "');" + "matlab_" + currDir.getName());
-        List<String> actualCommand = runner.generateCommand(command);
 
+        List<String> actualCommand = runner.generateCommand(command);
         Assert.assertEquals(actualCommand, expectedCommand);
 
         File expectedFile = new File(currDir, "matlab_" + currDir.getName() + ".m");
-
         Assert.assertTrue(expectedFile.exists());
 
         String contents = FileUtils.readFileToString(expectedFile);
-
         Assert.assertEquals(contents, "cd '" + currDir.getPath() + "';\n" + command);
+    }
+
+    // startup options test
+    @Test
+    public void startupOptionsAdded () throws IOException {
+        String options = "-nojvm -logfile file.log";
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(MatlabConstants.STARTUP_OPTIONS, options);
+
+        when(context.getRunnerParameters()).thenReturn(params);
+
+        List<String> actualCommand = runner.generateCommand("blank");
+
+        Assert.assertEquals(actualCommand.get(1), "-nojvm");
+        Assert.assertEquals(actualCommand.get(2), "-logfile");
+        Assert.assertEquals(actualCommand.get(3), "file.log");
+
     }
 
     // verify MATLAB added to PATH
@@ -156,11 +178,9 @@ public class MatlabCommandRunnerTest {
         runner.createUniqueFolder();
 
         File tempFile = new File(runner.getTempDirectory(), "tempFile");
-
         Assert.assertFalse(tempFile.exists());
 
         runner.copyFileToWorkspace("glnxa64/run-matlab-command", tempFile);
-
         Assert.assertTrue(tempFile.exists());
     }
     
@@ -170,11 +190,9 @@ public class MatlabCommandRunnerTest {
         runner.createUniqueFolder();
 
         File temp = runner.getTempDirectory();
-
         Assert.assertTrue(temp.exists());
 
         runner.cleanUp(mock(BuildProgressLogger.class));
-
         Assert.assertFalse(temp.exists());
     }
 }
