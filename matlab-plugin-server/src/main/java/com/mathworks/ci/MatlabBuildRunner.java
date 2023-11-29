@@ -44,16 +44,16 @@ public class MatlabBuildRunner  extends RunType {
   @Nullable
   @Override
   public PropertiesProcessor getRunnerPropertiesProcessor() {
-        return new PropertiesProcessor() {
-            @Override
-            public Collection<InvalidProperty> process(final Map<String, String> properties) {
-                Collection<InvalidProperty> invalid = new LinkedList<InvalidProperty>();
-                if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabPathKey"))) {
-                    invalid.add(new InvalidProperty("MatlabPathKey", "MATLAB root cannot be empty"));
-                }
-                return invalid;
-            }
-        };
+    return new PropertiesProcessor() {
+      @Override
+      public Collection<InvalidProperty> process(final Map<String, String> properties) {
+        Collection<InvalidProperty> invalid = new LinkedList<InvalidProperty>();
+        if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabPathKey"))) {
+          invalid.add(new InvalidProperty("MatlabPathKey", "MATLAB MATLAB root cannot be empty"));
+        }
+        return invalid;
+      }
+    };
   }
 
   @Nullable

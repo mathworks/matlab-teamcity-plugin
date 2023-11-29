@@ -46,7 +46,7 @@ public class RunMatlabCommandTest {
 
         String systemTempFolder = System.getProperty("java.io.tmpdir");
 
-        currDir = new File(systemTempFolder, "tmpBuildProjectWorkspace");
+        currDir = new File(systemTempFolder, "tmpCommandProjectWorkspace");
         currDir.mkdir();
 
         // Stub out inherited jetbrains methods

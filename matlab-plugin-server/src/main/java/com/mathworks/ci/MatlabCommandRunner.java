@@ -54,6 +54,9 @@ public class MatlabCommandRunner extends RunType {
                 if (PropertiesUtil.isEmptyOrNull(properties.get("matlabCommand"))) {
                     invalid.add(new InvalidProperty("matlabCommand", "Command cannot be empty"));
                 }
+                if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabPathKey"))) {
+                    invalid.add(new InvalidProperty("MatlabPathKey", "MATLAB MATLAB root cannot be empty"));
+                }
                 return invalid;
 
             }
