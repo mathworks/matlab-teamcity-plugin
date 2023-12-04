@@ -41,20 +41,19 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
     @Override
     public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
         // Set up runner - can't be done at construction time since we don't have access to the context
-        runner.setRunnerContext(getContext());
-        runner.createUniqueFolder();
+        this.runner.createUniqueFolder(getContext());
 
         // Move genscript to temp directory
-        File genscriptLocation = new File(runner.getTempDirectory(), MatlabConstants.MATLAB_SCRIPT_GENERATOR);
+        File genscriptLocation = new File(this.runner.getTempDirectory(), MatlabConstants.MATLAB_SCRIPT_GENERATOR);
 
         // Prepare command
-        String runnerScript = getRunnerScript(MatlabConstants.TEST_RUNNER_SCRIPT, getGenScriptParametersForTests(runner.getTempDirectory().getName()));
+        String runnerScript = getRunnerScript(MatlabConstants.TEST_RUNNER_SCRIPT, getGenScriptParametersForTests(this.runner.getTempDirectory().getName()));
         runnerScript = replaceZipPlaceholder(runnerScript, genscriptLocation.getPath());
 
         ProgramCommandLine value;
         try {
-            runner.copyFileToWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR, genscriptLocation);
-            value = runner.createCommand(runnerScript);
+            this.runner.copyFileToWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR, genscriptLocation);
+            value = this.runner.createCommand(getContext(), runnerScript);
         } catch (Exception e) {
             throw new RunBuildException(e);
         }
@@ -200,7 +199,6 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
      */
     public void cleanUp() throws RunBuildException {
         try {
-
             final String htmlReport = getUserInputs().get(MatlabConstants.HTML_REPORT);
             if (htmlReport != null) {
                 File reportFolder = new File(getWorkspace(), htmlReport);
@@ -208,9 +206,9 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
 
                     // Create folders to keep .zip files
                     reportFolder.getParentFile().mkdirs();
-                    zipFolder(new File(runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
+                    zipFolder(new File(this.runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
                 } else {
-                    zipFolder(new File(runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
+                    zipFolder(new File(this.runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
                 }
             }
 
@@ -221,13 +219,21 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
 
                     // Create folders to keep .zip files
                     reportFolder.getParentFile().mkdirs();
-                    zipFolder(new File(runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
+                    zipFolder(new File(this.runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
                 } else {
-                    zipFolder(new File(runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
+                    zipFolder(new File(this.runner.getTempDirectory(), FilenameUtils.removeExtension(reportFolder.getName())), reportFolder);
                 }
             }
             // Delete all resource files used
-            runner.cleanUp(logger());
+            this.runner.cleanUp(logger());
+        } catch (IOException e) {
+            // Eat IOExceptions during cleanup
+            // These are expected when:
+            //   1. Run tests never ran (e.g. no MATLAB)
+            //   2. Run tests ran but failed before creating artifacts
+            //
+            // Annoyingly, throwing an exception in cleanup seems to result in an internal
+            // server error which makes the build look like it passed.
         } catch (Exception e) {
             throw new RunBuildException(e);
         }

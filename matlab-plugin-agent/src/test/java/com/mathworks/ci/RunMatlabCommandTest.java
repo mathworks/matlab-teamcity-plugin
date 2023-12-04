@@ -1,6 +1,7 @@
 package com.mathworks.ci;
 
 import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.BuildRunnerContext;
 import org.apache.commons.io.FileUtils;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
@@ -69,7 +71,7 @@ public class RunMatlabCommandTest {
         service.makeProgramCommandLine();
 
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(runner).createCommand(matlabCommand.capture());
+        Mockito.verify(runner).createCommand(isNull(), matlabCommand.capture());
 
         assertEquals("disp(\"Hello world!\")", matlabCommand.getValue());
     }

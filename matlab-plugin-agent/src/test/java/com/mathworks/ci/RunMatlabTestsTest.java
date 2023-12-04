@@ -2,6 +2,7 @@ package com.mathworks.ci;
 
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.doReturn;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.BuildRunnerContext;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
@@ -91,7 +93,7 @@ public class RunMatlabTestsTest {
         service.makeProgramCommandLine();
 
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(runner).createCommand(matlabCommand.capture());
+        Mockito.verify(runner).createCommand(isNull(), matlabCommand.capture());
 
         String expected = MatlabConstants.TEST_RUNNER_SCRIPT.replace("${PARAMS}", genscriptArgs)
             .replace("${ZIP_FILE}", genscriptZipLocation);
@@ -135,7 +137,7 @@ public class RunMatlabTestsTest {
         service.makeProgramCommandLine();
 
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(runner, Mockito.times(2)).createCommand(matlabCommand.capture());
+        Mockito.verify(runner, Mockito.times(2)).createCommand(isNull(), matlabCommand.capture());
 
         Assert.assertEquals(matlabCommand.getValue(), expectedScript);
     }

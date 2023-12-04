@@ -31,12 +31,11 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
     @Override
     public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
         // Set up runner - can't be done at construction time since we don't have access to the context
-        runner.setRunnerContext(getContext());
-        runner.createUniqueFolder();
+        this.runner.createUniqueFolder(getContext());
 
         ProgramCommandLine value;
         try {
-            value = runner.createCommand("buildtool " + getTaskName());
+            value = this.runner.createCommand(getContext(), "buildtool " + getTaskName());
         } catch (Exception e) {
             throw new RunBuildException(e);
         } 

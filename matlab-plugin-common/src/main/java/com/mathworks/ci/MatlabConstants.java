@@ -14,7 +14,7 @@ public interface MatlabConstants {
   String COMMAND_RUNNER_NAME = "Run MATLAB Command";
   String BUILD_RUNNER_NAME = "Run MATLAB Build";
   String COMMAND_RUNNER_DESCRIPTION = "Run MATLAB scripts, functions, and statements.";
-  String BUILD_RUNNER_DESCRIPTION = "Runs MATLAB build tasks.";
+  String BUILD_RUNNER_DESCRIPTION = "Run MATLAB build tasks.";
   String FILTER_TEST = "filterTestFolderByName";
   String SOURCE_FOLDER = "sourceFolders";
   String FILTER_TAG = "filterTestByTag";

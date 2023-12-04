@@ -21,47 +21,42 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class MatlabCommandRunner {
-    private BuildRunnerContext runnerContext;
     private File tempDirectory;
-
-    public void setRunnerContext(BuildRunnerContext context) {
-        this.runnerContext = context;
-    }
 
     public void setTempDirectory(File dir) {
         this.tempDirectory = dir;
     }
 
     public File getTempDirectory() {
-        return tempDirectory;
+        return this.tempDirectory;
     }
 
     // Main entry point
-    public ProgramCommandLine createCommand(String matlabCommand) throws IOException {
+    public ProgramCommandLine createCommand(BuildRunnerContext runnerContext, String matlabCommand) throws IOException {
         // Get executable
-        final String executable = copyExecutable();
+        final String executable = copyExecutable(runnerContext);
 
         // Generate command
-        final List<String> command = generateCommand(matlabCommand);
+        final List<String> command = generateCommandArgs(runnerContext, matlabCommand);
 
         String matlabPath = runnerContext.getRunnerParameters().get(MatlabConstants.MATLAB_PATH);
 
         //Add MATLAB to PATH Variable
-        addToPath(matlabPath);
+        addToPath(runnerContext, matlabPath);
 
         return new SimpleProgramCommandLine(runnerContext, executable, command); 
     }
 
     // Determines script location + final command to pass to run-matlab-command
-    public List<String> generateCommand(String command) throws IOException {
+    private List<String> generateCommandArgs(BuildRunnerContext runnerContext, String command) throws IOException {
         List<String> commandArgs = new ArrayList<String>();
 
-        final File uniqueCommandFile = new File(tempDirectory, "matlab_" + tempDirectory.getName());
-        String commandToExecute = "addpath('" + tempDirectory.getPath().replaceAll("'", ";;") + "');" + uniqueCommandFile.getName();
+        final File uniqueCommandFile = new File(this.tempDirectory, "matlab_" + this.tempDirectory.getName());
+        String commandToExecute = "addpath('" + this.tempDirectory.getPath().replaceAll("'", ";;") + "');" + uniqueCommandFile.getName();
 
 
         // Create script
-        createMatlabScriptByName(command, uniqueCommandFile.getName());
+        createMatlabScriptByName(runnerContext, command, uniqueCommandFile.getName());
         commandArgs.add(commandToExecute);
 
         // Handle startup options
@@ -74,9 +69,9 @@ public class MatlabCommandRunner {
     }
 
     // Creates script file at given location with command as content
-    private void createMatlabScriptByName(String command, String uniqueScriptName) throws IOException {
+    private void createMatlabScriptByName(BuildRunnerContext runnerContext, String command, String uniqueScriptName) throws IOException {
         final File matlabCommandFile = 
-            new File(tempDirectory, uniqueScriptName + ".m");
+            new File(this.tempDirectory, uniqueScriptName + ".m");
         final String matlabCommandFileContent =
             "cd '" + runnerContext.getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + command;
 
@@ -84,22 +79,22 @@ public class MatlabCommandRunner {
     }
 
     // Copy executable to the correct location based on platform
-    public String copyExecutable() throws IOException {
+    private String copyExecutable(BuildRunnerContext runnerContext) throws IOException {
         String executable;
-        if (isWindows()) {
-            final File runnerExe = new File(tempDirectory, "run-matlab-command.exe");
+        if (isWindows(runnerContext)) {
+            final File runnerExe = new File(this.tempDirectory, "run-matlab-command.exe");
 
             executable = runnerExe.getPath();
 
             copyFileToWorkspace(MatlabConstants.RUN_EXE_WIN, new File(runnerExe.getPath()));
-        } else if (isMac()) {
-            final File runnerExe = new File(tempDirectory, "run-matlab-command");
+        } else if (isMac(runnerContext)) {
+            final File runnerExe = new File(this.tempDirectory, "run-matlab-command");
 
             executable = runnerExe.getPath();
 
             copyFileToWorkspace(MatlabConstants.RUN_EXE_MAC, new File(runnerExe.getPath()));
         } else {
-            final File runnerExe = new File(tempDirectory, "run-matlab-command");
+            final File runnerExe = new File(this.tempDirectory, "run-matlab-command");
 
             executable = runnerExe.getPath();
 
@@ -116,7 +111,7 @@ public class MatlabCommandRunner {
         IOUtils.closeQuietly(is);
     }
 
-    public void createUniqueFolder() {
+    public void createUniqueFolder(BuildRunnerContext runnerContext) {
         final String uniqueTmpFldrName = getUniqueNameForRunnerFile().replaceAll("-", "_");
 
         File tmpDir = new File(runnerContext.getWorkingDirectory(), MatlabConstants.TEMP_MATLAB_FOLDER_NAME);
@@ -124,10 +119,10 @@ public class MatlabCommandRunner {
         File genscriptLocation = new File(tmpDir, uniqueTmpFldrName);
         genscriptLocation.mkdir();
         genscriptLocation.setExecutable(true);
-        this.tempDirectory =  genscriptLocation;
+        setTempDirectory(genscriptLocation);
     }
 
-    public void addToPath(String matlabPath) {
+    private void addToPath(BuildRunnerContext runnerContext, String matlabPath) {
         Map<String, String> envVar = runnerContext.getBuildParameters().getEnvironmentVariables();
 
         for (String name : envVar.keySet()) {
@@ -140,15 +135,15 @@ public class MatlabCommandRunner {
         }
     }
 
-    public String getUniqueNameForRunnerFile() {
+    private String getUniqueNameForRunnerFile() {
         return RandomStringUtils.randomAlphanumeric(8);
     }
 
-    public Boolean isWindows() {
+    private Boolean isWindows(BuildRunnerContext runnerContext) {
         return runnerContext.getBuild().getAgentConfiguration().getSystemInfo().isWindows();
     }
 
-    public Boolean isMac() {
+    private Boolean isMac(BuildRunnerContext runnerContext) {
         return runnerContext.getBuild().getAgentConfiguration().getSystemInfo().isMac();
     }
 
@@ -157,8 +152,8 @@ public class MatlabCommandRunner {
      */
     public void cleanUp(BuildProgressLogger logger) {
         try {
-            FileUtils.cleanDirectory(tempDirectory);
-            FileUtils.deleteDirectory(tempDirectory);
+            FileUtils.cleanDirectory(this.tempDirectory);
+            FileUtils.deleteDirectory(this.tempDirectory);
         } catch (Exception e) {
             logger.exception(e);
         }

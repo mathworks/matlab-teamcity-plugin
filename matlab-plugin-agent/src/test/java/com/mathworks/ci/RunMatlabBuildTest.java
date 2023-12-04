@@ -1,6 +1,7 @@
 package com.mathworks.ci;
 
 import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.BuildRunnerContext;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.testng.Assert;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
@@ -68,7 +70,7 @@ public class RunMatlabBuildTest {
         service.makeProgramCommandLine();
 
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(runner).createCommand(matlabCommand.capture());
+        Mockito.verify(runner).createCommand(isNull(), matlabCommand.capture());
 
         assertEquals("buildtool ", matlabCommand.getValue());
     }
@@ -83,7 +85,7 @@ public class RunMatlabBuildTest {
         service.makeProgramCommandLine();
 
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(runner, Mockito.times(2)).createCommand(matlabCommand.capture());
+        Mockito.verify(runner, Mockito.times(2)).createCommand(isNull(), matlabCommand.capture());
 
         assertEquals("buildtool mex test", matlabCommand.getValue());
     }

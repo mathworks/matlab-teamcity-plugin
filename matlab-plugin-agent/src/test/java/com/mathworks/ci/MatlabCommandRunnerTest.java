@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 import jetbrains.buildServer.agent.BuildRunnerContext;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.AgentRunningBuild;
@@ -43,6 +46,8 @@ public class MatlabCommandRunnerTest {
 
     Map<String, String> params;
 
+    Boolean isWindows;
+
     @BeforeTest
     public void mockSetUp() throws RunBuildException {
         String systemTempFolder = System.getProperty("java.io.tmpdir");
@@ -73,13 +78,14 @@ public class MatlabCommandRunnerTest {
         if (System.getProperty("os.name").startsWith("Windows")) {
             when(agentSysInfo.isWindows()).thenReturn(true);
             when(agentSysInfo.isMac()).thenReturn(false);
+            isWindows = true;
         } else {
             when(agentSysInfo.isWindows()).thenReturn(false);
             when(agentSysInfo.isMac()).thenReturn(false);
+            isWindows = false;
         }
 
         runner = new MatlabCommandRunner();
-        runner.setRunnerContext(context);
     }
 
     @BeforeMethod
@@ -92,11 +98,18 @@ public class MatlabCommandRunnerTest {
         FileUtils.deleteDirectory(currDir);
     }
 
+    // Makes a private method accessible to test
+    public Method getAccessibleMethod(String methodName, Class<?>... paramTypes) throws NoSuchMethodException {
+        Method method = MatlabCommandRunner.class.getDeclaredMethod(methodName, paramTypes);
+        method.setAccessible(true);
+        return method;
+    }
+
     // temp folder creation
     @Test
     public void verifyTempFolderCreation() {
         // Create temp directory
-        runner.createUniqueFolder();
+        runner.createUniqueFolder(context);
 
         File expected = new File(currDir, ".matlab" + File.separator + runner.getTempDirectory().getName());
 
@@ -110,23 +123,27 @@ public class MatlabCommandRunnerTest {
         runner.setTempDirectory(currDir);
 
         // Copy executable
-        String actual = runner.copyExecutable();
+        runner.createCommand(context, "dummy");
+
         
         // If windows
         File expected;
-        if (runner.isWindows()) {
+        File actual;
+        if (isWindows) {
             expected = new File(currDir, "run-matlab-command.exe");
+            actual = new File(runner.getTempDirectory(), "run-matlab-command.exe");
         } else {
             expected = new File(currDir, "run-matlab-command");
+            actual = new File(runner.getTempDirectory(), "run-matlab-command");
         }
 
         Assert.assertTrue(expected.exists());
-        Assert.assertEquals(actual, expected.getPath());
+        Assert.assertEquals(actual.getPath(), expected.getPath());
     }
 
     // matlab script creation + command generation
     @Test
-    public void verifyScriptCreated() throws IOException {
+    public void verifyScriptCreated() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         runner.setTempDirectory(currDir);
 
         String command = "disp(\"Hello world\")";
@@ -134,7 +151,9 @@ public class MatlabCommandRunnerTest {
         List<String> expectedCommand = new ArrayList<String>();
         expectedCommand.add("addpath('" + currDir.getPath().replaceAll("'", ";;") + "');" + "matlab_" + currDir.getName());
 
-        List<String> actualCommand = runner.generateCommand(command);
+        Method generateCommandArgs = getAccessibleMethod("generateCommandArgs", BuildRunnerContext.class, String.class);
+
+        Object actualCommand = generateCommandArgs.invoke(runner, context, command);
         Assert.assertEquals(actualCommand, expectedCommand);
 
         File expectedFile = new File(currDir, "matlab_" + currDir.getName() + ".m");
@@ -146,7 +165,7 @@ public class MatlabCommandRunnerTest {
 
     // startup options test
     @Test
-    public void startupOptionsAdded () throws IOException {
+    public void startupOptionsAdded () throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String options = "-nojvm -logfile file.log";
 
         Map<String, String> params = new HashMap<String, String>();
@@ -154,7 +173,12 @@ public class MatlabCommandRunnerTest {
 
         when(context.getRunnerParameters()).thenReturn(params);
 
-        List<String> actualCommand = runner.generateCommand("blank");
+        Method generateCommandArgs = getAccessibleMethod("generateCommandArgs", BuildRunnerContext.class, String.class);
+
+        Object o = generateCommandArgs.invoke(runner, context, "blank");
+        List<String> actualCommand = ((List<String>) o);
+
+        System.err.println(actualCommand.toString());
 
         Assert.assertEquals(actualCommand.get(1), "-nojvm");
         Assert.assertEquals(actualCommand.get(2), "-logfile");
@@ -165,9 +189,9 @@ public class MatlabCommandRunnerTest {
     // verify MATLAB added to PATH
     @Test
     public void matlabIsAddedToPath() throws IOException {
-        runner.createUniqueFolder();
+        runner.createUniqueFolder(context);
 
-        runner.createCommand("blank");
+        runner.createCommand(context, "blank");
 
         Mockito.verify(context).addEnvironmentVariable("Path", "/path/to/matlab" + File.separator + "bin" + File.pathSeparator);
     }
@@ -175,7 +199,7 @@ public class MatlabCommandRunnerTest {
     // copyFileToWorkspace test
     @Test
     public void verifyCopyFileToWorkspace() throws IOException {
-        runner.createUniqueFolder();
+        runner.createUniqueFolder(context);
 
         File tempFile = new File(runner.getTempDirectory(), "tempFile");
         Assert.assertFalse(tempFile.exists());
@@ -187,7 +211,7 @@ public class MatlabCommandRunnerTest {
     // cleanUp test
     @Test
     public void verifyTempDirectoryIsRemoved() {
-        runner.createUniqueFolder();
+        runner.createUniqueFolder(context);
 
         File temp = runner.getTempDirectory();
         Assert.assertTrue(temp.exists());

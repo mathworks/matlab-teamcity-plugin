@@ -30,12 +30,11 @@ public class RunMatlabCommandService extends BuildServiceAdapter {
     @Override
     public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
         // Set up runner - can't be done at construction time since we don't have access to the context
-        runner.setRunnerContext(getContext());
-        runner.createUniqueFolder();
+        this.runner.createUniqueFolder(getContext());
 
         ProgramCommandLine value;
         try {
-            value = runner.createCommand(getMatlabCommand());
+            value = this.runner.createCommand(getContext(), getMatlabCommand());
         } catch (Exception e) {
             throw new RunBuildException(e);
         } 
@@ -60,7 +59,7 @@ public class RunMatlabCommandService extends BuildServiceAdapter {
      * Clean up temp folder
      */
     public void cleanUp() {
-        runner.cleanUp(logger());
+        this.runner.cleanUp(logger());
     }
 
     /**
