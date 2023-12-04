@@ -31,7 +31,7 @@ Create a build configuration by following these steps:
 
 ![add_build_step](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/6b29bc9b-c1b5-4f4f-b813-b44ba6f0090d)
 
-3. In the **Run MATLAB Tests** step configuration interface, specify the full path to the root folder of your preferred MATLAB version in the **MATLAB root** box. Then, specify the artifacts to generate in the working directory. In this example, the plugin uses MATLAB R2023a to run the tests and generate JUnit-style test results, a PDF test report, and an HTML code coverage report. (To publish the JUnit-style test results, you need to add the [XML Report Processing](https://www.jetbrains.com/help/teamcity/xml-report-processing.html) build feature to your build configuration.) For more information about the build steps provided by the plugin, see [Plugin Configuration Guide](../CONFIGDOC.md).
+3. In the **Run MATLAB Tests** step configuration interface, specify the full path to the root folder of your preferred MATLAB version in the **MATLAB root** box. Then, specify the artifacts to generate in the working directory. In this example, the plugin uses MATLAB R2023b to run the tests and generate JUnit-style test results, a PDF test report, and an HTML code coverage report. (To publish the JUnit-style test results, you need to add the [XML Report Processing](https://www.jetbrains.com/help/teamcity/xml-report-processing.html) build feature to your build configuration.) For more information about the build steps provided by the plugin, see [Plugin Configuration Guide](../CONFIGDOC.md).
 
 ![run_matlab_tests](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/a6b4bd16-9184-4467-acc5-1010169b0d12)
 
