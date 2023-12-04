@@ -32,7 +32,7 @@ The plugin provides you with three build steps:
 ### Run MATLAB Build
 The **Run MATLAB Build** step enables you to run a build using the [MATLAB build tool](https://www.mathworks.com/help/matlab/matlab_prog/overview-of-matlab-build-tool.html). You can use this step to run the tasks specified in a file named `buildfile.m` in the root of your repository. To use the **Run MATLAB Build** step, you need MATLAB R2022b or a later release.
 
-To configure the **Run MATLAB Build** step, first specify the MATLAB executable to use for the step. Then, specify the tasks you want to execute in the **Tasks** box. If you specify more than one task, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023b to run a task named `mytask` as well as all the tasks on which it depends.
+To configure the **Run MATLAB Build** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify the tasks you want to execute in the **Tasks** box. If you specify more than one task, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023b to run a task named `mytask` as well as all the tasks on which it depends.
 
 ![run_matlab_build](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/2143b968-1692-42e0-b2cf-ba50c8bd170e)
 
@@ -43,7 +43,7 @@ When you use this step, a file named `buildfile.m` must be in the root of your r
 ### Run MATLAB Tests
 The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your build does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
 
-To configure the **Run MATLAB Tests** step, specify the MATLAB executable to use for the step. For example, use MATLAB R2023b to run the tests in your MATLAB project.
+To configure the **Run MATLAB Tests** step, specify the MATLAB executable and optional startup options to use for the step. For example, use MATLAB R2023b to run the tests in your MATLAB project.
 
 ![run_matlab_tests](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/6ea9d4ca-fd14-4a0c-943c-35f80f6a21b5)
 
@@ -91,7 +91,7 @@ Paths for HTML reports are subject to these requirements:
 ### Run MATLAB Command
 The **Run MATLAB Command** step enables you to run MATLAB scripts, functions, and statements. You can use this step to customize your test run or add a step in MATLAB to your build.
 
-To configure the **Run MATLAB Command** step, first specify the MATLAB executable to use for the step. Then, specify the MATLAB script, function, or statement you want to execute in the **Command** box. If you specify more than one script, function, or statement, use a comma or semicolon to separate them. If you want to run a script or function, do not specify the file extension. For example, use MATLAB R2023b to run a script named `myscript.m` in the root of your repository.
+To configure the **Run MATLAB Command** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify the MATLAB script, function, or statement you want to execute in the **Command** box. If you specify more than one script, function, or statement, use a comma or semicolon to separate them. If you want to run a script or function, do not specify the file extension. For example, use MATLAB R2023b to run a script named `myscript.m` in the root of your repository.
 
 ![run_matlab_command](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/d2f049be-945b-4e54-9e22-fda7684a68d9)
 
