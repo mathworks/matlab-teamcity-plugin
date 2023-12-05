@@ -22,11 +22,11 @@ You can use the [`matlabroot`](https://www.mathworks.com/help/matlab/ref/matlabr
    | Linux&reg;   | /usr/local/MATLAB/R2023b        |
    | macOS        | /Applications/MATLAB_R2023b.app |
 
-You can also specify optional startup options for a MATLAB executable by populating the **Startup options** box of the build step configuration interface. For example, specify `-nojvm` to start MATLAB without the JVM&trade; software. If you specify more than one startup option, use a space to separate them. For more information about MATLAB startup options, see [Commonly Used Startup Options](https://www.mathworks.com/help/matlab/matlab_env/commonly-used-startup-options.html).
-
-![matlab_executable_90_full](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/f621b4dc-6afa-47e0-aa78-f2170f8c0d9a)
+You can also specify startup options for a MATLAB executable by populating the **Startup options** box of the build step configuration interface. For example, specify `-nojvm` to start MATLAB without the JVM&reg; software. If you specify more than one startup option, use a space to separate them. For more information about MATLAB startup options, see [Commonly Used Startup Options](https://www.mathworks.com/help/matlab/matlab_env/commonly-used-startup-options.html).
 
 > :information_source: **Note:** Using the **Startup options** box to specify the `-batch` or `-r` option is not supported.
+
+![matlab_executable_90_full](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/f621b4dc-6afa-47e0-aa78-f2170f8c0d9a)
 
 ## Configure Build Steps
 The plugin provides you with three build steps: 
