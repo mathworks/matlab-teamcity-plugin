@@ -25,7 +25,7 @@ Create a build configuration by following these steps:
 
 1. In your TeamCity UI, click **Create project** or **New project**. Then, in the build configuration creation wizard, select **From a repository URL** and specify the repository for your project. Provide the required information and click **Proceed**. TeamCity creates a project, build configuration, and VCS (version control settings) root for you. For more information on how to create build configurations in TeamCity, see [Creating and Editing Build Configurations](https://www.jetbrains.com/help/teamcity/creating-and-editing-build-configurations.html).
 
-![create_project](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/63995bd2-b0a7-4962-b7fe-62fceced2ea3)
+![create_project_90_full](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/63995bd2-b0a7-4962-b7fe-62fceced2ea3)
 
 2. To run MATLAB tests as part of your build, add the **Run MATLAB Tests** build step by clicking **Build Steps** on the navigation bar and then **Add build step** on the build configuration page. You can access the step by typing `MATLAB` in the **New Build Step** box. 
 
