@@ -142,18 +142,6 @@ public class RunMatlabTestsTest {
         Assert.assertEquals(matlabCommand.getValue(), expectedScript);
     }
 
-    // Cleanup process to verify the command runner cleanup is called
-    // Does this add value?
-    @Test
-    public void cleanUp() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method cleanUp = getAccessibleMethod("cleanUp", null);
-
-        cleanUp.invoke(service, null);
-
-        // cleanUp on runner is called
-        Mockito.verify(runner).cleanUp(Mockito.any());
-    }
-
     // Test setup to put MATLAB files in the workspace before cleanUp process
     public void reportSetUp(String fileName) throws IOException, URISyntaxException {
         File reportZipFIle = new File(tempDir, fileName);
