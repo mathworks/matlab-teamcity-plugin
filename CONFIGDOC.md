@@ -18,9 +18,15 @@ You can use the [`matlabroot`](https://www.mathworks.com/help/matlab/ref/matlabr
 
    | Platform     | Path to MATLAB Root Folder      |
    |--------------|---------------------------------|
-   | Windows&reg; | C:\Program Files\MATLAB\R2023a  |
-   | Linux&reg;   | /usr/local/MATLAB/R2023a        |
-   | macOS        | /Applications/MATLAB_R2023a.app |
+   | Windows&reg; | C:\Program Files\MATLAB\R2023b  |
+   | Linux&reg;   | /usr/local/MATLAB/R2023b        |
+   | macOS        | /Applications/MATLAB_R2023b.app |
+
+You can also specify startup options for a MATLAB executable by populating the **Startup options** box of the build step configuration interface. For example, specify `-nojvm` to start MATLAB without the JVM&reg; software. If you specify more than one startup option, use a space to separate them. For more information about MATLAB startup options, see [Commonly Used Startup Options](https://www.mathworks.com/help/matlab/matlab_env/commonly-used-startup-options.html).
+
+> :information_source: **Note:** Using the **Startup options** box to specify the `-batch` or `-r` option is not supported.
+
+![matlab_executable_90_full](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/f621b4dc-6afa-47e0-aa78-f2170f8c0d9a)
 
 ## Configure Build Steps
 The plugin provides you with three build steps: 
@@ -32,9 +38,9 @@ The plugin provides you with three build steps:
 ### Run MATLAB Build
 The **Run MATLAB Build** step enables you to run a build using the [MATLAB build tool](https://www.mathworks.com/help/matlab/matlab_prog/overview-of-matlab-build-tool.html). You can use this step to run the tasks specified in a file named `buildfile.m` in the root of your repository. To use the **Run MATLAB Build** step, you need MATLAB R2022b or a later release.
 
-To configure the **Run MATLAB Build** step, first specify the MATLAB executable to use for the step. Then, specify the tasks you want to execute in the **Tasks** box. If you specify more than one task, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023a to run a task named `mytask` as well as all the tasks on which it depends.
+To configure the **Run MATLAB Build** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify the tasks you want to execute in the **Tasks** box. If you specify more than one task, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023b to run a task named `mytask` as well as all the tasks on which it depends.
 
-![run_matlab_build](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/2143b968-1692-42e0-b2cf-ba50c8bd170e)
+![run_matlab_build](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/374739af-2672-4498-b560-03dd983f975d)
 
 MATLAB exits with exit code 0 if the build runs successfully. Otherwise, MATLAB terminates with a nonzero exit code, which causes the TeamCity build to fail.
 
@@ -43,9 +49,9 @@ When you use this step, a file named `buildfile.m` must be in the root of your r
 ### Run MATLAB Tests
 The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your build does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
 
-To configure the **Run MATLAB Tests** step, specify the MATLAB executable to use for the step. For example, use MATLAB R2023a to run the tests in your MATLAB project.
+To configure the **Run MATLAB Tests** step, specify the MATLAB executable and optional startup options to use for the step. For example, use MATLAB R2023b to run the tests in your MATLAB project.
 
-![run_matlab_tests](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/6ea9d4ca-fd14-4a0c-943c-35f80f6a21b5)
+![run_matlab_tests](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/6dcb2a04-c996-4c23-abef-22e2620b8238)
 
 You can customize the **Run MATLAB Tests** step by selecting options in the build step configuration interface. For example, you can add source folders to the MATLAB search path, control which tests to run, and generate various test and coverage artifacts. If you do not select any of the existing options, all the tests in your project run, and any test failure causes the build to fail.
 
@@ -54,7 +60,7 @@ You can specify the location of your source code in the **Source folder** box. W
 
 If you specify more than one folder in the **Source folder** box, use a colon or semicolon to separate them.
 
-![source_folder](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/fcb3901d-72e6-4043-827d-9285243faf4a)
+![source_folder](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/631fa6b7-6abd-44a3-af71-0f0e96a5a7e2)
 
 #### Filter Tests
 By default, the **Run MATLAB Tests** step creates a test suite from all the tests in your MATLAB project. You can create a filtered test suite by including only the tests in specified folders, the tests with a specified tag, or both:
@@ -65,7 +71,7 @@ By default, the **Run MATLAB Tests** step creates a test suite from all the test
 
 * To create a test suite by using a test tag, specify the tag in the **By tag** box. The plugin creates a test suite by including only the tests with the specified tag.
 
-![filter_tests](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/a52958bb-8a13-41d9-81ae-67ab2318cd3e)
+![filter_tests](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/af4032e5-ef0c-416a-80ba-fc1028b7afd4)
 
 #### Customize Test Run
 To customize your test run, select options in the **Customize Test Run** section:
@@ -75,14 +81,14 @@ To customize your test run, select options in the **Customize Test Run** section
 * To control the amount of output detail displayed for your test run, select a value from the **Output detail** list. Selecting a value for this option is the same as specifying the `OutputDetail` name-value argument of `runtests` as that value. By default, the plugin displays failing and logged events at the `Detailed` level and test run progress at the `Concise` level.
 * To include diagnostics logged by the [`log (TestCase)`](https://www.mathworks.com/help/matlab/ref/matlab.unittest.testcase.log.html) and [`log (Fixture)`](https://www.mathworks.com/help/matlab/ref/matlab.unittest.fixtures.fixture.log.html) methods at a specified verbosity level, select a value from the **Logging level** list. Selecting a value for this option is the same as specifying the `LoggingLevel` name-value argument of `runtests` as that value. By default, the plugin includes diagnostics logged at the `Terse` level. 
 
-![customize_test_run](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/dff7e29c-6bee-49c3-ba5d-7ff4d4bcbd78)
+![customize_test_run](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/5a462131-f04b-4cb5-9fa8-c6cce3813f53)
 
 #### Generate Test and Coverage Artifacts
 To generate test and coverage artifacts, specify the paths to store the artifacts in the **Generate Test and Coverage Artifacts** section. 
 
 For example, run your tests, and generate test results in JUnit-style XML format and a code coverage report in HTML format at the specified locations in your working directory.
 
-![generate_artifacts](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/3b3b06de-fd72-4f52-abe1-ee00aa946a16)
+![generate_artifacts](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/e7cbafca-acdc-4375-a4b6-ea8be1de0cc1)
 
 Paths for HTML reports are subject to these requirements: 
 * To generate an HTML test or coverage report, you must specify a path to a ZIP archive that contains `index.html` as the main file of the report. For example, to generate an HTML code coverage report, specify the path to a file named `coverage.zip` in the **HTML code coverage report** box.
@@ -91,9 +97,9 @@ Paths for HTML reports are subject to these requirements:
 ### Run MATLAB Command
 The **Run MATLAB Command** step enables you to run MATLAB scripts, functions, and statements. You can use this step to customize your test run or add a step in MATLAB to your build.
 
-To configure the **Run MATLAB Command** step, first specify the MATLAB executable to use for the step. Then, specify the MATLAB script, function, or statement you want to execute in the **Command** box. If you specify more than one script, function, or statement, use a comma or semicolon to separate them. If you want to run a script or function, do not specify the file extension. For example, use MATLAB R2023a to run a script named `myscript.m` in the root of your repository.
+To configure the **Run MATLAB Command** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify the MATLAB script, function, or statement you want to execute in the **Command** box. If you specify more than one script, function, or statement, use a comma or semicolon to separate them. If you want to run a script or function, do not specify the file extension. For example, use MATLAB R2023b to run a script named `myscript.m` in the root of your repository.
 
-![run_matlab_command](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/d2f049be-945b-4e54-9e22-fda7684a68d9)
+![run_matlab_command](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/f828b1e8-dd4f-4436-8a47-9804409b6f4f)
 
 MATLAB exits with exit code 0 if the specified script, function, or statement executes successfully without error. Otherwise, MATLAB terminates with a nonzero exit code, which causes the TeamCity build to fail. To fail the build in certain conditions, use the [`assert`](https://www.mathworks.com/help/matlab/ref/assert.html) or [`error`](https://www.mathworks.com/help/matlab/ref/error.html) function.
 
