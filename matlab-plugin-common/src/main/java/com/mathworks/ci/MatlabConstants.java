@@ -8,13 +8,13 @@ public interface MatlabConstants {
   String MATLAB_COMMAND = "matlabCommand";
   String MATLAB_TASKS = "matlabTasks";
   String BUILD_RUNNER_TYPE = "matlabBuildRunner";
-  String MATLAB_PATH = "MatlabPathKey";
-  String MATLAB_ROOT = "MatlabRoot";
+  String MATLAB_PATH = "MatlabPathKey"; // What's the difference between this and root?
+  String STARTUP_OPTIONS = "StartupOptions";
   String COMMAND_RUNNER_TYPE = "matlabCommandRunner";
   String COMMAND_RUNNER_NAME = "Run MATLAB Command";
   String BUILD_RUNNER_NAME = "Run MATLAB Build";
   String COMMAND_RUNNER_DESCRIPTION = "Run MATLAB scripts, functions, and statements.";
-  String BUILD_RUNNER_DESCRIPTION = "Runs MATLAB build tasks.";
+  String BUILD_RUNNER_DESCRIPTION = "Run MATLAB build tasks.";
   String FILTER_TEST = "filterTestFolderByName";
   String SOURCE_FOLDER = "sourceFolders";
   String FILTER_TAG = "filterTestByTag";
@@ -29,8 +29,9 @@ public interface MatlabConstants {
   String HTML_CODE_COV_REPORT = "htmlCoverage";
   String TEMP_MATLAB_FOLDER_NAME = ".matlab";
   // Matlab Runner files
-  static final String BAT_RUNNER_SCRIPT = "run_matlab_command.bat";
-  static final String SHELL_RUNNER_SCRIPT = "run_matlab_command.sh";
+  static final String RUN_EXE_WIN = "win64/run-matlab-command.exe";
+  static final String RUN_EXE_MAC = "maci64/run-matlab-command";
+  static final String RUN_EXE_LINUX = "glnxa64/run-matlab-command";
   static final String MATLAB_SCRIPT_GENERATOR = "matlab-script-generator.zip";
   //Test runner file prefix
   static final String MATLAB_TEST_RUNNER_FILE_PREFIX = "runner_";
@@ -48,6 +49,7 @@ public interface MatlabConstants {
       "disp('Running MATLAB script with content:');",
       "disp(testScript.Contents);",
       "testScript.writeToFile(fullfile(tmpDir,'runnerScript.m'));",
-      "fprintf('___________________________________\\n\\n');");
+      "fprintf('___________________________________\\n\\n');",
+      "runnerScript()");
 }
 

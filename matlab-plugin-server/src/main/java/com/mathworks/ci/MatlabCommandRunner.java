@@ -48,6 +48,9 @@ public class MatlabCommandRunner extends RunType {
             @Override
             public Collection<InvalidProperty> process(final Map<String, String> properties) {
                 Collection<InvalidProperty> invalid = new LinkedList<InvalidProperty>();
+                if (PropertiesUtil.isEmptyOrNull(properties.get("MatlabPathKey"))) {
+                    invalid.add(new InvalidProperty("MatlabPathKey", "MATLAB root cannot be empty"));
+                }
                 if (PropertiesUtil.isEmptyOrNull(properties.get("matlabCommand"))) {
                     invalid.add(new InvalidProperty("matlabCommand", "Command cannot be empty"));
                 }

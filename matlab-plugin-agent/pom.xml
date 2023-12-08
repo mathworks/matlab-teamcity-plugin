@@ -9,7 +9,6 @@
   <artifactId>matlab-plugin-agent</artifactId>
   <packaging>jar</packaging>
   <dependencies>
-    
     <dependency>
       <groupId>com.mathworks.ci</groupId>
       <artifactId>matlab-plugin-common</artifactId>
@@ -73,17 +72,45 @@
         <version>1.5.0</version>
         <executions>
           <execution>
-            <id>get-matlab-runner-scripts</id>
+            <id>get-matlab-runner-linux</id>
             <phase>validate</phase>
             <goals>
               <goal>wget</goal>
             </goals>
             <configuration>
-              <url>https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v0/run-matlab-command.zip</url>
-              <unpack>true</unpack>
-              <outputDirectory>${basedir}/src/main/resources</outputDirectory>
-              <skipCache>true</skipCache>
-              <overwrite>true</overwrite>
+              <url>https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v1/glnxa64/run-matlab-command</url>
+              <unpack>false</unpack>
+              <skipCache> true </skipCache>
+              <overwrite> true </overwrite>
+              <outputDirectory>${basedir}/src/main/resources/glnxa64</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>get-matlab-runner-mac</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v1/maci64/run-matlab-command</url>
+              <unpack>false</unpack>
+              <skipCache> true </skipCache>
+              <overwrite> true </overwrite>
+              <outputDirectory>${basedir}/src/main/resources/maci64</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>get-matlab-runner-windows</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v1/win64/run-matlab-command.exe</url>
+              <unpack>false</unpack>
+              <skipCache> true </skipCache>
+              <overwrite> true </overwrite>
+              <outputDirectory>${basedir}/src/main/resources/win64</outputDirectory>
             </configuration>
           </execution>
           <execution>
