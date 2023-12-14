@@ -64,6 +64,7 @@ public class MatlabCommandRunner {
         if (opts != null) {
             commandArgs.addAll(Arrays.asList(opts.split(" ")));
         }
+        commandArgs.removeIf(s -> s.isEmpty());
 
         return commandArgs;
     }
