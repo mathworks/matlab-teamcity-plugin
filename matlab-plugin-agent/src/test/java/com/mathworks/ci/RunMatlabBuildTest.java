@@ -61,9 +61,10 @@ public class RunMatlabBuildTest {
     }
 
     @Test(description="Validate default command")
-    public void verifyDefaultCommandWithNoTasks() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+    public void verifyDefaultCommandWithNoTasksAndNoBuildOptions() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         Map<String, String> envMap = new HashMap<>();
         envMap.put("matlabTasks", null);
+        envMap.put("BuildOptions", null);
 
         doReturn(envMap).when(service).getUserInputs();
 
@@ -72,13 +73,14 @@ public class RunMatlabBuildTest {
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
         Mockito.verify(runner).createCommand(isNull(), matlabCommand.capture());
 
-        assertEquals("buildtool ", matlabCommand.getValue());
+        assertEquals("buildtool", matlabCommand.getValue());
     }
 
     @Test(description="Validate specific tasks")
-    public void verifyDefaultCommandWithTasks() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+    public void verifyDefaultCommandWithTasksAndBuildOptions() throws RunBuildException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         Map<String, String> envMap = new HashMap<>();
         envMap.put("matlabTasks", "mex test");
+        envMap.put("BuildOptions","-continueOnFailure -skip test");
 
         doReturn(envMap).when(service).getUserInputs();
 
@@ -87,6 +89,6 @@ public class RunMatlabBuildTest {
         ArgumentCaptor<String> matlabCommand = ArgumentCaptor.forClass(String.class);
         Mockito.verify(runner, Mockito.times(2)).createCommand(isNull(), matlabCommand.capture());
 
-        assertEquals("buildtool mex test", matlabCommand.getValue());
+        assertEquals("buildtool mex test -continueOnFailure -skip test", matlabCommand.getValue());
     }
 }
