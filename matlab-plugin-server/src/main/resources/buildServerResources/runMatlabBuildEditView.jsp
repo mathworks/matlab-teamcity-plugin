@@ -64,7 +64,7 @@
           <div class="posRel">
               <props:textProperty name="${buildOptions}" size="56" />
               <span class="error" id="error_${buildOptions}"></span>
-              <span class="smallNote">Specify a space-separated list of MATLAB build options.</span>
+              <span class="smallNote">Specify MATLAB build options.</span>
           </div>
       </td>
     </tr>
