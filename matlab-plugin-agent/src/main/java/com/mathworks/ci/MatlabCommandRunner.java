@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import net.lingala.zip4j.ZipFile;
 
 public class MatlabCommandRunner {
     private File tempDirectory;
@@ -52,8 +53,9 @@ public class MatlabCommandRunner {
         List<String> commandArgs = new ArrayList<String>();
 
         final File uniqueCommandFile = new File(this.tempDirectory, "matlab_" + this.tempDirectory.getName());
-        String commandToExecute = "addpath('" + this.tempDirectory.getPath().replaceAll("'", ";;") + "');" + uniqueCommandFile.getName();
-
+        String commandToExecute = "setenv('MW_ORIG_WORKING_FOLDER', cd('"
+            + this.tempDirectory.getAbsolutePath()
+            + "'));" + uniqueCommandFile.getName();
 
         // Create script
         createMatlabScriptByName(runnerContext, command, uniqueCommandFile.getName());
@@ -74,7 +76,7 @@ public class MatlabCommandRunner {
         final File matlabCommandFile = 
             new File(this.tempDirectory, uniqueScriptName + ".m");
         final String matlabCommandFileContent =
-            "cd '" + runnerContext.getWorkingDirectory().getAbsolutePath().replaceAll("'", "''") + "';\n" + command;
+            "cd(getenv('MW_ORIG_WORKING_FOLDER'));\n" + command;
 
         FileUtils.writeStringToFile(matlabCommandFile, matlabCommandFileContent);
     }
@@ -105,10 +107,24 @@ public class MatlabCommandRunner {
         return executable;
     }
 
+    public void unzipToTempDir(String zipName) throws IOException {
+        // Copy zip to tempDirectory
+        File zipFileLocation = new File(tempDirectory, zipName);
+        copyFileToWorkspace(zipName, zipFileLocation);
+
+        // Unzip
+        ZipFile zipFile = new ZipFile(zipFileLocation);
+        zipFile.extractAll(tempDirectory.toString());
+    }
+
     public void copyFileToWorkspace(String sourceFile, File targetFile) throws IOException {
         InputStream is = MatlabCommandRunner.class.getClassLoader().getResourceAsStream(sourceFile);
         java.nio.file.Files.copy(is, targetFile.toPath(), REPLACE_EXISTING);
+
+        targetFile.setReadable(true, true);
+        targetFile.setWritable(true);
         targetFile.setExecutable(true);
+
         IOUtils.closeQuietly(is);
     }
 

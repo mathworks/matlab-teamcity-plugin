@@ -40,16 +40,11 @@ public interface MatlabConstants {
 
   //MATLAB Runner Script
   static final String TEST_RUNNER_SCRIPT = String.join(NEW_LINE,
-      "tmpDir=tempname;",
-      "mkdir(tmpDir);",
-      "addpath(tmpDir);",
-      "zipURL='${ZIP_FILE}';",
-      "unzip(zipURL,tmpDir);",
+      "addpath('${TEMPFOLDER}');",
       "testScript = genscript(${PARAMS});",
       "disp('Running MATLAB script with content:');",
       "disp(testScript.Contents);",
-      "testScript.writeToFile(fullfile(tmpDir,'runnerScript.m'));",
       "fprintf('___________________________________\\n\\n');",
-      "runnerScript()");
+      "run(testScript);");
 }
 

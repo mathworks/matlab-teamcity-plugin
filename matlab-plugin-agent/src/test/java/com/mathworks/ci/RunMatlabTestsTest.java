@@ -96,7 +96,7 @@ public class RunMatlabTestsTest {
         Mockito.verify(runner).createCommand(isNull(), matlabCommand.capture());
 
         String expected = MatlabConstants.TEST_RUNNER_SCRIPT.replace("${PARAMS}", genscriptArgs)
-            .replace("${ZIP_FILE}", genscriptZipLocation);
+            .replace("${TEMPFOLDER}", tempDir.getAbsolutePath());
         
         Assert.assertEquals(expected, matlabCommand.getValue());
     }
@@ -125,7 +125,7 @@ public class RunMatlabTestsTest {
                 "'HTMLCodeCoverage','.matlab/tempDir/htmlCoverage'";
 
         String genscriptZipLocation = new File(tempDir, "matlab-script-generator.zip").getAbsolutePath();
-        String expectedGeneratedScript = MatlabConstants.TEST_RUNNER_SCRIPT.replace("${ZIP_FILE}", genscriptZipLocation)
+        String expectedGeneratedScript = MatlabConstants.TEST_RUNNER_SCRIPT.replace("${TEMPFOLDER}", tempDir.getAbsolutePath())
                                         .replace("${PARAMS}", expectedGenscriptArgs);
         return new Object[][] {{envMapsWithAllUserInputs, expectedGeneratedScript}};
     }
