@@ -10,6 +10,7 @@ public interface MatlabConstants {
   String BUILD_RUNNER_TYPE = "matlabBuildRunner";
   String MATLAB_PATH = "MatlabPathKey"; // What's the difference between this and root?
   String STARTUP_OPTIONS = "StartupOptions";
+  String BUILD_OPTIONS = "BuildOptions";
   String COMMAND_RUNNER_TYPE = "matlabCommandRunner";
   String COMMAND_RUNNER_NAME = "Run MATLAB Command";
   String BUILD_RUNNER_NAME = "Run MATLAB Build";

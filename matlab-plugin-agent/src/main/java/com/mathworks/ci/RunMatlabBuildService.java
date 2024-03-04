@@ -27,6 +27,11 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
         return tasks == null ? "" : tasks;
     }
 
+    private String getBuildOptions(){
+        final String buildOptions = getUserInputs().get(MatlabConstants.BUILD_OPTIONS);
+        return buildOptions == null ? "" : buildOptions;
+    }
+
     @NotNull
     @Override
     public ProgramCommandLine makeProgramCommandLine() throws RunBuildException {
@@ -35,7 +40,14 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
 
         ProgramCommandLine value;
         try {
-            value = this.runner.createCommand(getContext(), "buildtool " + getTaskName());
+            String cmd = "buildtool";
+            if (!getTaskName().isEmpty()){
+                cmd += " " + getTaskName();
+            }
+            if (!getBuildOptions().isEmpty()){
+                cmd += " " + getBuildOptions();
+            }
+            value = this.runner.createCommand(getContext(), cmd);
         } catch (Exception e) {
             throw new RunBuildException(e);
         } 
