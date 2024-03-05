@@ -4,6 +4,7 @@ This guide shows how to configure the plugin so that you can build and test your
 -  [Use MATLAB as Executable](#use-matlab-as-executable)
 -  [Configure Build Steps](#configure-build-steps)
       -  [Run MATLAB Build](#run-matlab-build)
+         - [Specify Build Options](#specify-build-options)
       -  [Run MATLAB Tests](#run-matlab-tests)
          - [Specify Source Folder](#specify-source-folder)
          - [Filter Tests](#filter-tests)
@@ -35,16 +36,23 @@ The plugin provides you with three build steps:
 * To run MATLAB and Simulink tests and generate artifacts, use the [Run MATLAB Tests](#run-matlab-tests) step.
 * To run a MATLAB script, function, or statement, use the [Run MATLAB Command](#run-matlab-command) step.
 
+> :information_source: **Note:** By default, when you use the **Run MATLAB Build**, **Run MATLAB Tests**, or **Run MATLAB Command** step, the root of your repository serves as the MATLAB startup folder. To run your MATLAB code using a different folder, specify the `-sd` startup option or include the `cd` command when using the **Run MATLAB Command** step.
+
 ### Run MATLAB Build
 The **Run MATLAB Build** step enables you to run a build using the [MATLAB build tool](https://www.mathworks.com/help/matlab/matlab_prog/overview-of-matlab-build-tool.html). You can use this step to run the tasks specified in a file named `buildfile.m` in the root of your repository. To use the **Run MATLAB Build** step, you need MATLAB R2022b or a later release.
 
-To configure the **Run MATLAB Build** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify the tasks you want to execute in the **Tasks** box. If you specify more than one task, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023b to run a task named `mytask` as well as all the tasks on which it depends.
+To configure the **Run MATLAB Build** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify your tasks and build options. If you specify more than one task in the **Tasks** box, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023b to run a task named `mytask` as well as all the tasks on which it depends.
 
-![run_matlab_build](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/374739af-2672-4498-b560-03dd983f975d)
+<img width="full" alt="run_matlab_build" src="https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/49b9ed66-6c44-412d-a578-238e547caae1">
 
 MATLAB exits with exit code 0 if the build runs successfully. Otherwise, MATLAB terminates with a nonzero exit code, which causes the TeamCity build to fail.
 
-When you use this step, a file named `buildfile.m` must be in the root of your repository. For more information about the build tool, see [Create and Run Tasks Using Build Tool](https://www.mathworks.com/help/matlab/matlab_prog/create-and-run-tasks-using-build-tool.html).
+#### Specify Build Options
+To specify build options for your MATLAB build, populate the **Build options** box of the build step configuration interface. For example, specify `-continueOnFailure` to continue running the MATLAB build upon a build environment setup or task failure. The plugin supports the same [options](https://www.mathworks.com/help/matlab/ref/buildtool.html#mw_50c0f35e-93df-4579-963d-f59f2fba1dba) that you can pass to the `buildtool` command.
+
+If you specify more than one build option, use a space to separate them.
+
+<img width="full" alt="build_options" src="https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/3a8cd9e5-24a2-4b8d-bcc3-cee5202379fa">
 
 ### Run MATLAB Tests
 The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your build does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
