@@ -52,7 +52,7 @@ To specify build options for your MATLAB build, populate the **Build options** b
 
 If you specify more than one build option, use a space to separate them.
 
-<img width="full" alt="build_options" src="https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/034e5c1e-d913-4b3b-9f2c-8435a6174e72">
+<img width="full" alt="build_options" src="https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/3a8cd9e5-24a2-4b8d-bcc3-cee5202379fa">
 
 ### Run MATLAB Tests
 The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your build does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
