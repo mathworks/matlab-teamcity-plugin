@@ -43,7 +43,7 @@ The **Run MATLAB Build** step enables you to run a build using the [MATLAB build
 
 To configure the **Run MATLAB Build** step, first specify the MATLAB executable and optional startup options to use for the step. Then, specify your tasks and build options. If you specify more than one task in the **Tasks** box, use a space to separate them. If you do not specify any tasks, the plugin runs the default tasks in `buildfile.m` as well as all the tasks on which they depend. For example, use MATLAB R2023b to run a task named `mytask` as well as all the tasks on which it depends.
 
-![run_matlab_build](https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/374739af-2672-4498-b560-03dd983f975d)
+<img width="full" alt="run_matlab_build" src="https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/49b9ed66-6c44-412d-a578-238e547caae1">
 
 MATLAB exits with exit code 0 if the build runs successfully. Otherwise, MATLAB terminates with a nonzero exit code, which causes the TeamCity build to fail.
 
@@ -52,7 +52,7 @@ To specify build options for your MATLAB build, populate the **Build options** b
 
 If you specify more than one build option, use a space to separate them.
 
-<img width="full" alt="specify_build_options" src="https://github.com/mathworks/matlab-bamboo-plugin/assets/48831250/77766bae-284d-4bc7-b30d-daa84f8d02c5">
+<img width="full" alt="build_options" src="https://github.com/mathworks/matlab-teamcity-plugin/assets/48831250/034e5c1e-d913-4b3b-9f2c-8435a6174e72">
 
 ### Run MATLAB Tests
 The **Run MATLAB Tests** step enables you to run MATLAB and Simulink tests and generate artifacts such as JUnit-style test results and HTML code coverage reports. By default, the plugin includes any test files in your [MATLAB project](https://www.mathworks.com/help/matlab/projects.html) that have a `Test` label. If your build does not use a MATLAB project, or if it uses a MATLAB release before R2019a, then the plugin includes all tests in the root of your repository and in any of its subfolders. The TeamCity build fails if any of the included tests fails.
