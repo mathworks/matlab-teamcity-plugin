@@ -43,16 +43,14 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
         // Set up runner - can't be done at construction time since we don't have access to the context
         this.runner.createUniqueFolder(getContext());
 
-        // Move genscript to temp directory
-        File genscriptLocation = new File(this.runner.getTempDirectory(), MatlabConstants.MATLAB_SCRIPT_GENERATOR);
-
         // Prepare command
-        String runnerScript = getRunnerScript(MatlabConstants.TEST_RUNNER_SCRIPT, getGenScriptParametersForTests(this.runner.getTempDirectory().getName()));
-        runnerScript = replaceZipPlaceholder(runnerScript, genscriptLocation.getPath());
+        String runnerScript = getRunnerScript(MatlabConstants.TEST_RUNNER_SCRIPT, 
+                getGenScriptParametersForTests(this.runner.getTempDirectory().getName()),
+                this.runner.getTempDirectory().getAbsolutePath());
 
         ProgramCommandLine value;
         try {
-            this.runner.copyFileToWorkspace(MatlabConstants.MATLAB_SCRIPT_GENERATOR, genscriptLocation);
+            this.runner.unzipToTempDir(MatlabConstants.MATLAB_SCRIPT_GENERATOR);
             value = this.runner.createCommand(getContext(), runnerScript);
         } catch (Exception e) {
             throw new RunBuildException(e);
@@ -62,14 +60,9 @@ public class RunMatlabTestsService extends BuildServiceAdapter {
         return value;
     }
 
-    //This method replaces the placeholder with genscript's zip file location URL in temp folder
-    private String replaceZipPlaceholder(String script, String url) {
-        script = script.replace("${ZIP_FILE}", url.replaceAll("'", "''"));
-        return script;
-    }
-
-    //To get therunner script
-    private String getRunnerScript(String script, String params) {
+    //To get the runner script
+    private String getRunnerScript(String script, String params, String tempFolder) {
+        script = script.replace("${TEMPFOLDER}", tempFolder);
         script = script.replace("${PARAMS}", params);
         return script;
     }
