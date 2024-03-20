@@ -4,7 +4,7 @@
   <parent>
     <artifactId>matlab-plugin</artifactId>
     <groupId>com.mathworks.ci</groupId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
   </parent>
   <artifactId>build</artifactId>
   <packaging>pom</packaging>
@@ -23,12 +23,12 @@
       <dependency>
            <groupId>com.mathworks.ci</groupId>
            <artifactId>matlab-plugin-common</artifactId>
-           <version>1.1-SNAPSHOT</version>
+           <version>1.2-SNAPSHOT</version>
       </dependency>
       <dependency>
            <groupId>com.mathworks.ci</groupId>
            <artifactId>matlab-plugin-server</artifactId>
-           <version>1.1-SNAPSHOT</version>
+           <version>1.2-SNAPSHOT</version>
       </dependency>
   </dependencies>
   <build>

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.mathworks.ci</groupId>
   <artifactId>matlab-plugin</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
       <teamcity-version>2021.2</teamcity-version>
