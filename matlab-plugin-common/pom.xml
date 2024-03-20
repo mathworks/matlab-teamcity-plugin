@@ -4,7 +4,7 @@
   <parent>
     <artifactId>matlab-plugin</artifactId>
     <groupId>com.mathworks.ci</groupId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
   </parent>
   <artifactId>matlab-plugin-common</artifactId>
   <packaging>jar</packaging>
