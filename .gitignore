@@ -1,2 +1,5 @@
 servers
+target
+matlab-plugin-agent/src/main/resources/**/run-matlab-command*
+matlab-plugin-agent/src/main/resources/matlab-script-generator.zip
 /.idea/
