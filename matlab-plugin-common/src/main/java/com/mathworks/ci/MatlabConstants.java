@@ -31,7 +31,8 @@ public interface MatlabConstants {
   String TEMP_MATLAB_FOLDER_NAME = ".matlab";
   // Matlab Runner files
   static final String RUN_EXE_WIN = "win64/run-matlab-command.exe";
-  static final String RUN_EXE_MAC = "maci64/run-matlab-command";
+  static final String RUN_EXE_MACA = "maca64/run-matlab-command";
+  static final String RUN_EXE_MACI = "maci64/run-matlab-command";
   static final String RUN_EXE_LINUX = "glnxa64/run-matlab-command";
   static final String MATLAB_SCRIPT_GENERATOR = "matlab-script-generator.zip";
   //Test runner file prefix

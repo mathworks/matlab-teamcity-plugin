@@ -95,7 +95,11 @@ public class MatlabCommandRunner {
 
             executable = runnerExe.getPath();
 
-            copyFileToWorkspace(MatlabConstants.RUN_EXE_MAC, new File(runnerExe.getPath()));
+            if (System.getProperty("os.arch").equals("aarch64")) {
+                copyFileToWorkspace(MatlabConstants.RUN_EXE_MACA, new File(runnerExe.getPath()));
+            } else {
+                copyFileToWorkspace(MatlabConstants.RUN_EXE_MACI, new File(runnerExe.getPath()));
+            }
         } else {
             final File runnerExe = new File(this.tempDirectory, "run-matlab-command");
 
