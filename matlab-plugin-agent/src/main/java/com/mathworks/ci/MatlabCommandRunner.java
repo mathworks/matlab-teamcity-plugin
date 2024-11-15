@@ -121,6 +121,20 @@ public class MatlabCommandRunner {
         zipFile.extractAll(tempDirectory.toString());
     }
 
+    public void copyTestPluginsToTempDir(String pluginName) throws IOException{
+        File pluginFileLocation = new File(this.tempDirectory, pluginName);
+
+        // Ensure the directory structure exists
+        File parentDir = pluginFileLocation.getParentFile();
+        if (!parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                throw new IOException("Failed to create directories: " + parentDir);
+            }
+        }
+        
+        copyFileToWorkspace(pluginName, pluginFileLocation);
+    }
+
     public void copyFileToWorkspace(String sourceFile, File targetFile) throws IOException {
         InputStream is = MatlabCommandRunner.class.getClassLoader().getResourceAsStream(sourceFile);
         java.nio.file.Files.copy(is, targetFile.toPath(), REPLACE_EXISTING);

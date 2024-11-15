@@ -35,6 +35,8 @@ public class RunMatlabCommandService extends BuildServiceAdapter {
         ProgramCommandLine value;
         try {
             value = this.runner.createCommand(getContext(), getMatlabCommand());
+            this.runner.copyTestPluginsToTempDir(MatlabConstants.TEST_VISUALIZATION_PLUGIN);
+            this.runner.copyTestPluginsToTempDir(MatlabConstants.TEST_VISUALIZATION_PLUGIN_SERVICE);
         } catch (Exception e) {
             throw new RunBuildException(e);
         } 
