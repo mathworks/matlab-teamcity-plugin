@@ -35,8 +35,10 @@ public class RunMatlabCommandService extends BuildServiceAdapter {
         ProgramCommandLine value;
         try {
             value = this.runner.createCommand(getContext(), getMatlabCommand());
-            this.runner.copyTestPluginsToTempDir(MatlabConstants.TEST_VISUALIZATION_PLUGIN);
-            this.runner.copyTestPluginsToTempDir(MatlabConstants.TEST_VISUALIZATION_PLUGIN_SERVICE);
+            this.runner.copyBuildPluginsToTemp();
+            this.runner.copyTestPluginsToTemp();
+            // Set build environment variable
+            this.runner.addEnvironmentVariable("MW_MATLAB_BUILDTOOL_DEFAULT_PLUGINS_FCN_OVERRIDE","ciplugins.teamcity.getDefaultPlugins");
         } catch (Exception e) {
             throw new RunBuildException(e);
         } 

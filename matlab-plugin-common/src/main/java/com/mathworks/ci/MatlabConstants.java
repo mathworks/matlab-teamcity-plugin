@@ -37,6 +37,8 @@ public interface MatlabConstants {
   static final String MATLAB_SCRIPT_GENERATOR = "matlab-script-generator.zip";
   
   // MATLAB default plugin paths
+  static final String DEFAULT_PLUGIN = "+ciplugins/+teamcity/getDefaultPlugins.m";
+  static final String BUILD_VISUALIZATION_PLUGIN = "+ciplugins/+teamcity/BuildVisualizationPlugin.m";
   static final String TEST_VISUALIZATION_PLUGIN = "+ciplugins/+teamcity/TestVisualizationPlugin.m";
   static final String TEST_VISUALIZATION_PLUGIN_SERVICE = "+matlab/+unittest/+internal/+services/+plugins/TestVisualizationPluginService.m";
 
