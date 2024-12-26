@@ -152,7 +152,7 @@ public class MatlabCommandRunnerTest {
         expectedCommand.add("setenv('MW_ORIG_WORKING_FOLDER', cd('" 
                 + currDir.getPath().replaceAll("'", ";;") 
                 + "'));" + "matlab_" + currDir.getName());
-
+        
         Method generateCommandArgs = getAccessibleMethod("generateCommandArgs", BuildRunnerContext.class, String.class);
 
         Object actualCommand = generateCommandArgs.invoke(runner, context, command);
@@ -162,7 +162,7 @@ public class MatlabCommandRunnerTest {
         Assert.assertTrue(expectedFile.exists());
 
         String contents = FileUtils.readFileToString(expectedFile);
-        Assert.assertEquals(contents, "cd(getenv('MW_ORIG_WORKING_FOLDER'));\n" + command);
+        Assert.assertEquals(contents, "cd(getenv('MW_ORIG_WORKING_FOLDER'));\naddpath('" + currDir.getPath() + "');\n" + command);
     }
 
     // startup options test
