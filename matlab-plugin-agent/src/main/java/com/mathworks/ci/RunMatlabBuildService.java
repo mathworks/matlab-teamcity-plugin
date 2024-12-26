@@ -40,9 +40,7 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
 
         ProgramCommandLine value;
         try {
-            String cmd = "addpath('"
-            + runner.getTempDirectory()
-            + "'); buildtool";
+            String cmd = "buildtool";
             if (!getTaskName().isEmpty()){
                 cmd += " " + getTaskName();
             }

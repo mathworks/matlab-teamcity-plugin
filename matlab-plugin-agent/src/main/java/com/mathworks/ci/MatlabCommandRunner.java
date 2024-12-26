@@ -90,7 +90,7 @@ public class MatlabCommandRunner {
         final File matlabCommandFile = 
             new File(this.tempDirectory, uniqueScriptName + ".m");
         final String matlabCommandFileContent =
-            "cd(getenv('MW_ORIG_WORKING_FOLDER'));\n" + command;
+            "cd(getenv('MW_ORIG_WORKING_FOLDER'));\n" + "addpath('" + this.tempDirectory + "');\n" + command;
 
         FileUtils.writeStringToFile(matlabCommandFile, matlabCommandFileContent);
     }
