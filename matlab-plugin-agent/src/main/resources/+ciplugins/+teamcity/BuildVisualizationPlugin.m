@@ -4,10 +4,6 @@ classdef BuildVisualizationPlugin < matlab.buildtool.plugins.BuildRunnerPlugin
     
     methods (Access=protected)
 
-        function runTaskGraph(plugin, pluginData)
-            runTaskGraph@matlab.buildtool.plugins.BuildRunnerPlugin(plugin, pluginData);
-        end
-
         function runTask(plugin, pluginData)
             disp("##teamcity[blockOpened name ='" + pluginData.TaskResults.Name + "']");
             disp("##teamcity[progressStart 'Running " + pluginData.TaskResults.Name + " Task']");
