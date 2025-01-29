@@ -47,6 +47,10 @@ public class RunMatlabBuildService extends BuildServiceAdapter {
             if (!getBuildOptions().isEmpty()){
                 cmd += " " + getBuildOptions();
             }
+            this.runner.copyBuildPluginsToTemp();
+            this.runner.copyTestPluginsToTemp();
+            // Set build environment variable
+            this.runner.addEnvironmentVariable("MW_MATLAB_BUILDTOOL_DEFAULT_PLUGINS_FCN_OVERRIDE","ciplugins.teamcity.getDefaultPlugins");
             value = this.runner.createCommand(getContext(), cmd);
         } catch (Exception e) {
             throw new RunBuildException(e);

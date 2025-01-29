@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,11 @@ import net.lingala.zip4j.ZipFile;
 
 public class MatlabCommandRunner {
     private File tempDirectory;
+    private Map<String,String> additionalEnvVars;
+
+    public MatlabCommandRunner() {
+        this.additionalEnvVars = new HashMap<String,String>();
+    }
 
     public void setTempDirectory(File dir) {
         this.tempDirectory = dir;
@@ -44,6 +50,14 @@ public class MatlabCommandRunner {
 
         //Add MATLAB to PATH Variable
         addToPath(runnerContext, matlabPath);
+
+        //Add custom environment variables
+        for (Map.Entry<String, String> envVar : additionalEnvVars.entrySet()) {
+            String key = envVar.getKey();
+            String value = envVar.getValue();
+
+            runnerContext.addEnvironmentVariable(key, value);
+        }
 
         return new SimpleProgramCommandLine(runnerContext, executable, command); 
     }
@@ -76,7 +90,7 @@ public class MatlabCommandRunner {
         final File matlabCommandFile = 
             new File(this.tempDirectory, uniqueScriptName + ".m");
         final String matlabCommandFileContent =
-            "cd(getenv('MW_ORIG_WORKING_FOLDER'));\n" + command;
+            "cd(getenv('MW_ORIG_WORKING_FOLDER'));\n" + "addpath('" + this.tempDirectory + "');\n" + command;
 
         FileUtils.writeStringToFile(matlabCommandFile, matlabCommandFileContent);
     }
@@ -119,6 +133,34 @@ public class MatlabCommandRunner {
         // Unzip
         ZipFile zipFile = new ZipFile(zipFileLocation);
         zipFile.extractAll(tempDirectory.toString());
+    }
+    
+    public void addEnvironmentVariable(String key, String value) {
+        additionalEnvVars.put(key, value);
+    }
+
+    public void copyBuildPluginsToTemp() throws IOException{
+        copyPluginsToTempDir(MatlabConstants.DEFAULT_PLUGIN);
+        copyPluginsToTempDir(MatlabConstants.BUILD_VISUALIZATION_PLUGIN);
+    }
+
+    public void copyTestPluginsToTemp() throws IOException{
+        copyPluginsToTempDir(MatlabConstants.TEST_VISUALIZATION_PLUGIN);
+        copyPluginsToTempDir(MatlabConstants.TEST_VISUALIZATION_PLUGIN_SERVICE);
+    }
+
+    public void copyPluginsToTempDir(String pluginName) throws IOException{
+        File pluginFileLocation = new File(this.tempDirectory, pluginName);
+
+        // Ensure the directory structure exists
+        File parentDir = pluginFileLocation.getParentFile();
+        if (!parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                throw new IOException("Failed to create directories: " + parentDir);
+            }
+        }
+
+        copyFileToWorkspace(pluginName, pluginFileLocation);
     }
 
     public void copyFileToWorkspace(String sourceFile, File targetFile) throws IOException {
