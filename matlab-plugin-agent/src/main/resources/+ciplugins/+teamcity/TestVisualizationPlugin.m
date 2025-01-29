@@ -4,6 +4,15 @@ classdef TestVisualizationPlugin < matlab.unittest.plugins.TestRunnerPlugin
 
     methods (Access=protected)
 
+        function runTestClass(plugin, pluginData)
+            disp("##teamcity[blockOpened name ='Running " + pluginData.Name + "']");
+
+            % Invoke the super class method
+            runTestClass@matlab.unittest.plugins.TestRunnerPlugin(plugin, pluginData);
+
+            disp("##teamcity[blockClosed name ='Running " + pluginData.Name + "']");
+        end        
+
         function runTest(plugin, pluginData)
             classAndTestName = strrep(pluginData.Name,"/",".");
             
