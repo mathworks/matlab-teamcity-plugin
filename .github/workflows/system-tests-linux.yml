@@ -1,0 +1,82 @@
+# GitHub Actions workflow for Linux system tests
+# Architecture: TeamCity server (Docker) + TeamCity agent (Docker with MATLAB)
+#
+# Requirements:
+#   - GitHub-hosted ubuntu-latest runner
+#   - Repository secret: MLM_LICENSE_TOKEN (for MATLAB batch licensing)
+
+name: System Tests (Linux)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'matlab-plugin-agent/**'
+      - 'matlab-plugin-server/**'
+      - 'matlab-plugin-common/**'
+      - 'build/**'
+      - 'pom.xml'
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  system-test-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Build plugin
+        run: mvn package -DskipTests -q
+
+      - name: Build and start services
+        working-directory: systemtest/ci-linux
+        env:
+          MLM_LICENSE_TOKEN: ${{ secrets.MLM_LICENSE_TOKEN }}
+        run: |
+          docker compose build
+          docker compose up -d
+
+      - name: Run setup
+        working-directory: systemtest/ci-linux
+        run: python -u setup_teamcity.py
+
+      - name: Run configure
+        working-directory: systemtest/ci-linux
+        run: python -u configure_project.py
+
+      - name: Run tests
+        working-directory: systemtest/ci-linux
+        run: python -u run_builds.py
+
+      - name: Collect server logs
+        if: always()
+        run: |
+          mkdir -p ci-logs
+          docker cp teamcity-server:/opt/teamcity/logs/ ci-logs/server/ 2>/dev/null || true
+          docker logs teamcity-server > ci-logs/server-stdout.log 2>&1 || true
+          docker logs teamcity-agent > ci-logs/agent-stdout.log 2>&1 || true
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-test-linux-logs
+          path: ci-logs/
+          retention-days: 7
+
+      - name: Teardown
+        if: always()
+        working-directory: systemtest/ci-linux
+        run: docker compose down -v
