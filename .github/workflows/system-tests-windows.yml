@@ -1,0 +1,119 @@
+# GitHub Actions workflow for Windows system tests
+# Architecture: TeamCity server + agent both as Java processes on GitHub-hosted Windows runner
+# No Docker required
+#
+# Requirements:
+#   - GitHub-hosted windows-latest runner
+#   - Repository secret: MLM_LICENSE_TOKEN (for setup-matlab)
+
+name: System Tests (Windows)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'matlab-plugin-agent/**'
+      - 'matlab-plugin-server/**'
+      - 'matlab-plugin-common/**'
+      - 'build/**'
+      - 'pom.xml'
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  system-test-windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    env:
+      TC_URL: 'http://localhost:8111'
+      SERVER_DIR: 'C:\TeamCity'
+      DATA_DIR: 'C:\TeamCity-data'
+      AGENT_DIR: 'C:\BuildAgent'
+      TC_VERSION: '2025.03.3'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java (JDK 21)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Build plugin
+        run: mvn package -DskipTests -q
+        shell: cmd
+
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: R2026a
+
+      - name: Cache TeamCity distribution
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TEMP }}\TeamCity-${{ env.TC_VERSION }}.tar.gz
+          key: teamcity-${{ env.TC_VERSION }}
+
+      - name: Run Windows system tests
+        run: python -u run_all.py
+        working-directory: systemtest/ci-windows
+        env:
+          PLUGIN_ZIP: ${{ github.workspace }}\target\matlab-plugin.zip
+
+      - name: Collect server logs
+        if: always()
+        run: |
+          if (Test-Path "C:\TeamCity\logs") {
+            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\server-logs" -Force | Out-Null
+            Copy-Item "C:\TeamCity\logs\*" -Destination "$env:GITHUB_WORKSPACE\server-logs" -Recurse -ErrorAction SilentlyContinue
+          }
+        shell: pwsh
+
+      - name: Collect agent logs
+        if: always()
+        run: |
+          if (Test-Path "C:\BuildAgent\logs") {
+            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\agent-logs" -Force | Out-Null
+            Copy-Item "C:\BuildAgent\logs\*" -Destination "$env:GITHUB_WORKSPACE\agent-logs" -Recurse -ErrorAction SilentlyContinue
+          }
+        shell: pwsh
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-test-windows-logs
+          path: |
+            server-logs/
+            agent-logs/
+
+      - name: Teardown
+        if: always()
+        run: |
+          # Stop agent
+          if (Test-Path "C:\BuildAgent\bin\agent.bat") {
+            & "C:\BuildAgent\bin\agent.bat" stop
+            Start-Sleep -Seconds 5
+          }
+          # Stop server
+          if (Test-Path "C:\TeamCity\bin\teamcity-server.bat") {
+            $env:TEAMCITY_DATA_PATH = "C:\TeamCity-data"
+            & "C:\TeamCity\bin\teamcity-server.bat" stop
+            Start-Sleep -Seconds 5
+          }
+          # Kill remaining Java
+          Get-Process java -ErrorAction SilentlyContinue | Stop-Process -Force
+        shell: pwsh
