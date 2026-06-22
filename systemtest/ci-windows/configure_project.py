@@ -168,36 +168,15 @@ def set_artifact_rules(session, config_id, rules):
 
 BUILD_CONFIGS = [
     {
-        "id": "RunTests_Basic",
-        "name": "Run MATLAB Tests - Basic",
-        "runner": "matlabTestRunner",
-        "step_name": "Run MATLAB Tests",
+        "id": "RunCommand_Disp",
+        "name": "Run MATLAB Command - disp",
+        "runner": "matlabCommandRunner",
+        "step_name": "Run MATLAB Command",
         "properties": {
             "MatlabPathKey": MATLAB_PATH,
-            "sourceFolders": "code",
-            "junitArtifact": "matlabTestArtifacts/results.xml",
-            "logOutputDetail": "Default",
-            "logLoggingLevel": "Default",
+            "matlabCommand": "disp('hello from MATLAB')",
         },
-        "artifact_rules": "matlabTestArtifacts/**"
-    },
-    {
-        "id": "RunTests_AllArtifacts",
-        "name": "Run MATLAB Tests - All Artifacts",
-        "runner": "matlabTestRunner",
-        "step_name": "Run MATLAB Tests (all artifacts)",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "sourceFolders": "code",
-            "junitArtifact": "matlabTestArtifacts/results.xml",
-            "tapTestArtifact": "matlabTestArtifacts/results.tap",
-            "pdfTestArtifact": "matlabTestArtifacts/report.pdf",
-            "htmlTestArtifact": "matlabTestArtifacts/test-report",
-            "htmlCoverage": "matlabTestArtifacts/coverage",
-            "logOutputDetail": "Default",
-            "logLoggingLevel": "Default",
-        },
-        "artifact_rules": "matlabTestArtifacts/**"
+        "artifact_rules": None
     },
     {
         "id": "RunBuild_DefaultTask",
@@ -211,26 +190,18 @@ BUILD_CONFIGS = [
         "artifact_rules": None
     },
     {
-        "id": "RunCommand_Disp",
-        "name": "Run MATLAB Command - disp",
-        "runner": "matlabCommandRunner",
-        "step_name": "Run MATLAB Command",
+        "id": "RunTests_Basic",
+        "name": "Run MATLAB Tests - Basic",
+        "runner": "matlabTestRunner",
+        "step_name": "Run MATLAB Tests",
         "properties": {
             "MatlabPathKey": MATLAB_PATH,
-            "matlabCommand": "disp('hello from MATLAB')",
+            "sourceFolders": "code",
+            "junitArtifact": "matlabTestArtifacts/results.xml",
+            "logOutputDetail": "Default",
+            "logLoggingLevel": "Default",
         },
-        "artifact_rules": None
-    },
-    {
-        "id": "RunCommand_Version",
-        "name": "Run MATLAB Command - ver",
-        "runner": "matlabCommandRunner",
-        "step_name": "Run MATLAB Command (version)",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "matlabCommand": "ver",
-        },
-        "artifact_rules": None
+        "artifact_rules": "matlabTestArtifacts/**"
     },
 ]
 
