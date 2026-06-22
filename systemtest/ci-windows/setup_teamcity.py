@@ -1,7 +1,7 @@
 """
-Automated first-run setup for TeamCity (fully native, no Docker).
+Automated first-run setup for TeamCity on Windows.
 
-Super user token is read from the server log file instead of docker logs.
+Super user token is read from the server log file.
 
 Supports --mode flag:
   server-only: wizard + admin + plugin/runner verification (no agent wait)

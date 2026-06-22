@@ -68,7 +68,7 @@ jobs:
           key: teamcity-${{ env.TC_VERSION }}
 
       - name: Run Windows system tests
-        run: python -u run_all.py
+        run: python -u run_workflow.py
         working-directory: systemtest/ci-windows
         env:
           PLUGIN_ZIP: ${{ github.workspace }}\target\matlab-plugin.zip

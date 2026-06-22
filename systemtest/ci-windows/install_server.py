@@ -1,5 +1,5 @@
 """
-Download and install TeamCity server natively on Windows (no Docker).
+Download and install TeamCity server on Windows.
 
 Steps:
 1. Download TeamCity distribution tar.gz from JetBrains

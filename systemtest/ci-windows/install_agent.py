@@ -1,5 +1,5 @@
 """
-Download and install TeamCity build agent natively on Windows (no Docker).
+Download and install TeamCity build agent on Windows.
 
 Steps:
 1. Download buildAgentFull.zip from the TeamCity server

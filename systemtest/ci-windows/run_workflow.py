@@ -1,14 +1,13 @@
 """
-Single-command end-to-end system test: fully native (no Docker).
+End-to-end system test orchestrator for Windows.
 
 Architecture:
-  - TeamCity Server: Native Java process (catalina.bat)
-  - TeamCity Agent: Native Windows process (agent.bat)
+  - TeamCity Server: Java process (catalina.bat)
+  - TeamCity Agent: Windows process (agent.bat)
   - MATLAB: Installed on host via setup-matlab
-  - Docker: NOT REQUIRED
 
 Usage:
-    python run_all.py
+    python run_workflow.py
 
 Environment variables:
     TC_URL         - TeamCity server URL (default: http://localhost:8111)
@@ -24,8 +23,8 @@ Pipeline:
   2. Setup     - Maintenance wizard, admin user, plugin verify
   3. Agent     - Download agent from server, configure, start
   4. Authorize - Wait for agent connection, authorize
-  5. Configure - Create project, VCS root, 5 build configurations
-  6. Test      - Trigger all builds, validate status + logs + artifacts
+  5. Configure - Create project, VCS root, build configurations
+  6. Test      - Trigger builds, validate status + logs + artifacts
 """
 
 import os
