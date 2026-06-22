@@ -16,7 +16,6 @@ Environment variables:
     SERVER_DIR     - Server install dir (default: C:\\TeamCity)
     DATA_DIR       - Server data dir (default: C:\\TeamCity-data)
     AGENT_DIR      - Agent install dir (default: C:\\BuildAgent)
-    PLUGIN_ZIP     - Path to plugin ZIP (auto-detected)
     TC_VERSION     - TeamCity version (default: 2025.03.3)
     JAVA_HOME      - JDK 11+ installation
     MATLAB_PATH    - MATLAB root (auto-detected from PATH)
@@ -46,18 +45,15 @@ DATA_DIR = os.environ.get("DATA_DIR", r"C:\TeamCity-data")
 AGENT_DIR = os.environ.get("AGENT_DIR", r"C:\BuildAgent")
 
 
-def run_script(name, script):
-    run_script_with_args(name, script, [])
-
-
-def run_script_with_args(name, script, extra_args):
+def run_script(name, script, extra_args=None):
+    # Run a sub-script by name, exit on failure.
     path = os.path.join(SCRIPT_DIR, script)
     print(f"\n{'#'*60}")
     print(f"# {name}")
     print(f"{'#'*60}\n")
     sys.stdout.flush()
     result = subprocess.run(
-        [sys.executable, "-u", path] + extra_args, cwd=SCRIPT_DIR
+        [sys.executable, "-u", path] + (extra_args or []), cwd=SCRIPT_DIR
     )
     if result.returncode != 0:
         print(f"\nFAILED: {name} (exit code {result.returncode})")
@@ -65,12 +61,12 @@ def run_script_with_args(name, script, extra_args):
 
 
 def teardown():
+    # Stop all processes and remove data directories for a clean slate.
     print(f"\n{'#'*60}")
     print(f"# TEARDOWN")
     print(f"{'#'*60}\n")
     sys.stdout.flush()
 
-    # Stop agent
     agent_bat = os.path.join(AGENT_DIR, "bin", "agent.bat")
     if os.path.isfile(agent_bat):
         print("Stopping agent...")
@@ -81,7 +77,6 @@ def teardown():
         )
         time.sleep(3)
 
-    # Stop server
     server_bat = os.path.join(SERVER_DIR, "bin", "teamcity-server.bat")
     if os.path.isfile(server_bat):
         print("Stopping server...")
@@ -95,7 +90,6 @@ def teardown():
         )
         time.sleep(5)
 
-    # Kill any lingering Java processes
     print("Killing lingering Java processes...")
     subprocess.run(
         ["powershell", "-Command",
@@ -106,7 +100,6 @@ def teardown():
     )
     time.sleep(2)
 
-    # Remove directories
     if os.path.isdir(AGENT_DIR):
         print(f"Removing {AGENT_DIR}...")
         shutil.rmtree(AGENT_DIR, ignore_errors=True)
@@ -115,8 +108,6 @@ def teardown():
         print(f"Removing {DATA_DIR}...")
         shutil.rmtree(DATA_DIR, ignore_errors=True)
 
-    # Keep SERVER_DIR if it has the installation to avoid re-downloading 1.5GB
-    # But clear logs so stale super user tokens don't confuse the next run
     logs_dir = os.path.join(SERVER_DIR, "logs")
     if os.path.isdir(logs_dir):
         print(f"Clearing {logs_dir}...")
@@ -144,15 +135,15 @@ def main():
             shutil.rmtree(SERVER_DIR, ignore_errors=True)
 
     run_script("INSTALL SERVER (download + extract + deploy plugin + start)", "install_server.py")
-    run_script_with_args("SETUP SERVER (wizard + admin + plugin verify)",
-                         "setup_teamcity.py", ["--mode", "server-only"])
+    run_script("SETUP SERVER (wizard + admin + plugin verify)",
+               "setup_teamcity.py", ["--mode", "server-only"])
     run_script("INSTALL AGENT (download + configure + start)", "install_agent.py")
 
     print("\nWaiting 15s for agent to register with server...")
     time.sleep(15)
 
-    run_script_with_args("AUTHORIZE AGENT (wait + authorize)",
-                         "setup_teamcity.py", ["--mode", "agent-only"])
+    run_script("AUTHORIZE AGENT (wait + authorize)",
+               "setup_teamcity.py", ["--mode", "agent-only"])
 
     print("\nWaiting 30s for agent to be fully ready...")
     time.sleep(30)

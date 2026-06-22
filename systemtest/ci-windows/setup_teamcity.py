@@ -21,7 +21,6 @@ import sys
 import time
 import requests
 
-# Avoid encoding errors on Windows console
 if sys.stdout.encoding != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
@@ -34,6 +33,7 @@ EXPECTED_RUNNERS = ["matlabTestRunner", "matlabBuildRunner", "matlabCommandRunne
 
 
 def wait_for_server_http(timeout=420, interval=10):
+    # Poll server until it responds to HTTP requests.
     print("Waiting for TeamCity HTTP to respond...")
     start = time.time()
     while time.time() - start < timeout:
@@ -49,6 +49,7 @@ def wait_for_server_http(timeout=420, interval=10):
 
 
 def get_maintenance_stage():
+    # Return the current maintenance wizard stage name.
     r = requests.get(f"{TC_URL}/mnt", timeout=10, allow_redirects=False)
     if r.status_code == 302:
         return None
@@ -59,6 +60,7 @@ def get_maintenance_stage():
 
 
 def get_maintenance_session():
+    # Get session cookie and CSRF token from the maintenance page.
     r = requests.get(f"{TC_URL}/mnt", timeout=10, allow_redirects=False)
     session_id = r.cookies.get("TCSESSIONID")
     cookies = {"TCSESSIONID": session_id} if session_id else {}
@@ -70,6 +72,7 @@ def get_maintenance_session():
 
 
 def maintenance_post(command, data=None):
+    # POST a command to the maintenance wizard.
     cookies, csrf = get_maintenance_session()
     headers = {}
     if csrf:
@@ -85,6 +88,7 @@ def maintenance_post(command, data=None):
 
 
 def complete_maintenance_wizard(timeout=600, interval=10):
+    # Step through the maintenance wizard until server is ready.
     print("Completing maintenance wizard...")
     start = time.time()
     last_stage = None
@@ -124,6 +128,7 @@ def complete_maintenance_wizard(timeout=600, interval=10):
 
 
 def wait_for_rest_api(timeout=300, interval=10):
+    # Poll until the REST API responds (200 or 401).
     print("Waiting for REST API...")
     start = time.time()
     while time.time() - start < timeout:
@@ -140,7 +145,7 @@ def wait_for_rest_api(timeout=300, interval=10):
 
 
 def get_super_user_token():
-    """Read the most recent super user token from server log files."""
+    # Read the most recent super user token from server log files.
     log_dirs = [
         os.path.join(SERVER_DIR, "logs"),
         os.path.join(DATA_DIR, "system", "logs"),
@@ -178,32 +183,31 @@ def get_super_user_token():
 
 
 def make_session(token):
+    # Create a requests session authenticated with the super user token.
     session = requests.Session()
     session.auth = ("", token)
     session.headers.update({"Accept": "application/json"})
     return session
 
 
-def accept_agreement_via_form(session):
-    """Accept license agreement via the HTML form (needed before CSRF endpoint works)."""
-    print("  Accepting license agreement via HTML form...")
+def accept_license_form(session, csrf):
+    # Accept the license agreement via the HTML form.
     r = session.get(f"{TC_URL}/showAgreement.html", allow_redirects=False)
     if r.status_code != 200:
         return False
     match = re.search(r'name="tc-csrf-token"\s+content="([^"]+)"', r.text)
-    csrf = match.group(1) if match else ""
+    page_csrf = match.group(1) if match else csrf
     r2 = session.post(
         f"{TC_URL}/showAgreement.html",
-        data={"accept": "on", "_accept": ""},
-        headers={"X-TC-CSRF-Token": csrf},
+        data={"accept": "on", "Continue": "Continue"},
+        headers={"X-TC-CSRF-Token": page_csrf},
         allow_redirects=False
     )
-    print(f"  Agreement form POST: HTTP {r2.status_code}")
-    time.sleep(3)
     return r2.status_code in (200, 302)
 
 
 def get_csrf_token(session):
+    # Obtain a CSRF token, accepting license agreement if prompted.
     for attempt in range(3):
         r = session.get(f"{TC_URL}/authenticationTest.html?csrf", allow_redirects=False)
         if r.status_code == 200:
@@ -214,21 +218,16 @@ def get_csrf_token(session):
             if match:
                 return match.group(0)
             return token
-        if r.status_code == 302:
-            location = r.headers.get("Location", "")
-            if "showAgreement" in location or "Agreement" in location:
-                accept_agreement_via_form(session)
-                continue
-        if r.status_code == 401:
-            accept_agreement_via_form(session)
+        if r.status_code in (302, 401):
+            accept_license_form(session, "")
             continue
         break
     return None
 
 
 def accept_license(session, csrf):
+    # Accept license agreement via REST API or HTML form fallback.
     print("Accepting license agreement...")
-    # Try REST API first
     r = session.put(
         f"{TC_URL}/app/rest/server/licensingData/licenseAgreementAccepted",
         headers={"Content-Type": "text/plain", "X-TC-CSRF-Token": csrf},
@@ -238,31 +237,20 @@ def accept_license(session, csrf):
         print("  License accepted (REST API).")
         return True
     if r.status_code == 404:
-        print("  License endpoint not available (already accepted). Continuing.")
+        print("  License endpoint not available (already accepted).")
         return True
 
-    # REST API may not work for native installs — accept via web form
     print("  REST API method didn't work, trying web form...")
-    r = session.get(f"{TC_URL}/showAgreement.html")
-    if r.status_code == 200 and "showAgreement" in r.url or "agreement" in r.text.lower():
-        # Extract CSRF from the page
-        match = re.search(r'<meta\s+name="tc-csrf-token"\s+content="([^"]+)"', r.text)
-        page_csrf = match.group(1) if match else csrf
-        r2 = session.post(
-            f"{TC_URL}/showAgreement.html",
-            headers={"X-TC-CSRF-Token": page_csrf},
-            data={"accept": "on", "Continue": "Continue"}
-        )
-        if r2.status_code in (200, 302):
-            print("  License accepted (web form).")
-            return True
-        print(f"  WARNING: Form accept returned {r2.status_code}")
-    else:
-        print("  No license agreement page found (may already be accepted).")
+    if accept_license_form(session, csrf):
+        print("  License accepted (web form).")
+        return True
+
+    print("  No license agreement page found (may already be accepted).")
     return True
 
 
 def create_admin_user(session, csrf):
+    # Create the admin user via REST API.
     print(f"Creating admin user '{ADMIN_USERNAME}'...")
     r = session.post(
         f"{TC_URL}/app/rest/users",
@@ -286,6 +274,7 @@ def create_admin_user(session, csrf):
 
 
 def verify_plugin(session, csrf, retries=5, delay=10):
+    # Verify that the MATLAB plugin is loaded on the server.
     print("Verifying MATLAB plugin is loaded...")
     for attempt in range(retries):
         r = session.get(f"{TC_URL}/app/rest/server/plugins",
@@ -325,20 +314,8 @@ def verify_plugin(session, csrf, retries=5, delay=10):
     return False
 
 
-def accept_license_form(session, csrf):
-    """Accept license via the web form."""
-    r = session.get(f"{TC_URL}/showAgreement.html")
-    if r.status_code == 200:
-        match = re.search(r'<meta\s+name="tc-csrf-token"\s+content="([^"]+)"', r.text)
-        page_csrf = match.group(1) if match else csrf
-        session.post(
-            f"{TC_URL}/showAgreement.html",
-            headers={"X-TC-CSRF-Token": page_csrf},
-            data={"accept": "on", "Continue": "Continue"}
-        )
-
-
 def verify_runners(session, csrf):
+    # Verify that MATLAB runner types are registered.
     print("Verifying MATLAB runner types...")
     r = session.get(f"{TC_URL}/app/rest/runTypes")
     if r.status_code == 200:
@@ -388,6 +365,7 @@ def verify_runners(session, csrf):
 
 
 def wait_for_agent(session, timeout=300, interval=10):
+    # Wait for an agent to connect to the server.
     print("Waiting for agent to connect...")
     start = time.time()
     while time.time() - start < timeout:
@@ -404,6 +382,7 @@ def wait_for_agent(session, timeout=300, interval=10):
 
 
 def authorize_agent(session, csrf, agent_id):
+    # Authorize a connected agent so it can run builds.
     print(f"Authorizing agent {agent_id}...")
     r = session.put(
         f"{TC_URL}/app/rest/agents/id:{agent_id}/authorized",
@@ -446,9 +425,8 @@ def main():
             time.sleep(10)
         if not token:
             print("ERROR: Could not find super user token in server logs.")
-            print(f"  Checked: {os.path.join(SERVER_DIR, 'logs')}")
             sys.exit(1)
-        print(f"Super user token: {token}")
+        print("  Super user token acquired.")
 
         session = make_session(token)
 
@@ -456,7 +434,7 @@ def main():
         if not csrf:
             print("ERROR: Could not obtain CSRF token.")
             sys.exit(1)
-        print(f"CSRF token: {csrf}")
+        print("  CSRF token acquired.")
 
         accept_license(session, csrf)
 

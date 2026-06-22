@@ -29,16 +29,25 @@ BUILD_CONFIGS = [
 ]
 
 
-def make_session():
+def make_session(retries=3, delay=5):
+    # Create authenticated session with CSRF token.
     session = requests.Session()
     session.auth = ADMIN_AUTH
     session.headers.update({"Accept": "application/json"})
-    csrf = session.get(f"{TC_URL}/authenticationTest.html?csrf").text.strip()
-    session.headers.update({"X-TC-CSRF-Token": csrf})
-    return session
+    for attempt in range(retries):
+        r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
+        csrf = r.text.strip()
+        if r.status_code == 200 and len(csrf) < 100 and "\n" not in csrf:
+            session.headers.update({"X-TC-CSRF-Token": csrf})
+            return session
+        if attempt < retries - 1:
+            time.sleep(delay)
+    print(f"ERROR: Authentication failed. Response: {csrf[:200]}")
+    sys.exit(1)
 
 
 def trigger_build(session, config_id):
+    # Queue a build for the given configuration and return the build ID.
     r = session.post(
         f"{TC_URL}/app/rest/buildQueue",
         headers={"Content-Type": "application/json"},
@@ -53,6 +62,7 @@ def trigger_build(session, config_id):
 
 
 def wait_for_build(session, build_id):
+    # Poll until build finishes, return status string.
     start = time.time()
     while time.time() - start < BUILD_TIMEOUT:
         r = session.get(f"{TC_URL}/app/rest/builds/id:{build_id}")
@@ -65,6 +75,7 @@ def wait_for_build(session, build_id):
 
 
 def download_build_log(session, build_id):
+    # Download the full build log as plain text.
     r = session.get(
         f"{TC_URL}/httpAuth/downloadBuildLog.html?buildId={build_id}",
         headers={"Accept": "text/plain"}
@@ -75,6 +86,7 @@ def download_build_log(session, build_id):
 
 
 def list_artifacts(session, build_id):
+    # List top-level artifact file names for a build.
     r = session.get(f"{TC_URL}/app/rest/builds/id:{build_id}/artifacts/children/")
     if r.status_code == 200:
         return [f.get("name", "") for f in r.json().get("file", [])]
@@ -82,6 +94,7 @@ def list_artifacts(session, build_id):
 
 
 def download_artifact(session, build_id, path):
+    # Download a specific artifact by path, return raw bytes.
     r = session.get(
         f"{TC_URL}/httpAuth/app/rest/builds/id:{build_id}/artifacts/content/{path}",
         headers={"Accept": "application/octet-stream"}
@@ -92,6 +105,7 @@ def download_artifact(session, build_id, path):
 
 
 def validate_junit_xml(content):
+    # Validate JUnit XML: 2 suites, 16 tests, 0 failures.
     try:
         root = ET.fromstring(content)
         if root.tag != "testsuites":
@@ -134,6 +148,7 @@ def validate_junit_xml(content):
 
 
 def validate_tap(content):
+    # Validate TAP output: version 13, plan 1..16, all ok.
     lines = content.strip().split("\n")
     if not lines:
         return False, "Empty TAP file"
@@ -170,6 +185,7 @@ def validate_tap(content):
 
 
 def validate_pdf(content):
+    # Validate PDF: correct header, reasonable size, proper EOF.
     if not content or len(content) < 5:
         return False, "Empty or missing PDF"
     if content[:5] != b"%PDF-":
@@ -182,6 +198,7 @@ def validate_pdf(content):
 
 
 def validate_coverage_zip(content):
+    # Validate HTML coverage ZIP: has index.html, coverage data for dayofyear.m.
     if not content or len(content) < 4:
         return False, "Empty or missing coverage"
     try:
@@ -212,6 +229,7 @@ def validate_coverage_zip(content):
 
 
 def validate_test_report_zip(content):
+    # Validate HTML test report ZIP: has index.html, references test suites.
     if not content or len(content) < 4:
         return False, "Empty or missing test report"
     try:
@@ -245,6 +263,7 @@ def validate_test_report_zip(content):
 
 
 def run_and_validate(session, config_id):
+    # Trigger a build, wait for it, and validate its output.
     print(f"\n{'='*60}")
     print(f"BUILD: {config_id}")
     print(f"{'='*60}")

@@ -10,7 +10,6 @@ Steps:
 Environment variables:
   TC_URL     - TeamCity server URL (default: http://localhost:8111)
   AGENT_DIR  - Agent install directory (default: C:\\BuildAgent)
-  JAVA_HOME  - Must point to JDK/JRE 11+ installation
 """
 
 import io
@@ -26,26 +25,16 @@ AGENT_DIR = os.environ.get("AGENT_DIR", r"C:\BuildAgent")
 
 
 def download_agent_zip(timeout=180, interval=15):
+    # Download agent ZIP from server, retrying until endpoint is available.
     url = f"{TC_URL}/update/buildAgentFull.zip"
     print(f"Downloading agent from {url}...")
     start = time.time()
     while time.time() - start < timeout:
         try:
             r = requests.get(url, timeout=120)
-            if r.status_code == 200:
-                content = r.content
-                if len(content) < 1000 or content[:2] != b"PK":
-                    print(f"  Downloaded {len(content):,} bytes but not a valid ZIP. Retrying...")
-                    time.sleep(interval)
-                    continue
-                try:
-                    zipfile.ZipFile(io.BytesIO(content))
-                except zipfile.BadZipFile:
-                    print(f"  Downloaded {len(content):,} bytes but ZIP is corrupt. Retrying...")
-                    time.sleep(interval)
-                    continue
-                print(f"  Downloaded {len(content):,} bytes (valid ZIP).")
-                return content
+            if r.status_code == 200 and len(r.content) > 1000:
+                print(f"  Downloaded {len(r.content):,} bytes.")
+                return r.content
             print(f"  HTTP {r.status_code}, retrying...")
         except (requests.ConnectionError, requests.ReadTimeout) as e:
             print(f"  Connection error: {e}, retrying...")
@@ -55,15 +44,18 @@ def download_agent_zip(timeout=180, interval=15):
 
 
 def extract_agent(zip_content):
+    # Extract agent ZIP contents to AGENT_DIR.
     print(f"Extracting agent to {AGENT_DIR}...")
     os.makedirs(AGENT_DIR, exist_ok=True)
     zf = zipfile.ZipFile(io.BytesIO(zip_content))
+    file_count = len(zf.namelist())
     zf.extractall(AGENT_DIR)
     zf.close()
-    print(f"  Extracted {len(zf.namelist())} files.")
+    print(f"  Extracted {file_count} files.")
 
 
 def write_properties():
+    # Write buildAgent.properties with server URL and directory paths.
     conf_dir = os.path.join(AGENT_DIR, "conf")
     os.makedirs(conf_dir, exist_ok=True)
     props_file = os.path.join(conf_dir, "buildAgent.properties")
@@ -78,42 +70,28 @@ def write_properties():
 
 
 def start_agent():
+    # Start agent.bat as a background process, logging output to file.
     agent_bat = os.path.join(AGENT_DIR, "bin", "agent.bat")
     if not os.path.isfile(agent_bat):
         print(f"ERROR: {agent_bat} not found.")
         return False
     print(f"Starting agent: {agent_bat} start...")
+    log_dir = os.path.join(AGENT_DIR, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = open(os.path.join(log_dir, "agent-stdout.log"), "w")
     subprocess.Popen(
         [agent_bat, "start"],
         cwd=os.path.join(AGENT_DIR, "bin"),
         shell=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=log_file,
+        stderr=log_file,
     )
     time.sleep(10)
-    result = subprocess.run(
-        ["tasklist", "/FI", "IMAGENAME eq java.exe"],
-        capture_output=True, text=True
-    )
-    if "java.exe" in result.stdout:
-        print("  Agent process is running.")
-        return True
-    print("  WARNING: Agent process not detected, but continuing...")
+    print("  Agent process launched.")
     return True
 
 
 def main():
-    java_home = os.environ.get("JAVA_HOME", "")
-    if not java_home:
-        print("ERROR: JAVA_HOME is not set.")
-        sys.exit(1)
-    java_exe = os.path.join(java_home, "bin", "java.exe")
-    if not os.path.isfile(java_exe):
-        print(f"ERROR: java.exe not found at {java_exe}")
-        sys.exit(1)
-    result = subprocess.run([java_exe, "-version"], capture_output=True, text=True)
-    print(f"Java: {(result.stderr + result.stdout).splitlines()[0].strip()}")
-
     zip_content = download_agent_zip()
     if zip_content is None:
         sys.exit(1)
