@@ -1,8 +1,6 @@
 """
 Trigger all builds, wait for completion, validate results.
 
-Fully native approach (no Docker). Identical validation logic.
-
 Environment variables:
   TC_URL  - TeamCity server URL (default: http://localhost:8111)
 """
@@ -29,19 +27,16 @@ BUILD_CONFIGS = [
 ]
 
 
-def make_session(retries=3, delay=5):
+def make_session():
     # Create authenticated session with CSRF token.
     session = requests.Session()
     session.auth = ADMIN_AUTH
     session.headers.update({"Accept": "application/json"})
-    for attempt in range(retries):
-        r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
-        csrf = r.text.strip()
-        if r.status_code == 200 and len(csrf) < 100 and "\n" not in csrf:
-            session.headers.update({"X-TC-CSRF-Token": csrf})
-            return session
-        if attempt < retries - 1:
-            time.sleep(delay)
+    r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
+    csrf = r.text.strip()
+    if r.status_code == 200 and len(csrf) < 100 and "\n" not in csrf:
+        session.headers.update({"X-TC-CSRF-Token": csrf})
+        return session
     print(f"ERROR: Authentication failed. Response: {csrf[:200]}")
     sys.exit(1)
 

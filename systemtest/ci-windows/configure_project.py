@@ -1,11 +1,9 @@
 """
 Create project, VCS root, and build configurations via REST API.
 
-Fully native approach — no Docker. MATLAB path auto-detected.
-
 Environment variables:
   TC_URL       - TeamCity server URL (default: http://localhost:8111)
-  MATLAB_PATH  - MATLAB installation root (auto-detected from PATH if not set)
+  MATLAB_PATH  - MATLAB installation root (auto-detected from PATH)
 """
 
 import os
@@ -22,34 +20,28 @@ PROJECT_NAME = "MATLAB System Tests"
 
 
 def detect_matlab_path():
-    # Find MATLAB installation from env var, PATH, or default location.
-    env_path = os.environ.get("MATLAB_PATH")
-    if env_path:
-        return env_path
+    # Find MATLAB installation from PATH (setup-matlab adds it).
     matlab_exe = shutil.which("matlab")
     if matlab_exe:
         bin_dir = os.path.dirname(os.path.abspath(matlab_exe))
         return os.path.dirname(bin_dir)
-    return r"C:\Program Files\MATLAB\R2026a"
+    print("ERROR: MATLAB not found on PATH.")
+    sys.exit(1)
 
 
 MATLAB_PATH = detect_matlab_path()
 
 
-def make_session(retries=5, delay=10):
-    # Create authenticated session with CSRF token, retrying until server is ready.
+def make_session():
+    # Create authenticated session with CSRF token.
     session = requests.Session()
     session.auth = ADMIN_AUTH
     session.headers.update({"Accept": "application/json"})
-    for attempt in range(retries):
-        r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
-        csrf = r.text.strip()
-        if r.status_code == 200 and len(csrf) < 100 and "\n" not in csrf:
-            session.headers.update({"X-TC-CSRF-Token": csrf})
-            return session
-        if attempt < retries - 1:
-            print(f"  Auth not ready (attempt {attempt+1}/{retries}), retrying in {delay}s...")
-            time.sleep(delay)
+    r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
+    csrf = r.text.strip()
+    if r.status_code == 200 and len(csrf) < 100 and "\n" not in csrf:
+        session.headers.update({"X-TC-CSRF-Token": csrf})
+        return session
     print(f"ERROR: Authentication failed. Response: {csrf[:200]}")
     sys.exit(1)
 

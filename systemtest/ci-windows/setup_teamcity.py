@@ -318,50 +318,17 @@ def verify_runners(session, csrf):
     # Verify that MATLAB runner types are registered.
     print("Verifying MATLAB runner types...")
     r = session.get(f"{TC_URL}/app/rest/runTypes")
-    if r.status_code == 200:
-        data = r.json()
-        runners = [rt.get("type") for rt in data.get("runType", [])]
-        missing = [rt for rt in EXPECTED_RUNNERS if rt not in runners]
-        if not missing:
-            print(f"  All runners registered: {EXPECTED_RUNNERS}")
-            return True
-        print(f"  ERROR: Missing runners: {missing}")
+    if r.status_code != 200:
+        print(f"  ERROR: /app/rest/runTypes returned {r.status_code}")
         return False
-
-    print("  /app/rest/runTypes not available. Verifying via temporary build config...")
-    project_id = "PluginVerification"
-    session.post(
-        f"{TC_URL}/app/rest/projects",
-        headers={"Content-Type": "application/json", "X-TC-CSRF-Token": csrf},
-        json={"name": "Plugin Verification", "id": project_id,
-              "parentProject": {"locator": "_Root"}}
-    )
-    all_ok = True
-    for runner in EXPECTED_RUNNERS:
-        config_id = f"verify_{runner}"
-        session.post(
-            f"{TC_URL}/app/rest/buildTypes",
-            headers={"Content-Type": "application/json", "X-TC-CSRF-Token": csrf},
-            json={"name": config_id, "id": config_id, "project": {"id": project_id}}
-        )
-        r = session.post(
-            f"{TC_URL}/app/rest/buildTypes/id:{config_id}/steps",
-            headers={"Content-Type": "application/json", "X-TC-CSRF-Token": csrf},
-            json={"name": runner, "type": runner, "properties": {
-                "property": [{"name": "MatlabPathKey", "value": "C:\\Program Files\\MATLAB\\R2026a"}]
-            }}
-        )
-        if r.status_code in (200, 201):
-            print(f"    {runner}: OK")
-        else:
-            print(f"    {runner}: FAILED ({r.status_code})")
-            all_ok = False
-
-    session.delete(
-        f"{TC_URL}/app/rest/projects/id:{project_id}",
-        headers={"X-TC-CSRF-Token": csrf}
-    )
-    return all_ok
+    data = r.json()
+    runners = [rt.get("type") for rt in data.get("runType", [])]
+    missing = [rt for rt in EXPECTED_RUNNERS if rt not in runners]
+    if not missing:
+        print(f"  All runners registered: {EXPECTED_RUNNERS}")
+        return True
+    print(f"  ERROR: Missing runners: {missing}")
+    return False
 
 
 def wait_for_agent(session, timeout=300, interval=10):

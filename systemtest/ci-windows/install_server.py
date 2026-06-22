@@ -12,6 +12,7 @@ Environment variables:
   DATA_DIR       - Server data directory (default: C:\\TeamCity-data)
   TC_VERSION     - TeamCity version to download (default: 2025.03.3)
   JAVA_HOME      - Must point to JDK 11+ installation
+  PLUGIN_ZIP     - Path to plugin ZIP file (required)
 """
 
 import os
@@ -54,7 +55,7 @@ def verify_java():
 
 
 def download_teamcity():
-    # Download TeamCity tar.gz to %TEMP%, using cache if already present.
+    # Download TeamCity tar.gz to %TEMP%, using GitHub Actions cache if available.
     dest = os.path.join(os.environ.get("TEMP", r"C:\Temp"), f"TeamCity-{TC_VERSION}.tar.gz")
     if os.path.isfile(dest) and os.path.getsize(dest) > 100_000_000:
         print(f"Using cached download: {dest} ({os.path.getsize(dest):,} bytes)")
@@ -87,11 +88,9 @@ def extract_teamcity(tar_path):
     os.makedirs(SERVER_DIR, exist_ok=True)
 
     with tarfile.open(tar_path, "r:gz") as tf:
-        # tar.gz has top-level "TeamCity/" directory — strip it
         members = tf.getmembers()
         total = len(members)
         for i, member in enumerate(members):
-            # Strip "TeamCity/" prefix
             if member.name.startswith("TeamCity/"):
                 member.name = member.name[len("TeamCity/"):]
             elif member.name == "TeamCity":
@@ -162,19 +161,12 @@ def main():
 
     plugin_zip = find_plugin_zip()
     if not plugin_zip:
-        print("ERROR: Could not find plugin ZIP in matlab-plugin-build/target/.")
-        print("  Run 'mvn package -DskipTests' first.")
+        print("ERROR: PLUGIN_ZIP env var not set or file not found.")
         sys.exit(1)
     print(f"Plugin ZIP: {plugin_zip}")
 
-    # Download and extract if not already present
-    server_bat = os.path.join(SERVER_DIR, "bin", "teamcity-server.bat")
-    if os.path.isfile(server_bat):
-        print(f"TeamCity already installed at {SERVER_DIR}, skipping download.")
-    else:
-        tar_path = download_teamcity()
-        extract_teamcity(tar_path)
-
+    tar_path = download_teamcity()
+    extract_teamcity(tar_path)
     deploy_plugin(plugin_zip)
     start_server()
 
