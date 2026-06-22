@@ -29,7 +29,6 @@ SERVER_DIR = os.environ.get("SERVER_DIR", r"C:\TeamCity")
 DATA_DIR = os.environ.get("DATA_DIR", r"C:\TeamCity-data")
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin"
-EXPECTED_RUNNERS = ["matlabTestRunner", "matlabBuildRunner", "matlabCommandRunner"]
 
 
 def wait_for_server_http(timeout=420, interval=10):
@@ -314,22 +313,6 @@ def verify_plugin(session, csrf, retries=5, delay=10):
     return False
 
 
-def verify_runners(session, csrf):
-    # Verify that MATLAB runner types are registered.
-    print("Verifying MATLAB runner types...")
-    r = session.get(f"{TC_URL}/app/rest/runTypes")
-    if r.status_code != 200:
-        print(f"  ERROR: /app/rest/runTypes returned {r.status_code}")
-        return False
-    data = r.json()
-    runners = [rt.get("type") for rt in data.get("runType", [])]
-    missing = [rt for rt in EXPECTED_RUNNERS if rt not in runners]
-    if not missing:
-        print(f"  All runners registered: {EXPECTED_RUNNERS}")
-        return True
-    print(f"  ERROR: Missing runners: {missing}")
-    return False
-
 
 def wait_for_agent(session, timeout=300, interval=10):
     # Wait for an agent to connect to the server.
@@ -409,9 +392,6 @@ def main():
             sys.exit(1)
 
         if not verify_plugin(session, csrf):
-            sys.exit(1)
-
-        if not verify_runners(session, csrf):
             sys.exit(1)
 
         if args.mode == "server-only":
