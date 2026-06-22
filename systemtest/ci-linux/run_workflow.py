@@ -1,20 +1,16 @@
 """
-Single-command end-to-end system test for CI (Docker server + Docker agent).
+End-to-end system test orchestrator for Linux.
 
-Usage:
-    python run_all.py                          # Full run from scratch
-    python run_all.py --skip-teardown          # Reuse existing containers
-    MATLAB_PATH=/opt/matlab python run_all.py  # Custom MATLAB path
-
-Environment variables:
-    MATLAB_PATH  - Path to MATLAB inside the agent container (default: /opt/matlab)
-    TC_URL       - TeamCity server URL (default: http://localhost:8111)
+Architecture:
+  - TeamCity Server: Docker container
+  - TeamCity Agent: Docker container
+  - MATLAB: Installed in agent container at /opt/matlab/R2026a
 
 Pipeline:
   1. Teardown  - docker compose down -v
   2. Start     - docker compose up -d (server + agent)
   3. Setup     - Maintenance wizard, admin user, plugin verify, agent authorize
-  4. Configure - Create project, VCS root, 5 build configurations
+  4. Configure - Create project, VCS root, 3 build configurations
   5. Test      - Trigger all builds, validate status + logs + artifacts
 """
 
@@ -57,9 +53,17 @@ def teardown():
 
 def start_services():
     print(f"\n{'#'*60}")
-    print(f"# START SERVER + AGENT")
+    print(f"# BUILD + START SERVER + AGENT")
     print(f"{'#'*60}\n")
     sys.stdout.flush()
+
+    result = subprocess.run(
+        ["docker", "compose", "build"],
+        cwd=SCRIPT_DIR,
+    )
+    if result.returncode != 0:
+        print("FAILED: docker compose build")
+        sys.exit(1)
 
     result = subprocess.run(
         ["docker", "compose", "up", "-d"],
@@ -72,17 +76,9 @@ def start_services():
 
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser(description="CI end-to-end system test runner")
-    parser.add_argument("--skip-teardown", action="store_true",
-                        help="Skip teardown, reuse existing containers")
-    args = parser.parse_args()
-
     start = time.time()
 
-    if not args.skip_teardown:
-        teardown()
-
+    teardown()
     start_services()
     run_script("SETUP (wizard + admin + plugin + agent authorize)", "setup_teamcity.py")
     run_script("CONFIGURE (project + build configs)", "configure_project.py")

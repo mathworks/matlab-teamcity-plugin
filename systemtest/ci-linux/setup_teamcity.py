@@ -1,17 +1,13 @@
 """
-Automated first-run setup for TeamCity server + Docker agent in CI.
-
-Same lifecycle as the local setup but uses the Docker agent instead of a native
-host agent. The Docker agent auto-connects via SERVER_URL env var; this script
-just waits for it and authorizes it.
+Automated first-run setup for TeamCity on Linux.
 
 Phases:
 1. Wait for server HTTP
 2. Complete maintenance wizard
 3. Wait for REST API
 4. Create admin user (via super user token)
-5. Verify MATLAB plugin and runners
-6. Wait for Docker agent to connect and authorize it
+5. Verify MATLAB plugin
+6. Wait for agent to connect and authorize it
 """
 
 import os
@@ -24,7 +20,6 @@ import requests
 TC_URL = os.environ.get("TC_URL", "http://localhost:8111")
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin"
-EXPECTED_RUNNERS = ["matlabTestRunner", "matlabBuildRunner", "matlabCommandRunner"]
 
 
 # --------------- Maintenance Wizard (pre-REST API) ---------------
@@ -220,56 +215,7 @@ def verify_plugin(session):
     return False
 
 
-def verify_runners(session, csrf):
-    print("Verifying MATLAB runner types...")
-    r = session.get(f"{TC_URL}/app/rest/runTypes")
-    if r.status_code == 200:
-        data = r.json()
-        runners = [rt.get("type") for rt in data.get("runType", [])]
-        missing = [rt for rt in EXPECTED_RUNNERS if rt not in runners]
-        if not missing:
-            print(f"  All runners registered: {EXPECTED_RUNNERS}")
-            return True
-        print(f"  ERROR: Missing runners: {missing}")
-        return False
-
-    print("  /app/rest/runTypes not available. Verifying via temporary build config...")
-    project_id = "PluginVerification"
-    session.post(
-        f"{TC_URL}/app/rest/projects",
-        headers={"Content-Type": "application/json", "X-TC-CSRF-Token": csrf},
-        json={"name": "Plugin Verification", "id": project_id,
-              "parentProject": {"locator": "_Root"}}
-    )
-    all_ok = True
-    for runner in EXPECTED_RUNNERS:
-        config_id = f"verify_{runner}"
-        session.post(
-            f"{TC_URL}/app/rest/buildTypes",
-            headers={"Content-Type": "application/json", "X-TC-CSRF-Token": csrf},
-            json={"name": config_id, "id": config_id, "project": {"id": project_id}}
-        )
-        r = session.post(
-            f"{TC_URL}/app/rest/buildTypes/id:{config_id}/steps",
-            headers={"Content-Type": "application/json", "X-TC-CSRF-Token": csrf},
-            json={"name": runner, "type": runner, "properties": {
-                "property": [{"name": "MatlabPathKey", "value": "/opt/matlab"}]
-            }}
-        )
-        if r.status_code in (200, 201):
-            print(f"    {runner}: OK")
-        else:
-            print(f"    {runner}: FAILED ({r.status_code})")
-            all_ok = False
-
-    session.delete(
-        f"{TC_URL}/app/rest/projects/id:{project_id}",
-        headers={"X-TC-CSRF-Token": csrf}
-    )
-    return all_ok
-
-
-# --------------- Docker Agent Wait & Authorize ---------------
+# --------------- Agent Wait & Authorize ---------------
 
 def wait_for_agent(session, timeout=300, interval=10):
     print("Waiting for Docker agent to connect...")
@@ -318,7 +264,7 @@ def main():
     if not token:
         print("ERROR: Could not find super user token in container logs.")
         sys.exit(1)
-    print(f"Super user token: {token}")
+    print("  Super user token acquired.")
 
     session = make_session(token)
 
@@ -326,7 +272,7 @@ def main():
     if not csrf:
         print("ERROR: Could not obtain CSRF token.")
         sys.exit(1)
-    print(f"CSRF token: {csrf}")
+    print("  CSRF token acquired.")
 
     accept_license(session, csrf)
 
@@ -334,9 +280,6 @@ def main():
         sys.exit(1)
 
     if not verify_plugin(session):
-        sys.exit(1)
-
-    if not verify_runners(session, csrf):
         sys.exit(1)
 
     agent_id = wait_for_agent(session)

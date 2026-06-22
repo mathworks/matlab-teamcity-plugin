@@ -1,15 +1,12 @@
 """
-Stage 2: Create project, VCS root, and build configurations via REST API.
+Create project, VCS root, and build configurations via REST API for Linux.
 
-CI version — reads MATLAB_PATH from environment variable.
-Default: /opt/matlab (the mount point inside the Docker agent container).
+MATLAB_PATH: /opt/matlab/R2026a (mount point inside the Docker agent container).
 
-Creates a shared project with multiple build configs - one per test scenario:
-  1. RunTests_Basic         - Run MATLAB Tests with JUnit artifact
-  2. RunTests_AllArtifacts  - Run MATLAB Tests with all artifact types
-  3. RunBuild_DefaultTask   - Run MATLAB Build with "test" task
-  4. RunCommand_Disp        - Run MATLAB Command with disp('hello')
-  5. RunCommand_Version     - Run MATLAB Command with ver
+Build configurations:
+  1. RunCommand_Disp       - Run MATLAB Command with disp('hello')
+  2. RunBuild_DefaultTask  - Run MATLAB Build with "test" task
+  3. RunTests_Basic        - Run MATLAB Tests with JUnit artifact
 """
 
 import os
@@ -152,36 +149,15 @@ def set_artifact_rules(session, config_id, rules):
 
 BUILD_CONFIGS = [
     {
-        "id": "RunTests_Basic",
-        "name": "Run MATLAB Tests - Basic",
-        "runner": "matlabTestRunner",
-        "step_name": "Run MATLAB Tests",
+        "id": "RunCommand_Disp",
+        "name": "Run MATLAB Command - disp",
+        "runner": "matlabCommandRunner",
+        "step_name": "Run MATLAB Command",
         "properties": {
             "MatlabPathKey": MATLAB_PATH,
-            "sourceFolders": "code",
-            "junitArtifact": "matlabTestArtifacts/results.xml",
-            "logOutputDetail": "Default",
-            "logLoggingLevel": "Default",
+            "matlabCommand": "disp('hello from MATLAB')",
         },
-        "artifact_rules": "matlabTestArtifacts/**"
-    },
-    {
-        "id": "RunTests_AllArtifacts",
-        "name": "Run MATLAB Tests - All Artifacts",
-        "runner": "matlabTestRunner",
-        "step_name": "Run MATLAB Tests (all artifacts)",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "sourceFolders": "code",
-            "junitArtifact": "matlabTestArtifacts/results.xml",
-            "tapTestArtifact": "matlabTestArtifacts/results.tap",
-            "pdfTestArtifact": "matlabTestArtifacts/report.pdf",
-            "htmlTestArtifact": "matlabTestArtifacts/test-report",
-            "htmlCoverage": "matlabTestArtifacts/coverage",
-            "logOutputDetail": "Default",
-            "logLoggingLevel": "Default",
-        },
-        "artifact_rules": "matlabTestArtifacts/**"
+        "artifact_rules": None
     },
     {
         "id": "RunBuild_DefaultTask",
@@ -195,26 +171,18 @@ BUILD_CONFIGS = [
         "artifact_rules": None
     },
     {
-        "id": "RunCommand_Disp",
-        "name": "Run MATLAB Command - disp",
-        "runner": "matlabCommandRunner",
-        "step_name": "Run MATLAB Command",
+        "id": "RunTests_Basic",
+        "name": "Run MATLAB Tests - Basic",
+        "runner": "matlabTestRunner",
+        "step_name": "Run MATLAB Tests",
         "properties": {
             "MatlabPathKey": MATLAB_PATH,
-            "matlabCommand": "disp('hello from MATLAB')",
+            "sourceFolders": "code",
+            "junitArtifact": "matlabTestArtifacts/results.xml",
+            "logOutputDetail": "Default",
+            "logLoggingLevel": "Default",
         },
-        "artifact_rules": None
-    },
-    {
-        "id": "RunCommand_Version",
-        "name": "Run MATLAB Command - ver",
-        "runner": "matlabCommandRunner",
-        "step_name": "Run MATLAB Command (version)",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "matlabCommand": "ver",
-        },
-        "artifact_rules": None
+        "artifact_rules": "matlabTestArtifacts/**"
     },
 ]
 
