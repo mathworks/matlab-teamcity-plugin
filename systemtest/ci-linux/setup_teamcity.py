@@ -21,10 +21,16 @@ TC_URL = os.environ.get("TC_URL", "http://localhost:8111")
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin"
 
+SERVER_HTTP_TIMEOUT = 300
+WIZARD_TIMEOUT = 600
+REST_API_TIMEOUT = 300
+AGENT_TIMEOUT = 300
+POLL_INTERVAL = 10
+
 
 # --------------- Maintenance Wizard (pre-REST API) ---------------
 
-def wait_for_server_http(timeout=300, interval=10):
+def wait_for_server_http(timeout=SERVER_HTTP_TIMEOUT, interval=POLL_INTERVAL):
     print("Waiting for TeamCity HTTP to respond...")
     start = time.time()
     while time.time() - start < timeout:
@@ -75,7 +81,7 @@ def maintenance_post(command, data=None):
     return r.text.strip()
 
 
-def complete_maintenance_wizard(timeout=600, interval=10):
+def complete_maintenance_wizard(timeout=WIZARD_TIMEOUT, interval=POLL_INTERVAL):
     print("Completing maintenance wizard...")
     start = time.time()
     last_stage = None
@@ -116,7 +122,7 @@ def complete_maintenance_wizard(timeout=600, interval=10):
 
 # --------------- REST API Setup (post-wizard) ---------------
 
-def wait_for_rest_api(timeout=300, interval=10):
+def wait_for_rest_api(timeout=REST_API_TIMEOUT, interval=POLL_INTERVAL):
     print("Waiting for REST API...")
     start = time.time()
     while time.time() - start < timeout:
@@ -217,7 +223,7 @@ def verify_plugin(session):
 
 # --------------- Agent Wait & Authorize ---------------
 
-def wait_for_agent(session, timeout=300, interval=10):
+def wait_for_agent(session, timeout=AGENT_TIMEOUT, interval=POLL_INTERVAL):
     print("Waiting for Docker agent to connect...")
     start = time.time()
     while time.time() - start < timeout:

@@ -96,9 +96,9 @@ def validate_junit_xml(content):
 
 
 def run_and_validate(session, config_id, retries=2):
-    print(f"\n{'='*60}")
+    print("\n" + "=" * 60)
     print(f"BUILD: {config_id}")
-    print(f"{'='*60}")
+    print("=" * 60)
 
     for attempt in range(retries):
         build_id = trigger_build(session, config_id)
@@ -157,9 +157,9 @@ def main():
         passed = run_and_validate(session, config_id)
         results[config_id] = "PASS" if passed else "FAIL"
 
-    print(f"\n{'='*60}")
+    print("\n" + "=" * 60)
     print("RESULTS SUMMARY")
-    print(f"{'='*60}")
+    print("=" * 60)
     all_pass = True
     for config_id, result in results.items():
         print(f"  [{result}] {config_id}")

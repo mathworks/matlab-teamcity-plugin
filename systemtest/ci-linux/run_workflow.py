@@ -26,9 +26,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_script(name, script):
     path = os.path.join(SCRIPT_DIR, script)
-    print(f"\n{'#'*60}")
+    print("\n" + "#" * 60)
     print(f"# {name}")
-    print(f"{'#'*60}\n")
+    print("#" * 60 + "\n")
     sys.stdout.flush()
     result = subprocess.run(
         [sys.executable, "-u", path], cwd=SCRIPT_DIR
@@ -39,9 +39,9 @@ def run_script(name, script):
 
 
 def teardown():
-    print(f"\n{'#'*60}")
-    print(f"# TEARDOWN")
-    print(f"{'#'*60}\n")
+    print("\n" + "#" * 60)
+    print("# TEARDOWN")
+    print("#" * 60 + "\n")
     sys.stdout.flush()
 
     subprocess.run(
@@ -52,9 +52,9 @@ def teardown():
 
 
 def start_services():
-    print(f"\n{'#'*60}")
-    print(f"# BUILD + START SERVER + AGENT")
-    print(f"{'#'*60}\n")
+    print("\n" + "#" * 60)
+    print("# BUILD + START SERVER + AGENT")
+    print("#" * 60 + "\n")
     sys.stdout.flush()
 
     result = subprocess.run(
@@ -87,9 +87,9 @@ def main():
     elapsed = time.time() - start
     minutes = int(elapsed // 60)
     seconds = int(elapsed % 60)
-    print(f"\n{'#'*60}")
+    print("\n" + "#" * 60)
     print(f"# ALL DONE -- {minutes}m {seconds}s total")
-    print(f"{'#'*60}")
+    print("#" * 60)
 
 
 if __name__ == "__main__":
