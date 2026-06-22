@@ -9,7 +9,6 @@ Environment variables:
 import os
 import shutil
 import sys
-import time
 import requests
 
 TC_URL = os.environ.get("TC_URL", "http://localhost:8111")

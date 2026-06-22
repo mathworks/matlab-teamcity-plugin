@@ -257,24 +257,30 @@ def validate_test_report_zip(content):
     return True, f"{len(content):,} bytes, all tests passed, R2026a, 16 tests"
 
 
-def run_and_validate(session, config_id):
-    # Trigger a build, wait for it, and validate its output.
+def run_and_validate(session, config_id, retries=2):
+    # Trigger a build, wait for it, and validate its output. Retries on agent timeout.
     print(f"\n{'='*60}")
     print(f"BUILD: {config_id}")
     print(f"{'='*60}")
 
-    build_id = trigger_build(session, config_id)
-    if build_id is None:
-        return False
+    for attempt in range(retries):
+        build_id = trigger_build(session, config_id)
+        if build_id is None:
+            return False
 
-    print(f"  Waiting for completion (timeout={BUILD_TIMEOUT}s)...")
-    status = wait_for_build(session, build_id)
-    print(f"  Status: {status}")
+        print(f"  Waiting for completion (timeout={BUILD_TIMEOUT}s)...")
+        status = wait_for_build(session, build_id)
+        print(f"  Status: {status}")
 
-    if status != "SUCCESS":
-        log = download_build_log(session, build_id)
-        print(f"  Build log (last 500 chars):\n{log[-500:]}")
-        return False
+        if status != "SUCCESS":
+            log = download_build_log(session, build_id)
+            if attempt < retries - 1 and "agent didn't respond" in log.lower():
+                print(f"  Agent not ready, retrying ({attempt+1}/{retries})...")
+                time.sleep(30)
+                continue
+            print(f"  Build log (last 500 chars):\n{log[-500:]}")
+            return False
+        break
 
     if config_id == "RunCommand_Disp":
         log = download_build_log(session, build_id)
