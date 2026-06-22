@@ -30,18 +30,10 @@ DOWNLOAD_URL = f"https://download.jetbrains.com/teamcity/TeamCity-{TC_VERSION}.t
 
 
 def find_plugin_zip():
-    # Locate the plugin ZIP from PLUGIN_ZIP env var or Maven build output.
+    # Locate the plugin ZIP from PLUGIN_ZIP env var.
     env_zip = os.environ.get("PLUGIN_ZIP", "")
     if env_zip and os.path.isfile(env_zip):
         return os.path.abspath(env_zip)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.abspath(os.path.join(script_dir, "..", "..", ".."))
-    for target_dir in [os.path.join(repo_root, "matlab-plugin-build", "target"),
-                       os.path.join(repo_root, "target")]:
-        if os.path.isdir(target_dir):
-            for f in os.listdir(target_dir):
-                if f.endswith(".zip") and "matlab" in f.lower():
-                    return os.path.join(target_dir, f)
     return None
 
 
