@@ -27,12 +27,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.14'
 
       - name: Install Python dependencies
         run: pip install requests
@@ -40,25 +40,11 @@ jobs:
       - name: Build plugin
         run: mvn package -DskipTests -q
 
-      - name: Build and start services
+      - name: Run Linux system tests
         working-directory: systemtest/ci-linux
         env:
           MLM_LICENSE_TOKEN: ${{ secrets.MLM_LICENSE_TOKEN }}
-        run: |
-          docker compose build
-          docker compose up -d
-
-      - name: Run setup
-        working-directory: systemtest/ci-linux
-        run: python -u setup_teamcity.py
-
-      - name: Run configure
-        working-directory: systemtest/ci-linux
-        run: python -u configure_project.py
-
-      - name: Run tests
-        working-directory: systemtest/ci-linux
-        run: python -u run_builds.py
+        run: python -u run_workflow.py
 
       - name: Collect server logs
         if: always()
@@ -70,7 +56,7 @@ jobs:
 
       - name: Upload logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: system-test-linux-logs
           path: ci-logs/
