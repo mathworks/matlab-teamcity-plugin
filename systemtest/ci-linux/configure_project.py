@@ -225,7 +225,7 @@ def main():
             print(f"  Artifact rules set: {cfg['artifact_rules']}")
 
     print("\n" + "=" * 60)
-    print("Stage 2 complete. Build configurations created:")
+    print("Build configurations created:")
     print("=" * 60)
     for cfg in BUILD_CONFIGS:
         print(f"  {cfg['id']:30s} -> {cfg['runner']}")

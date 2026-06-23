@@ -161,7 +161,9 @@ def make_session(token):
 def get_csrf_token(session):
     r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
     if r.status_code == 200:
-        return r.text.strip()
+        token = r.text.strip()
+        if len(token) < 200 and "\n" not in token:
+            return token
     return None
 
 
@@ -205,19 +207,25 @@ def create_admin_user(session, csrf):
     return False
 
 
-def verify_plugin(session):
+def verify_plugin(session, retries=5, delay=10):
     print("Verifying MATLAB plugin is loaded...")
-    r = session.get(f"{TC_URL}/app/rest/server/plugins")
-    if r.status_code != 200:
-        print(f"  ERROR: Could not fetch plugins: {r.status_code}")
-        return False
-    plugins = r.json().get("plugin", [])
-    matlab_plugins = [p for p in plugins if "matlab" in p.get("name", "").lower()]
-    if matlab_plugins:
-        p = matlab_plugins[0]
-        print(f"  MATLAB plugin found: name={p['name']}, version={p.get('version', '?')}")
-        return True
-    print("  ERROR: MATLAB plugin not found in loaded plugins.")
+    for attempt in range(retries):
+        r = session.get(f"{TC_URL}/app/rest/server/plugins")
+        if r.status_code != 200:
+            print(f"  Attempt {attempt+1}: HTTP {r.status_code}, retrying...")
+            time.sleep(delay)
+            continue
+        plugins = r.json().get("plugin", [])
+        matlab_plugins = [p for p in plugins if "matlab" in p.get("name", "").lower()]
+        if matlab_plugins:
+            p = matlab_plugins[0]
+            print(f"  MATLAB plugin found: name={p['name']}, version={p.get('version', '?')}")
+            return True
+        if attempt < retries - 1:
+            print(f"  Attempt {attempt+1}: Plugin not yet loaded, retrying...")
+            time.sleep(delay)
+        else:
+            print("  ERROR: MATLAB plugin not found in loaded plugins.")
     return False
 
 
