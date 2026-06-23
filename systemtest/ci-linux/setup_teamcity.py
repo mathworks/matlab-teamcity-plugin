@@ -274,7 +274,13 @@ def main():
     if not wait_for_rest_api():
         sys.exit(1)
 
-    token = get_super_user_token()
+    print("Looking for super user token in container logs...")
+    token = None
+    for attempt in range(12):
+        token = get_super_user_token()
+        if token:
+            break
+        time.sleep(10)
     if not token:
         print("ERROR: Could not find super user token in container logs.")
         sys.exit(1)

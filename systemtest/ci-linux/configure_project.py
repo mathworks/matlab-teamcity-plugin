@@ -27,7 +27,7 @@ def make_session():
     session.headers.update({"Accept": "application/json"})
     r = session.get(f"{TC_URL}/authenticationTest.html?csrf")
     csrf = r.text.strip()
-    if r.status_code != 200 or len(csrf) > 100 or "\n" in csrf:
+    if r.status_code != 200 or len(csrf) > 200 or "\n" in csrf:
         print(f"ERROR: Authentication failed. Response: {csrf[:200]}")
         sys.exit(1)
     session.headers.update({"X-TC-CSRF-Token": csrf})
