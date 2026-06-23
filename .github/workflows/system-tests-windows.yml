@@ -1,6 +1,5 @@
 # GitHub Actions workflow for Windows system tests
 # Architecture: TeamCity server + agent both as Java processes on GitHub-hosted Windows runner
-# No Docker required
 #
 # Requirements:
 #   - GitHub-hosted windows-latest runner
