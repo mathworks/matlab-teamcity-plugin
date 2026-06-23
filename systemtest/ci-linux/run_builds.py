@@ -128,7 +128,12 @@ def run_and_validate(session, config_id, retries=2):
             return False
 
     elif config_id == "RunBuild_DefaultTask":
-        print("  PASS: Build task completed successfully")
+        log = download_build_log(session, build_id)
+        if "Build Successful" in log:
+            print("  PASS: Build framework completed successfully")
+        else:
+            print("  FAIL: Build log missing 'Build Successful' message")
+            return False
 
     elif config_id == "RunTests_Basic":
         content = download_artifact(session, build_id, "results.xml")
