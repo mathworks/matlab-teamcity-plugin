@@ -17,9 +17,9 @@ BUILD_TIMEOUT = 300
 POLL_INTERVAL = 10
 
 BUILD_CONFIGS = [
-    "RunCommand_Disp",
-    "RunBuild_DefaultTask",
-    "RunTests_Basic",
+    {"id": "RunCommand_Disp", "name": "MATLAB Command"},
+    {"id": "RunBuild_DefaultTask", "name": "MATLAB Build"},
+    {"id": "RunTests_Basic", "name": "MATLAB Tests"},
 ]
 
 
@@ -95,9 +95,9 @@ def validate_junit_xml(content):
         return False, f"XML parse error: {e}"
 
 
-def run_and_validate(session, config_id, retries=2):
+def run_and_validate(session, config_id, name, retries=2):
     print("\n" + "=" * 60)
-    print(f"BUILD: {config_id}")
+    print(f"BUILD: {name}")
     print("=" * 60)
 
     for attempt in range(retries):
@@ -158,16 +158,16 @@ def main():
     session = make_session()
     results = {}
 
-    for config_id in BUILD_CONFIGS:
-        passed = run_and_validate(session, config_id)
-        results[config_id] = "PASS" if passed else "FAIL"
+    for cfg in BUILD_CONFIGS:
+        passed = run_and_validate(session, cfg["id"], cfg["name"])
+        results[cfg["name"]] = "PASS" if passed else "FAIL"
 
     print("\n" + "=" * 60)
     print("RESULTS SUMMARY")
     print("=" * 60)
     all_pass = True
-    for config_id, result in results.items():
-        print(f"  [{result}] {config_id}")
+    for name, result in results.items():
+        print(f"  [{result}] {name}")
         if result != "PASS":
             all_pass = False
 
