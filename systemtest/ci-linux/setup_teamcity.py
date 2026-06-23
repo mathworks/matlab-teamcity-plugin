@@ -178,7 +178,7 @@ def accept_license(session, csrf):
     if r.status_code == 404:
         print("  License endpoint not available (already accepted). Continuing.")
         return True
-    print(f"  WARNING: License accept returned {r.status_code}: {r.text}")
+    print(f"  ERROR: License accept returned {r.status_code}: {r.text}")
     return False
 
 
@@ -280,7 +280,8 @@ def main():
         sys.exit(1)
     print("  CSRF token acquired.")
 
-    accept_license(session, csrf)
+    if not accept_license(session, csrf):
+        sys.exit(1)
 
     if not create_admin_user(session, csrf):
         sys.exit(1)

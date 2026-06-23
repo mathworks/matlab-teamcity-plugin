@@ -119,8 +119,9 @@ def run_and_validate(session, config_id, retries=2):
             return False
         break
 
+    log = download_build_log(session, build_id)
+
     if config_id == "RunCommand_Disp":
-        log = download_build_log(session, build_id)
         if "hello from MATLAB" in log:
             print("  PASS: Log contains 'hello from MATLAB'")
         else:
@@ -128,7 +129,6 @@ def run_and_validate(session, config_id, retries=2):
             return False
 
     elif config_id == "RunBuild_DefaultTask":
-        log = download_build_log(session, build_id)
         if "Build Successful" in log:
             print("  PASS: Build framework completed successfully")
         else:
