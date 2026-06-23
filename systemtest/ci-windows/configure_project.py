@@ -167,7 +167,7 @@ def get_build_configs(matlab_path):
     return [
         {
             "id": "RunCommand_Disp",
-            "name": "Run MATLAB Command - disp",
+            "name": "MATLAB Command",
             "runner": "matlabCommandRunner",
             "step_name": "Run MATLAB Command",
             "properties": {
@@ -178,7 +178,7 @@ def get_build_configs(matlab_path):
         },
         {
             "id": "RunBuild_DefaultTask",
-            "name": "Run MATLAB Build - Test Task",
+            "name": "MATLAB Build",
             "runner": "matlabBuildRunner",
             "step_name": "Run MATLAB Build",
             "properties": {
@@ -189,7 +189,7 @@ def get_build_configs(matlab_path):
         },
         {
             "id": "RunTests_Basic",
-            "name": "Run MATLAB Tests - Basic",
+            "name": "MATLAB Tests",
             "runner": "matlabTestRunner",
             "step_name": "Run MATLAB Tests",
             "properties": {

@@ -40,11 +40,26 @@ jobs:
       - name: Build plugin
         run: mvn package -DskipTests -q
 
-      - name: Run Linux system tests
+      - name: Start containers
         working-directory: systemtest/ci-linux
         env:
           MLM_LICENSE_TOKEN: ${{ secrets.MLM_LICENSE_TOKEN }}
-        run: python -u run_workflow.py
+        run: |
+          docker compose down -v
+          docker compose build
+          docker compose up -d
+
+      - name: Setup TeamCity server and agent
+        run: python -u setup_teamcity.py
+        working-directory: systemtest/ci-linux
+
+      - name: Configure project
+        run: python -u configure_project.py
+        working-directory: systemtest/ci-linux
+
+      - name: Run builds
+        run: python -u run_builds.py
+        working-directory: systemtest/ci-linux
 
       - name: Collect server logs
         if: always()

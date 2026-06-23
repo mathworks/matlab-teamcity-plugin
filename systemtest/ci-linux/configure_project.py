@@ -4,9 +4,9 @@ Create project, VCS root, and build configurations via REST API for Linux.
 MATLAB_PATH: /opt/matlab/R2026a (mount point inside the Docker agent container).
 
 Build configurations:
-  1. RunCommand_Disp       - Run MATLAB Command with disp('hello')
-  2. RunBuild_DefaultTask  - Run MATLAB Build with "test" task
-  3. RunTests_Basic        - Run MATLAB Tests with JUnit artifact
+  1. RunCommand_Disp       - MATLAB Command with disp('hello')
+  2. RunBuild_DefaultTask  - MATLAB Build with "test" task
+  3. RunTests_Basic        - MATLAB Tests with JUnit artifact
 """
 
 import os
@@ -154,7 +154,7 @@ def set_artifact_rules(session, config_id, rules):
 BUILD_CONFIGS = [
     {
         "id": "RunCommand_Disp",
-        "name": "Run MATLAB Command - disp",
+        "name": "MATLAB Command",
         "runner": "matlabCommandRunner",
         "step_name": "Run MATLAB Command",
         "properties": {
@@ -165,7 +165,7 @@ BUILD_CONFIGS = [
     },
     {
         "id": "RunBuild_DefaultTask",
-        "name": "Run MATLAB Build - Test Task",
+        "name": "MATLAB Build",
         "runner": "matlabBuildRunner",
         "step_name": "Run MATLAB Build",
         "properties": {
@@ -176,7 +176,7 @@ BUILD_CONFIGS = [
     },
     {
         "id": "RunTests_Basic",
-        "name": "Run MATLAB Tests - Basic",
+        "name": "MATLAB Tests",
         "runner": "matlabTestRunner",
         "step_name": "Run MATLAB Tests",
         "properties": {

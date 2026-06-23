@@ -66,11 +66,31 @@ jobs:
           path: ${{ env.TEMP }}\TeamCity-${{ env.TC_VERSION }}.tar.gz
           key: teamcity-${{ env.TC_VERSION }}
 
-      - name: Run Windows system tests
-        run: python -u run_workflow.py
+      - name: Install TeamCity server
+        run: python -u install_server.py
         working-directory: systemtest/ci-windows
         env:
           PLUGIN_ZIP: ${{ github.workspace }}\target\matlab-plugin.zip
+
+      - name: Setup TeamCity server
+        run: python -u setup_teamcity.py --mode server-only
+        working-directory: systemtest/ci-windows
+
+      - name: Install TeamCity agent
+        run: python -u install_agent.py
+        working-directory: systemtest/ci-windows
+
+      - name: Authorize agent
+        run: python -u setup_teamcity.py --mode agent-only
+        working-directory: systemtest/ci-windows
+
+      - name: Configure project
+        run: python -u configure_project.py
+        working-directory: systemtest/ci-windows
+
+      - name: Run builds
+        run: python -u run_builds.py
+        working-directory: systemtest/ci-windows
 
       - name: Collect server logs
         if: always()
