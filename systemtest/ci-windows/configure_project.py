@@ -24,11 +24,8 @@ def detect_matlab_path():
     if matlab_exe:
         bin_dir = os.path.dirname(os.path.abspath(matlab_exe))
         return os.path.dirname(bin_dir)
-    print("ERROR: MATLAB not found on PATH.")
+    print("ERROR: MATLAB not found on PATH. Ensure setup-matlab has run.")
     sys.exit(1)
-
-
-MATLAB_PATH = detect_matlab_path()
 
 
 def make_session():
@@ -166,48 +163,51 @@ def set_artifact_rules(session, config_id, rules):
     return False
 
 
-BUILD_CONFIGS = [
-    {
-        "id": "RunCommand_Disp",
-        "name": "Run MATLAB Command - disp",
-        "runner": "matlabCommandRunner",
-        "step_name": "Run MATLAB Command",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "matlabCommand": "disp('hello from MATLAB')",
+def get_build_configs(matlab_path):
+    return [
+        {
+            "id": "RunCommand_Disp",
+            "name": "Run MATLAB Command - disp",
+            "runner": "matlabCommandRunner",
+            "step_name": "Run MATLAB Command",
+            "properties": {
+                "MatlabPathKey": matlab_path,
+                "matlabCommand": "disp('hello from MATLAB')",
+            },
+            "artifact_rules": None
         },
-        "artifact_rules": None
-    },
-    {
-        "id": "RunBuild_DefaultTask",
-        "name": "Run MATLAB Build - Test Task",
-        "runner": "matlabBuildRunner",
-        "step_name": "Run MATLAB Build",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "matlabTasks": "test",
+        {
+            "id": "RunBuild_DefaultTask",
+            "name": "Run MATLAB Build - Test Task",
+            "runner": "matlabBuildRunner",
+            "step_name": "Run MATLAB Build",
+            "properties": {
+                "MatlabPathKey": matlab_path,
+                "matlabTasks": "test",
+            },
+            "artifact_rules": None
         },
-        "artifact_rules": None
-    },
-    {
-        "id": "RunTests_Basic",
-        "name": "Run MATLAB Tests - Basic",
-        "runner": "matlabTestRunner",
-        "step_name": "Run MATLAB Tests",
-        "properties": {
-            "MatlabPathKey": MATLAB_PATH,
-            "sourceFolders": "code",
-            "junitArtifact": "matlabTestArtifacts/results.xml",
-            "logOutputDetail": "Default",
-            "logLoggingLevel": "Default",
+        {
+            "id": "RunTests_Basic",
+            "name": "Run MATLAB Tests - Basic",
+            "runner": "matlabTestRunner",
+            "step_name": "Run MATLAB Tests",
+            "properties": {
+                "MatlabPathKey": matlab_path,
+                "sourceFolders": "code",
+                "junitArtifact": "matlabTestArtifacts/results.xml",
+                "logOutputDetail": "Default",
+                "logLoggingLevel": "Default",
+            },
+            "artifact_rules": "matlabTestArtifacts/**"
         },
-        "artifact_rules": "matlabTestArtifacts/**"
-    },
-]
+    ]
 
 
 def main():
-    print(f"MATLAB_PATH = {MATLAB_PATH}")
+    matlab_path = detect_matlab_path()
+    print(f"MATLAB_PATH = {matlab_path}")
+    build_configs = get_build_configs(matlab_path)
     session = make_session()
 
     if not create_project(session):
@@ -217,7 +217,7 @@ def main():
     if not vcs_id:
         sys.exit(1)
 
-    for cfg in BUILD_CONFIGS:
+    for cfg in build_configs:
         config_id = cfg["id"]
         print(f"\nConfiguring '{cfg['name']}' ({config_id})...")
 
@@ -242,9 +242,9 @@ def main():
     print("\n" + "=" * 60)
     print("Build configurations created:")
     print("=" * 60)
-    for cfg in BUILD_CONFIGS:
+    for cfg in build_configs:
         print(f"  {cfg['id']:30s} -> {cfg['runner']}")
-    print(f"\nMATLAB path:  {MATLAB_PATH}")
+    print(f"\nMATLAB path:  {matlab_path}")
     print(f"VCS root:     {VCS_REPO_URL}")
     print(f"Project:      {TC_URL}/project/{PROJECT_ID}")
 

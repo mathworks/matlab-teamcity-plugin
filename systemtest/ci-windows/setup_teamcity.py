@@ -30,8 +30,14 @@ DATA_DIR = os.environ.get("DATA_DIR", r"C:\TeamCity-data")
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin"
 
+SERVER_HTTP_TIMEOUT = 420
+WIZARD_TIMEOUT = 600
+REST_API_TIMEOUT = 300
+AGENT_TIMEOUT = 300
+POLL_INTERVAL = 10
 
-def wait_for_server_http(timeout=420, interval=10):
+
+def wait_for_server_http(timeout=SERVER_HTTP_TIMEOUT, interval=POLL_INTERVAL):
     # Poll server until it responds to HTTP requests.
     print("Waiting for TeamCity HTTP to respond...")
     start = time.time()
@@ -86,7 +92,7 @@ def maintenance_post(command, data=None):
     return r.text.strip()
 
 
-def complete_maintenance_wizard(timeout=600, interval=10):
+def complete_maintenance_wizard(timeout=WIZARD_TIMEOUT, interval=POLL_INTERVAL):
     # Step through the maintenance wizard until server is ready.
     print("Completing maintenance wizard...")
     start = time.time()
@@ -126,7 +132,7 @@ def complete_maintenance_wizard(timeout=600, interval=10):
     return False
 
 
-def wait_for_rest_api(timeout=300, interval=10):
+def wait_for_rest_api(timeout=REST_API_TIMEOUT, interval=POLL_INTERVAL):
     # Poll until the REST API responds (200 or 401).
     print("Waiting for REST API...")
     start = time.time()
@@ -244,8 +250,8 @@ def accept_license(session, csrf):
         print("  License accepted (web form).")
         return True
 
-    print("  No license agreement page found (may already be accepted).")
-    return True
+    print("  ERROR: Could not accept license agreement.")
+    return False
 
 
 def create_admin_user(session, csrf):
@@ -314,7 +320,7 @@ def verify_plugin(session, csrf, retries=5, delay=10):
 
 
 
-def wait_for_agent(session, timeout=300, interval=10):
+def wait_for_agent(session, timeout=AGENT_TIMEOUT, interval=POLL_INTERVAL):
     # Wait for an agent to connect to the server.
     print("Waiting for agent to connect...")
     start = time.time()
@@ -386,7 +392,8 @@ def main():
             sys.exit(1)
         print("  CSRF token acquired.")
 
-        accept_license(session, csrf)
+        if not accept_license(session, csrf):
+            sys.exit(1)
 
         if not create_admin_user(session, csrf):
             sys.exit(1)

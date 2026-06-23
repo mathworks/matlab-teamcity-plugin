@@ -40,9 +40,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 def run_script(name, script, extra_args=None):
     # Run a sub-script by name, exit on failure.
     path = os.path.join(SCRIPT_DIR, script)
-    print(f"\n{'#'*60}")
+    print("\n" + "#" * 60)
     print(f"# {name}")
-    print(f"{'#'*60}\n")
+    print("#" * 60 + "\n")
     sys.stdout.flush()
     result = subprocess.run(
         [sys.executable, "-u", path] + (extra_args or []), cwd=SCRIPT_DIR
@@ -75,9 +75,9 @@ def main():
     elapsed = time.time() - start
     minutes = int(elapsed // 60)
     seconds = int(elapsed % 60)
-    print(f"\n{'#'*60}")
+    print("\n" + "#" * 60)
     print(f"# ALL DONE -- {minutes}m {seconds}s total")
-    print(f"{'#'*60}")
+    print("#" * 60)
 
 
 if __name__ == "__main__":

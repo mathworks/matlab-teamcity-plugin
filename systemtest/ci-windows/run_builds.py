@@ -103,9 +103,9 @@ def validate_junit_xml(content):
 
 def run_and_validate(session, config_id, retries=2):
     # Trigger a build, wait for it, and validate its output. Retries on agent timeout.
-    print(f"\n{'='*60}")
+    print("\n" + "=" * 60)
     print(f"BUILD: {config_id}")
-    print(f"{'='*60}")
+    print("=" * 60)
 
     for attempt in range(retries):
         build_id = trigger_build(session, config_id)
@@ -126,8 +126,9 @@ def run_and_validate(session, config_id, retries=2):
             return False
         break
 
+    log = download_build_log(session, build_id)
+
     if config_id == "RunCommand_Disp":
-        log = download_build_log(session, build_id)
         if "hello from MATLAB" in log:
             print("  PASS: Log contains 'hello from MATLAB'")
         else:
@@ -135,7 +136,6 @@ def run_and_validate(session, config_id, retries=2):
             return False
 
     elif config_id == "RunBuild_DefaultTask":
-        log = download_build_log(session, build_id)
         if "Build Successful" in log:
             print("  PASS: Build framework completed successfully")
         else:
@@ -169,9 +169,9 @@ def main():
         passed = run_and_validate(session, config_id)
         results[config_id] = "PASS" if passed else "FAIL"
 
-    print(f"\n{'='*60}")
+    print("\n" + "=" * 60)
     print("RESULTS SUMMARY")
-    print(f"{'='*60}")
+    print("=" * 60)
     all_pass = True
     for config_id, result in results.items():
         print(f"  [{result}] {config_id}")
