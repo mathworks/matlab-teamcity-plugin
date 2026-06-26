@@ -78,15 +78,15 @@ def start_agent():
     print(f"Starting agent: {agent_bat} start...")
     log_dir = os.path.join(AGENT_DIR, "logs")
     os.makedirs(log_dir, exist_ok=True)
-    log_file = open(os.path.join(log_dir, "agent-stdout.log"), "w")
-    subprocess.Popen(
-        [agent_bat, "start"],
-        cwd=os.path.join(AGENT_DIR, "bin"),
-        shell=True,
-        stdout=log_file,
-        stderr=log_file,
-    )
-    time.sleep(10)
+    with open(os.path.join(log_dir, "agent-stdout.log"), "w") as log_file:
+        subprocess.Popen(
+            [agent_bat, "start"],
+            cwd=os.path.join(AGENT_DIR, "bin"),
+            shell=True,
+            stdout=log_file,
+            stderr=log_file,
+        )
+        time.sleep(10)
     print("  Agent process launched.")
     return True
 

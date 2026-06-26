@@ -3,7 +3,7 @@ Create project, VCS root, and build configurations via REST API.
 
 Environment variables:
   TC_URL       - TeamCity server URL (default: http://localhost:8111)
-  MATLAB_PATH  - MATLAB installation root (auto-detected from PATH)
+  MATLAB_PATH  - MATLAB installation root (auto-detected from PATH if not set)
 """
 
 import os
@@ -19,17 +19,18 @@ PROJECT_NAME = "MATLAB System Tests"
 
 
 def detect_matlab_path():
-    # Find MATLAB installation from PATH (setup-matlab adds it).
+    env_path = os.environ.get("MATLAB_PATH")
+    if env_path:
+        return env_path
     matlab_exe = shutil.which("matlab")
     if matlab_exe:
         bin_dir = os.path.dirname(os.path.abspath(matlab_exe))
         return os.path.dirname(bin_dir)
-    print("ERROR: MATLAB not found on PATH. Ensure setup-matlab has run.")
+    print("ERROR: MATLAB not found. Set MATLAB_PATH or ensure MATLAB is on PATH.")
     sys.exit(1)
 
 
 def make_session():
-    # Create authenticated session with CSRF token.
     session = requests.Session()
     session.auth = ADMIN_AUTH
     session.headers.update({"Accept": "application/json"})
@@ -43,7 +44,6 @@ def make_session():
 
 
 def create_project(session):
-    # Create the top-level test project.
     print(f"Creating project '{PROJECT_NAME}'...")
     r = session.post(
         f"{TC_URL}/app/rest/projects",
@@ -65,7 +65,6 @@ def create_project(session):
 
 
 def create_vcs_root(session):
-    # Create VCS root pointing to the test repository.
     vcs_id = "MatlabSystemTests_CiConfigExamples"
     print(f"Creating VCS root '{vcs_id}'...")
     r = session.post(
@@ -96,7 +95,6 @@ def create_vcs_root(session):
 
 
 def attach_vcs_root(session, config_id, vcs_id):
-    # Attach VCS root to a build configuration.
     r = session.post(
         f"{TC_URL}/app/rest/buildTypes/id:{config_id}/vcs-root-entries",
         headers={"Content-Type": "application/json"},
@@ -114,7 +112,6 @@ def attach_vcs_root(session, config_id, vcs_id):
 
 
 def create_build_config(session, config_id, config_name):
-    # Create a build configuration in the project.
     r = session.post(
         f"{TC_URL}/app/rest/buildTypes",
         headers={"Content-Type": "application/json"},
@@ -133,7 +130,6 @@ def create_build_config(session, config_id, config_name):
 
 
 def add_build_step(session, config_id, step_name, runner_type, properties):
-    # Add a build step with the specified runner and properties.
     prop_list = [{"name": k, "value": v} for k, v in properties.items()]
     r = session.post(
         f"{TC_URL}/app/rest/buildTypes/id:{config_id}/steps",
@@ -151,7 +147,6 @@ def add_build_step(session, config_id, step_name, runner_type, properties):
 
 
 def set_artifact_rules(session, config_id, rules):
-    # Set artifact publishing rules on a build configuration.
     r = session.put(
         f"{TC_URL}/app/rest/buildTypes/id:{config_id}/settings/artifactRules",
         headers={"Content-Type": "text/plain", "Accept": "text/plain"},

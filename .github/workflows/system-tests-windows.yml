@@ -52,15 +52,12 @@ jobs:
 
       - name: Build plugin
         run: mvn package -DskipTests -q
-        shell: cmd
 
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v3
-        with:
-          release: R2026a
 
       - name: Cache TeamCity distribution
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.TEMP }}\TeamCity-${{ env.TC_VERSION }}.tar.gz
           key: teamcity-${{ env.TC_VERSION }}
@@ -85,29 +82,25 @@ jobs:
 
       - name: Configure project
         run: python -u configure_project.py
-        working-directory: systemtest/ci-windows
+        working-directory: systemtest
 
       - name: Run builds
         run: python -u run_builds.py
-        working-directory: systemtest/ci-windows
+        working-directory: systemtest
 
       - name: Collect server logs
         if: always()
         run: |
-          if (Test-Path "C:\TeamCity\logs") {
-            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\server-logs" -Force | Out-Null
-            Copy-Item "C:\TeamCity\logs\*" -Destination "$env:GITHUB_WORKSPACE\server-logs" -Recurse -ErrorAction SilentlyContinue
-          }
-        shell: pwsh
+          mkdir -p server-logs
+          cp -r /c/TeamCity/logs/* server-logs/ 2>/dev/null || true
+        shell: bash
 
       - name: Collect agent logs
         if: always()
         run: |
-          if (Test-Path "C:\BuildAgent\logs") {
-            New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\agent-logs" -Force | Out-Null
-            Copy-Item "C:\BuildAgent\logs\*" -Destination "$env:GITHUB_WORKSPACE\agent-logs" -Recurse -ErrorAction SilentlyContinue
-          }
-        shell: pwsh
+          mkdir -p agent-logs
+          cp -r /c/BuildAgent/logs/* agent-logs/ 2>/dev/null || true
+        shell: bash
 
       - name: Upload logs
         if: always()
