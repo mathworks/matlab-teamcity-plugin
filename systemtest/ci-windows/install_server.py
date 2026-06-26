@@ -115,7 +115,7 @@ def start_server():
     env["CATALINA_BASE"] = SERVER_DIR
     env["CATALINA_OPTS"] = (
         "-Dteamcity.configuration.path=../conf/teamcity-startup.properties "
-        f"-Dlog4j2.configurationFile=file:../conf/teamcity-server-log4j.xml "
+        "-Dlog4j2.configurationFile=file:../conf/teamcity-server-log4j.xml "
         f'"-Dteamcity_logs={os.path.join(SERVER_DIR, "logs")}"'
     )
 
