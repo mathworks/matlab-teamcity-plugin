@@ -73,7 +73,7 @@ def maintenance_post(command, data=None):
         headers["X-TC-CSRF-Token"] = csrf
     r = requests.post(
         f"{TC_URL}/mnt/do/{command}",
-        data=data or {},
+        data=(data or {}),
         cookies=cookies,
         headers=headers,
         timeout=30
@@ -138,17 +138,23 @@ def wait_for_rest_api(timeout=REST_API_TIMEOUT, interval=POLL_INTERVAL):
     return False
 
 
-def get_super_user_token():
-    result = subprocess.run(
-        ["docker", "logs", "teamcity-server"],
-        capture_output=True, text=True
-    )
-    match = re.search(
-        r"Super user authentication token:\s+(\d+)", result.stdout + result.stderr
-    )
-    if not match:
-        return None
-    return match.group(1)
+def wait_for_super_user_token(timeout=120, interval=10):
+    print("Waiting for super user token in container logs...")
+    start = time.time()
+    while time.time() - start < timeout:
+        result = subprocess.run(
+            ["docker", "logs", "teamcity-server"],
+            capture_output=True, text=True
+        )
+        match = re.search(
+            r"Super user authentication token:\s+(\d+)", result.stdout + result.stderr
+        )
+        if match:
+            print("  Super user token acquired.")
+            return match.group(1)
+        time.sleep(interval)
+    print("ERROR: Could not find super user token in container logs.")
+    return None
 
 
 def make_session(token):
@@ -274,17 +280,9 @@ def main():
     if not wait_for_rest_api():
         sys.exit(1)
 
-    print("Looking for super user token in container logs...")
-    token = None
-    for attempt in range(12):
-        token = get_super_user_token()
-        if token:
-            break
-        time.sleep(10)
+    token = wait_for_super_user_token()
     if not token:
-        print("ERROR: Could not find super user token in container logs.")
         sys.exit(1)
-    print("  Super user token acquired.")
 
     session = make_session(token)
 

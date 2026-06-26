@@ -3,10 +3,10 @@ Automated first-run setup for TeamCity on Windows.
 
 Super user token is read from the server log file.
 
-Supports --mode flag:
-  server-only: wizard + admin + plugin/runner verification (no agent wait)
-  agent-only:  wait for agent connection + authorize
-  full:        both (default)
+Usage:
+  python setup_teamcity.py server-only   wizard + admin + plugin verification
+  python setup_teamcity.py agent-only    wait for agent + authorize
+  python setup_teamcity.py               both (default)
 
 Environment variables:
   TC_URL      - TeamCity server URL (default: http://localhost:8111)
@@ -14,7 +14,6 @@ Environment variables:
   DATA_DIR    - TeamCity data directory (default: C:\\TeamCity-data)
 """
 
-import argparse
 import os
 import re
 import sys
@@ -84,7 +83,7 @@ def maintenance_post(command, data=None):
         headers["X-TC-CSRF-Token"] = csrf
     r = requests.post(
         f"{TC_URL}/mnt/do/{command}",
-        data=data or {},
+        data=(data or {}),
         cookies=cookies,
         headers=headers,
         timeout=30
@@ -149,41 +148,36 @@ def wait_for_rest_api(timeout=REST_API_TIMEOUT, interval=POLL_INTERVAL):
     return False
 
 
-def get_super_user_token():
-    # Read the most recent super user token from server log files.
+def wait_for_super_user_token(timeout=120, interval=10):
+    # Wait for super user token to appear in server log files.
+    print("Waiting for super user token in logs...")
     log_dirs = [
         os.path.join(SERVER_DIR, "logs"),
         os.path.join(DATA_DIR, "system", "logs"),
     ]
-
-    latest_token = None
-    found_in = None
-
-    for logs_dir in log_dirs:
-        if not os.path.isdir(logs_dir):
-            continue
-        for filename in os.listdir(logs_dir):
-            log_path = os.path.join(logs_dir, filename)
-            if not os.path.isfile(log_path):
+    start = time.time()
+    while time.time() - start < timeout:
+        for logs_dir in log_dirs:
+            if not os.path.isdir(logs_dir):
                 continue
-            try:
-                with open(log_path, "r", errors="replace") as f:
-                    content = f.read()
-                matches = re.findall(
-                    r"Super user authentication token:\s+(\d+)", content
-                )
-                if matches:
-                    latest_token = matches[-1]
-                    found_in = log_path
-            except (IOError, PermissionError):
-                pass
-
-    if latest_token:
-        print(f"  Token found in {found_in}")
-        return latest_token
-
+            for filename in os.listdir(logs_dir):
+                log_path = os.path.join(logs_dir, filename)
+                if not os.path.isfile(log_path):
+                    continue
+                try:
+                    with open(log_path, "r", errors="replace") as f:
+                        content = f.read()
+                    matches = re.findall(
+                        r"Super user authentication token:\s+(\d+)", content
+                    )
+                    if matches:
+                        print(f"  Token found in {log_path}")
+                        return matches[-1]
+                except (IOError, PermissionError):
+                    pass
+        time.sleep(interval)
     checked = [d for d in log_dirs if os.path.isdir(d)]
-    print(f"  Token not found. Checked: {checked}")
+    print(f"ERROR: Could not find super user token. Checked: {checked}")
     return None
 
 
@@ -354,15 +348,12 @@ def authorize_agent(session, csrf, agent_id):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="TeamCity setup (fully native)")
-    parser.add_argument("--mode", choices=["full", "server-only", "agent-only"],
-                        default="full",
-                        help="server-only: wizard+admin+plugin. "
-                             "agent-only: wait+authorize agent. "
-                             "full: both (default).")
-    args = parser.parse_args()
+    mode = sys.argv[1] if len(sys.argv) > 1 else "full"
+    if mode not in ("full", "server-only", "agent-only"):
+        print(f"Usage: {sys.argv[0]} [server-only|agent-only|full]")
+        sys.exit(1)
 
-    if args.mode in ("full", "server-only"):
+    if mode in ("full", "server-only"):
         if not wait_for_server_http():
             sys.exit(1)
 
@@ -372,17 +363,9 @@ def main():
         if not wait_for_rest_api():
             sys.exit(1)
 
-        print("Looking for super user token in logs...")
-        token = None
-        for attempt in range(12):
-            token = get_super_user_token()
-            if token:
-                break
-            time.sleep(10)
+        token = wait_for_super_user_token()
         if not token:
-            print("ERROR: Could not find super user token in server logs.")
             sys.exit(1)
-        print("  Super user token acquired.")
 
         session = make_session(token)
 
@@ -401,14 +384,13 @@ def main():
         if not verify_plugin(session, csrf):
             sys.exit(1)
 
-        if args.mode == "server-only":
+        if mode == "server-only":
             print("\nServer setup completed successfully (agent step skipped).")
             return
 
-    if args.mode == "agent-only":
-        token = get_super_user_token()
+    if mode == "agent-only":
+        token = wait_for_super_user_token()
         if not token:
-            print("ERROR: Could not find super user token in server logs.")
             sys.exit(1)
         session = make_session(token)
         csrf = get_csrf_token(session)

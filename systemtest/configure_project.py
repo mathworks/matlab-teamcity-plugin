@@ -13,7 +13,7 @@ import requests
 
 TC_URL = os.environ.get("TC_URL", "http://localhost:8111")
 ADMIN_AUTH = ("admin", "admin")
-VCS_REPO_URL = "https://github.com/ymannem-MW/ci-configuration-examples"
+VCS_REPO_URL = "https://github.com/mathworks/ci-configuration-examples"
 PROJECT_ID = "MatlabSystemTests"
 PROJECT_NAME = "MATLAB System Tests"
 
@@ -239,8 +239,7 @@ def main():
     print("=" * 60)
     for cfg in build_configs:
         print(f"  {cfg['id']:30s} -> {cfg['runner']}")
-    print(f"\nMATLAB path:  {matlab_path}")
-    print(f"VCS root:     {VCS_REPO_URL}")
+    print(f"\nVCS root:     {VCS_REPO_URL}")
     print(f"Project:      {TC_URL}/project/{PROJECT_ID}")
 
 

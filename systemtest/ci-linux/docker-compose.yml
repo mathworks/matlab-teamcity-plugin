@@ -7,9 +7,7 @@ services:
     volumes:
       - teamcity-server-data:/data/teamcity_server/datadir
       - teamcity-server-logs:/opt/teamcity/logs
-      - ../../target/matlab-plugin.zip:/data/teamcity_server/datadir/plugins/matlab-teamcity-plugin.zip
-    networks:
-      - teamcity-net
+      - ${PLUGIN_ZIP}:/data/teamcity_server/datadir/plugins/matlab-teamcity-plugin.zip
 
   teamcity-agent:
     build:
@@ -19,14 +17,9 @@ services:
     environment:
       - SERVER_URL=http://teamcity-server:8111
       - MLM_LICENSE_TOKEN=${MLM_LICENSE_TOKEN}
-    networks:
-      - teamcity-net
     depends_on:
       - teamcity-server
 
 volumes:
   teamcity-server-data:
   teamcity-server-logs:
-
-networks:
-  teamcity-net:

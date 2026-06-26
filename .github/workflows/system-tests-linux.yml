@@ -50,8 +50,8 @@ jobs:
         working-directory: systemtest/ci-linux
         env:
           MLM_LICENSE_TOKEN: ${{ secrets.MLM_LICENSE_TOKEN }}
+          PLUGIN_ZIP: ${{ github.workspace }}/target/matlab-plugin.zip
         run: |
-          docker compose down -v
           docker compose build
           docker compose up -d
 
@@ -72,8 +72,8 @@ jobs:
       - name: Collect server logs
         if: always()
         run: |
-          mkdir -p ci-logs
-          docker cp teamcity-server:/opt/teamcity/logs/ ci-logs/server/ 2>/dev/null || true
+          mkdir ci-logs
+          docker cp teamcity-server:/opt/teamcity/logs/ ci-logs/server/ || true
           docker logs teamcity-server > ci-logs/server-stdout.log 2>&1 || true
           docker logs teamcity-agent > ci-logs/agent-stdout.log 2>&1 || true
 
@@ -85,7 +85,3 @@ jobs:
           path: ci-logs/
           retention-days: 7
 
-      - name: Teardown
-        if: always()
-        working-directory: systemtest/ci-linux
-        run: docker compose down -v

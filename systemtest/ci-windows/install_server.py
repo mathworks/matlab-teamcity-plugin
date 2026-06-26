@@ -10,7 +10,7 @@ Steps:
 Environment variables:
   SERVER_DIR     - Server install directory (default: C:\\TeamCity)
   DATA_DIR       - Server data directory (default: C:\\TeamCity-data)
-  TC_VERSION     - TeamCity version to download (default: 2025.03.3)
+  TC_VERSION     - TeamCity version to download (default: 2026.1.1)
   JAVA_HOME      - Must point to JDK 11+ installation
   PLUGIN_ZIP     - Path to plugin ZIP file (required)
 """
@@ -19,13 +19,12 @@ import os
 import shutil
 import subprocess
 import sys
-import tarfile
 import time
 import requests
 
 SERVER_DIR = os.environ.get("SERVER_DIR", r"C:\TeamCity")
 DATA_DIR = os.environ.get("DATA_DIR", r"C:\TeamCity-data")
-TC_VERSION = os.environ.get("TC_VERSION", "2025.03.3")
+TC_VERSION = os.environ.get("TC_VERSION", "2026.1.1")
 
 DOWNLOAD_URL = f"https://download.jetbrains.com/teamcity/TeamCity-{TC_VERSION}.tar.gz"
 
@@ -86,33 +85,11 @@ def extract_teamcity(tar_path):
     # Extract tar.gz to SERVER_DIR, stripping the top-level "TeamCity/" prefix.
     print(f"Extracting to {SERVER_DIR}...")
     os.makedirs(SERVER_DIR, exist_ok=True)
-
-    with tarfile.open(tar_path, "r:gz") as tf:
-        members = tf.getmembers()
-        total = len(members)
-        for i, member in enumerate(members):
-            if member.name.startswith("TeamCity/"):
-                member.name = member.name[len("TeamCity/"):]
-            elif member.name == "TeamCity":
-                continue
-            else:
-                continue
-
-            if not member.name:
-                continue
-
-            target = os.path.join(SERVER_DIR, member.name)
-            if member.isdir():
-                os.makedirs(target, exist_ok=True)
-            elif member.isfile():
-                os.makedirs(os.path.dirname(target), exist_ok=True)
-                with tf.extractfile(member) as src, open(target, "wb") as dst:
-                    shutil.copyfileobj(src, dst)
-
-            if (i + 1) % 1000 == 0:
-                print(f"  Extracted {i+1}/{total} files...")
-
-    print(f"  Extraction complete ({total} entries).")
+    subprocess.run(
+        ["tar", "-xzf", tar_path, "--strip-components=1", "-C", SERVER_DIR],
+        check=True
+    )
+    print("  Extraction complete.")
 
 
 def deploy_plugin(plugin_zip):
@@ -144,15 +121,15 @@ def start_server():
 
     log_dir = os.path.join(SERVER_DIR, "logs")
     os.makedirs(log_dir, exist_ok=True)
-    log_file = open(os.path.join(log_dir, "catalina-stdout.log"), "w")
-    subprocess.Popen(
-        [catalina_bat, "run"],
-        cwd=os.path.join(SERVER_DIR, "bin"),
-        env=env,
-        stdout=log_file,
-        stderr=log_file,
-    )
-    time.sleep(10)
+    with open(os.path.join(log_dir, "catalina-stdout.log"), "w") as log_file:
+        subprocess.Popen(
+            [catalina_bat, "run"],
+            cwd=os.path.join(SERVER_DIR, "bin"),
+            env=env,
+            stdout=log_file,
+            stderr=log_file,
+        )
+        time.sleep(10)
     print("  Server process launched.")
 
 
