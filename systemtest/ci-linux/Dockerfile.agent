@@ -2,7 +2,7 @@ FROM jetbrains/teamcity-agent:latest
 
 USER root
 
-ARG MATLAB_RELEASE=R2026a
+ARG MATLAB_RELEASE=latest
 ARG MATLAB_PRODUCT_LIST="MATLAB"
 
 ENV MATLAB_RELEASE=${MATLAB_RELEASE}
@@ -25,7 +25,7 @@ RUN wget -q https://www.mathworks.com/mpm/glnxa64/mpm && chmod +x mpm
 # Install MATLAB via mpm
 RUN ./mpm install \
     --release=${MATLAB_RELEASE} \
-    --destination=/opt/matlab/${MATLAB_RELEASE} \
+    --destination=/opt/matlab \
     --products ${MATLAB_PRODUCT_LIST} \
     && rm -f mpm
 
@@ -34,6 +34,6 @@ RUN wget -q https://raw.githubusercontent.com/mathworks-ref-arch/matlab-dockerfi
     && bash ./install-matlab-batch.sh \
     && rm ./install-matlab-batch.sh
 
-ENV PATH="/opt/matlab/${MATLAB_RELEASE}/bin:${PATH}"
+ENV PATH="/opt/matlab/bin:${PATH}"
 
 USER buildagent

@@ -29,6 +29,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up Java (JDK 21)
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -55,11 +61,13 @@ jobs:
 
       - name: Configure project
         run: python -u configure_project.py
-        working-directory: systemtest/ci-linux
+        working-directory: systemtest
+        env:
+          MATLAB_PATH: /opt/matlab
 
       - name: Run builds
         run: python -u run_builds.py
-        working-directory: systemtest/ci-linux
+        working-directory: systemtest
 
       - name: Collect server logs
         if: always()
