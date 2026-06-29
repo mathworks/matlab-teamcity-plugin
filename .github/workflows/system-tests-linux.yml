@@ -1,5 +1,6 @@
 # GitHub Actions workflow for Linux system tests
 # Architecture: TeamCity server (Docker) + TeamCity agent (Docker with MATLAB)
+# Note: Update the MATLAB version used in this workflow whenever a new release becomes available.
 #
 # Requirements:
 #   - GitHub-hosted ubuntu-latest runner
