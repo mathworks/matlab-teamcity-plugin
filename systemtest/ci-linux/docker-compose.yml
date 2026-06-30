@@ -1,0 +1,25 @@
+services:
+  teamcity-server:
+    image: jetbrains/teamcity-server
+    container_name: teamcity-server
+    ports:
+      - "8111:8111"
+    volumes:
+      - teamcity-server-data:/data/teamcity_server/datadir
+      - teamcity-server-logs:/opt/teamcity/logs
+      - ${PLUGIN_ZIP}:/data/teamcity_server/datadir/plugins/matlab-teamcity-plugin.zip
+
+  teamcity-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: teamcity-agent
+    environment:
+      - SERVER_URL=http://teamcity-server:8111
+      - MLM_LICENSE_TOKEN=${MLM_LICENSE_TOKEN}
+    depends_on:
+      - teamcity-server
+
+volumes:
+  teamcity-server-data:
+  teamcity-server-logs:

@@ -1,0 +1,39 @@
+FROM jetbrains/teamcity-agent:latest
+
+USER root
+
+ARG MATLAB_RELEASE=R2026a
+ARG MATLAB_PRODUCT_LIST="MATLAB"
+
+ENV MATLAB_RELEASE=${MATLAB_RELEASE}
+ENV MATLAB_PRODUCT_LIST=${MATLAB_PRODUCT_LIST}
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    unzip \
+    ca-certificates \
+    libunwind8 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install MATLAB runtime dependencies
+RUN wget -qO- --retry-connrefused https://ssd.mathworks.com/supportfiles/ci/matlab-deps/v0/install.sh | bash -s
+
+# Download mpm
+RUN wget -q https://www.mathworks.com/mpm/glnxa64/mpm && chmod +x mpm
+
+# Install MATLAB via mpm
+RUN ./mpm install \
+    --release=${MATLAB_RELEASE} \
+    --destination=/opt/matlab \
+    --products ${MATLAB_PRODUCT_LIST} \
+    && rm -f mpm
+
+# Install matlab-batch to enable the use of MATLAB batch licensing tokens.
+RUN wget -q https://raw.githubusercontent.com/mathworks-ref-arch/matlab-dockerfile/main/alternates/non-interactive/install/install-matlab-batch.sh \
+    && bash ./install-matlab-batch.sh \
+    && rm ./install-matlab-batch.sh
+
+ENV PATH="/opt/matlab/bin:${PATH}"
+
+USER buildagent
