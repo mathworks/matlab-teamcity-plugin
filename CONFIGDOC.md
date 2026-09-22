@@ -1,5 +1,5 @@
 # Plugin Configuration Guide
-This guide shows how to configure the plugin so that you can build and test your MATLAB&reg; project as part of your TeamCity&reg; build. For example, you can automatically identify any code issues in your project, run tests and generate test and coverage artifacts, and package your files into a toolbox.
+This guide shows how to configure the plugin so that you can build and test your MATLAB&reg; project as part of your TeamCity&reg; build. For example, you can automatically identify any code issues in your project, run tests and generate test and coverage artifacts, and build a MATLAB package.
 
 -  [Use MATLAB as Executable](#use-matlab-as-executable)
 -  [Configure Build Steps](#configure-build-steps)
